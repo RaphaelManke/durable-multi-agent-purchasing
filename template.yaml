@@ -1,0 +1,302 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: |
+  Multi-agent purchasing coordinator on AWS Lambda Durable Functions.
+  Coordinator agent with 5 specialist agents. The coordinator is invoked
+  directly via aws lambda invoke (async, durable). Specialists are invoked
+  directly by the coordinator via the AWS SDK — no API Gateway, no function
+  URLs, no public endpoints.
+
+Parameters:
+  CoordinatorModelId:
+    Type: String
+    Default: anthropic.claude-sonnet-4-6
+    Description: Bedrock model ID for the coordinator (uses global inference profile
+      prefix automatically)
+  SpecialistModelId:
+    Type: String
+    Default: anthropic.claude-haiku-4-5-20251001-v1:0
+    Description: Bedrock model ID for standard specialists (uses global inference
+      profile prefix automatically)
+  AdvancedSpecialistModelId:
+    Type: String
+    Default: anthropic.claude-sonnet-4-6
+    Description: Bedrock model ID for specialists needing stronger reasoning (e.g.
+      risk-assessment)
+
+Globals:
+  Function:
+    Runtime: nodejs24.x
+    Architectures:
+      - arm64
+
+Resources:
+  # ---------------------------------------------------------------------------
+  # Coordinator Function — durable, invoked via aws lambda invoke
+  # ---------------------------------------------------------------------------
+  CoordinatorFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/handlers/
+      Handler: coordinator.handler
+      MemorySize: 1536
+      Timeout: 300
+      Environment:
+        Variables:
+          COORDINATOR_MODEL_ID: !Sub global.${CoordinatorModelId}
+          PRICE_RESEARCH_FUNCTION: !Ref PriceResearchFunction
+          FINANCING_FUNCTION: !Ref FinancingFunction
+          DELIVERY_FUNCTION: !Ref DeliveryFunction
+          RISK_ASSESSMENT_FUNCTION: !Ref RiskAssessmentFunction
+          CONTRACT_REVIEW_FUNCTION: !Ref ContractReviewFunction
+      Policies:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicDurableExecutionRolePolicy
+        - Statement:
+            # InvokeModelWithResponseStream is included because the Strands SDK's
+            # BedrockModel may use streaming internally for token generation.
+            - Effect: Allow
+              Action:
+                - bedrock:InvokeModel
+                - bedrock:InvokeModelWithResponseStream
+              Resource:
+                - !Sub arn:aws:bedrock:*::foundation-model/${CoordinatorModelId}
+                - !Sub arn:aws:bedrock:${AWS::Region}:${AWS::AccountId}:inference-profile/global.${CoordinatorModelId}
+            - Effect: Allow
+              Action: lambda:InvokeFunction
+              Resource:
+                - !GetAtt PriceResearchFunction.Arn
+                - !GetAtt FinancingFunction.Arn
+                - !GetAtt DeliveryFunction.Arn
+                - !GetAtt RiskAssessmentFunction.Arn
+                - !GetAtt ContractReviewFunction.Arn
+      DurableConfig:
+        # Enables durable execution — without this the function deploys as a
+        # regular Lambda and withDurableExecution provides no checkpointing.
+        # 86400s (24h) is the outer wall-clock limit for the entire workflow
+        # across replays and suspensions — accommodates the waitForCallback
+        # approval timeout. Each replay is bounded by Timeout: 300s.
+        ExecutionTimeout: 86400
+        RetentionPeriodInDays: 7
+      AutoPublishAlias: live
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: es2022
+        Format: esm
+        OutExtension:
+          - .js=.mjs
+        EntryPoints:
+          - coordinator.ts
+        External:
+          - '@aws-sdk/*'
+        Banner:
+          - js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);
+
+  # ---------------------------------------------------------------------------
+  # Specialist Functions — shared handler, different PROMPT_NAME env var.
+  # Invoked directly by the coordinator via context.invoke(). No API Gateway,
+  # no function URLs, no public endpoints.
+  #
+  # Timeout: 60s — a single Bedrock call plus response processing completes
+  # well within 60s. If a specialist times out, the coordinator's
+  # context.invoke() will surface the error and the workflow can continue
+  # with graceful degradation.
+  #
+  # Note: Metadata.BuildProperties is repeated per function because SAM
+  # Globals does not support Metadata. This is unavoidable in pure SAM.
+  # ---------------------------------------------------------------------------
+  PriceResearchFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/handlers/
+      Handler: specialist.handler
+      MemorySize: 1024
+      Timeout: 60
+      Environment:
+        Variables:
+          PROMPT_NAME: price-research
+          SPECIALIST_MODEL_ID: !Sub global.${SpecialistModelId}
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - bedrock:InvokeModel
+                - bedrock:InvokeModelWithResponseStream
+              Resource:
+                - !Sub arn:aws:bedrock:*::foundation-model/${SpecialistModelId}
+                - !Sub arn:aws:bedrock:${AWS::Region}:${AWS::AccountId}:inference-profile/global.${SpecialistModelId}
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: es2022
+        Format: esm
+        OutExtension:
+          - .js=.mjs
+        EntryPoints:
+          - specialist.ts
+        External:
+          - '@aws-sdk/*'
+        Banner:
+          - js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);
+
+  FinancingFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/handlers/
+      Handler: specialist.handler
+      MemorySize: 1024
+      Timeout: 60
+      Environment:
+        Variables:
+          PROMPT_NAME: financing
+          SPECIALIST_MODEL_ID: !Sub global.${SpecialistModelId}
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - bedrock:InvokeModel
+                - bedrock:InvokeModelWithResponseStream
+              Resource:
+                - !Sub arn:aws:bedrock:*::foundation-model/${SpecialistModelId}
+                - !Sub arn:aws:bedrock:${AWS::Region}:${AWS::AccountId}:inference-profile/global.${SpecialistModelId}
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: es2022
+        Format: esm
+        OutExtension:
+          - .js=.mjs
+        EntryPoints:
+          - specialist.ts
+        External:
+          - '@aws-sdk/*'
+        Banner:
+          - js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);
+
+  DeliveryFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/handlers/
+      Handler: specialist.handler
+      MemorySize: 1024
+      Timeout: 60
+      Environment:
+        Variables:
+          PROMPT_NAME: delivery
+          SPECIALIST_MODEL_ID: !Sub global.${SpecialistModelId}
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - bedrock:InvokeModel
+                - bedrock:InvokeModelWithResponseStream
+              Resource:
+                - !Sub arn:aws:bedrock:*::foundation-model/${SpecialistModelId}
+                - !Sub arn:aws:bedrock:${AWS::Region}:${AWS::AccountId}:inference-profile/global.${SpecialistModelId}
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: es2022
+        Format: esm
+        OutExtension:
+          - .js=.mjs
+        EntryPoints:
+          - specialist.ts
+        External:
+          - '@aws-sdk/*'
+        Banner:
+          - js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);
+
+  # Risk assessment uses the advanced model (Sonnet 4.6) for stronger reasoning —
+  # matching the Strands blog post's per-agent model selection pattern.
+  RiskAssessmentFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/handlers/
+      Handler: specialist.handler
+      MemorySize: 1024
+      Timeout: 60
+      Environment:
+        Variables:
+          PROMPT_NAME: risk-assessment
+          SPECIALIST_MODEL_ID: !Sub global.${AdvancedSpecialistModelId}
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - bedrock:InvokeModel
+                - bedrock:InvokeModelWithResponseStream
+              Resource:
+                - !Sub arn:aws:bedrock:*::foundation-model/${AdvancedSpecialistModelId}
+                - !Sub arn:aws:bedrock:${AWS::Region}:${AWS::AccountId}:inference-profile/global.${AdvancedSpecialistModelId}
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: es2022
+        Format: esm
+        OutExtension:
+          - .js=.mjs
+        EntryPoints:
+          - specialist.ts
+        External:
+          - '@aws-sdk/*'
+        Banner:
+          - js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);
+
+  ContractReviewFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/handlers/
+      Handler: specialist.handler
+      MemorySize: 1024
+      Timeout: 60
+      Environment:
+        Variables:
+          PROMPT_NAME: contract-review
+          SPECIALIST_MODEL_ID: !Sub global.${SpecialistModelId}
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - bedrock:InvokeModel
+                - bedrock:InvokeModelWithResponseStream
+              Resource:
+                - !Sub arn:aws:bedrock:*::foundation-model/${SpecialistModelId}
+                - !Sub arn:aws:bedrock:${AWS::Region}:${AWS::AccountId}:inference-profile/global.${SpecialistModelId}
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: es2022
+        Format: esm
+        OutExtension:
+          - .js=.mjs
+        EntryPoints:
+          - specialist.ts
+        External:
+          - '@aws-sdk/*'
+        Banner:
+          - js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);
+
+Outputs:
+  # SAM constructs the alias logical ID as {FunctionLogicalId}Alias{AliasName}.
+  # If you rename AutoPublishAlias from 'live' to something else, update this.
+  CoordinatorFunctionArn:
+    Description: Coordinator function ARN (qualified with :live alias) — use this
+      for invocations
+    Value: !Ref CoordinatorFunctionAliaslive
+
+  CoordinatorFunctionName:
+    Description: Coordinator function name (unqualified) — use this for
+      list-durable-executions
+    Value: !Ref CoordinatorFunction
+
+  DemoCommand:
+    Description: Run the interactive demo against the deployed stack
+    Value: !Sub npm run demo:cloud -- --function-arn=${CoordinatorFunctionAliaslive}
+      --region=${AWS::Region}
