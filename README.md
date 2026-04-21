@@ -11,6 +11,42 @@ Built on standard Lambda functions — no Docker or container registry required.
 
 Submit a purchase request as a JSON event. The coordinator analyzes it with a planning agent, consults specialist agents in parallel, synthesizes findings, and optionally suspends for human approval. The entire workflow runs in a single durable function for up to 24 hours.
 
+```mermaid
+flowchart TD
+    A["📨 Purchase Request"] --> B
+
+    subgraph DF ["CoordinatorFunction — Lambda Durable Function"]
+        B["context.step('plan')<br/>⟳ retry + checkpoint"] --> C["Planning Agent · Sonnet 4.6<br/>calls create_analysis_plan tool"]
+        C --> D["context.parallel('specialists')"]
+
+        D --> F1["context.invoke()<br/><b>Price Research</b><br/>Haiku 4.5"]
+        D -.-> F2["context.invoke()<br/><b>Financing</b><br/>Haiku 4.5"]
+        D -.-> F3["context.invoke()<br/><b>Delivery</b><br/>Haiku 4.5"]
+        D -.-> F4["context.invoke()<br/><b>Risk Assessment</b><br/>Sonnet 4.6"]
+        D -.-> F5["context.invoke()<br/><b>Contract Review</b><br/>Haiku 4.5"]
+
+        F1 & F2 & F3 & F4 & F5 --> G["context.step('synthesize')<br/>⟳ retry + checkpoint"]
+        G --> H["Synthesis Agent · Sonnet 4.6<br/>combines specialist findings"]
+        H --> I{requireApproval?}
+
+        I -- "No" --> J["✅ Return recommendation"]
+        I -- "Yes" --> K["context.waitForCallback('approval')<br/>⏸️ Suspended — no compute charges"]
+        K --> L{Approved?}
+        L -- "Yes" --> M["✅ Return approved"]
+        L -- "No" --> N["❌ Return rejected"]
+    end
+
+    style DF fill:none,stroke:#58a6ff,stroke-width:2px
+    style D fill:#1f6feb22,stroke:#1f6feb
+    style K fill:#d2992222,stroke:#d29922
+
+    linkStyle 4,5,6,7 stroke-dasharray:5 5
+```
+
+> **Solid arrows** = always called &nbsp;|&nbsp; **Dashed arrows** = conditional (selected by planning agent based on purchase details)
+>
+> Each `context.invoke()` is an independent Lambda function with its own checkpoint. The coordinator suspends while specialists execute — no compute charges during the wait.
+
 ```
 [CoordinatorFunction] — Lambda Durable Function
   ├→ context.step('plan')            → Planning agent selects specialists
