@@ -1,3 +1,5 @@
+import { jest, describe, it, expect, beforeAll, afterAll, beforeEach, afterEach } from "@jest/globals";
+
 /**
  * Durable execution tests for the coordinator handler.
  *
@@ -46,23 +48,31 @@ let skipPlanTool = false;
 // Synthesis invocation: no tools, returns a fixed recommendation.
 // Note: @strands-agents/sdk is ESM-only, so we can't use jest.requireActual.
 // We provide the minimal exports the coordinator needs: Agent, tool, BedrockModel.
+interface MockTool {
+  name: string;
+  callback: (input: unknown) => Promise<string>;
+}
+
 jest.mock("@strands-agents/sdk", () => ({
-  Agent: jest.fn().mockImplementation(({ tools }: { tools?: Array<{ name: string; callback: (input: unknown) => Promise<string> }> }) => ({
-    invoke: jest.fn(async () => {
-      if (tools && tools.length > 0) {
-        if (!skipPlanTool) {
-          const planTool = tools.find((t) => t.name === "create_analysis_plan");
-          if (planTool) {
-            await planTool.callback({ specialists: activePlan });
+  Agent: jest.fn().mockImplementation((...args: unknown[]) => {
+    const { tools } = args[0] as { tools?: MockTool[] };
+    return {
+      invoke: jest.fn(async () => {
+        if (tools && tools.length > 0) {
+          if (!skipPlanTool) {
+            const planTool = tools.find((t: MockTool) => t.name === "create_analysis_plan");
+            if (planTool) {
+              await planTool.callback({ specialists: activePlan });
+            }
           }
+          return { toString: () => "Plan created." };
         }
-        return { toString: () => "Plan created." };
-      }
-      return { toString: () => "Buy the mid-range option for best value." };
-    }),
-  })),
+        return { toString: () => "Buy the mid-range option for best value." };
+      }),
+    };
+  }),
   BedrockModel: jest.fn().mockImplementation(() => ({})),
-  tool: jest.fn().mockImplementation((config: Record<string, unknown>) => config),
+  tool: jest.fn().mockImplementation((...args: unknown[]) => args[0] as Record<string, unknown>),
 }));
 
 // ---------------------------------------------------------------------------
