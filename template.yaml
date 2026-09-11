@@ -23,12 +23,52 @@ Parameters:
     Default: anthropic.claude-sonnet-4-6
     Description: Bedrock model ID for specialists needing stronger reasoning (e.g.
       risk-assessment)
+  Dash0ExtensionLayerArn:
+    Type: String
+    Default: arn:aws:lambda:eu-central-1:115813213817:layer:dash0-extension-node:22
+    Description: Dash0 Lambda Extension layer for Node.js — auto-instrumentation
+      via OpenTelemetry, ships traces/logs/metrics straight to Dash0. Region-specific;
+      see https://github.com/dash0hq/dash0-lambda-extension for current versions
+      and supported regions.
+  Dash0Endpoint:
+    Type: String
+    Default: https://ingress.eu-west-1.aws.dash0-dev.com:4318
+    Description: OTLP HTTP endpoint for this Dash0 organization.
+  Dash0AuthToken:
+    Type: String
+    NoEcho: true
+    Description: Dash0 auth token (starts with auth_). Pass via --parameter-overrides
+      at deploy time — do not commit a real token as the default here.
+  DurableOtelPluginLayerArn:
+    Type: String
+    Default: arn:aws:lambda:eu-central-1:713881787121:layer:durable-execution-sdk-js-otel:4
+    Description: Lambda layer bundling @aws/durable-execution-sdk-js-otel@1.0.0
+      (published to npm — includes the execution-trace-context fix for
+      deterministic invocation/workflow span parenting) plus its runtime peer
+      deps (@opentelemetry/api, @opentelemetry/core,
+      @opentelemetry/sdk-trace-node@2.x). Rebuild via `npm install
+      --omit=dev --legacy-peer-deps` into a `nodejs/` layer dir. Stitches
+      durable-execution Workflow/Invocation/operation spans into one trace
+      across replays and suspensions — attached to the coordinator only.
 
 Globals:
   Function:
     Runtime: nodejs24.x
     Architectures:
       - arm64
+    Tracing: Active
+    Layers:
+      - !Ref Dash0ExtensionLayerArn
+    Environment:
+      Variables:
+        AWS_LAMBDA_EXEC_WRAPPER: /opt/wrapper
+        DASH0_ENDPOINT: !Ref Dash0Endpoint
+        DASH0_TOKEN: !Ref Dash0AuthToken
+        # X-Ray active tracing stays on (Tracing: Active above) so trace IDs still
+        # surface in the Lambda console; this tells the extension to reuse that
+        # X-Ray trace context for its OTel spans instead of creating a second,
+        # disconnected trace.
+        DASH0_XRAY_TRACES_ENABLED: 'true'
 
 Resources:
   # ---------------------------------------------------------------------------
@@ -41,6 +81,8 @@ Resources:
       Handler: coordinator.handler
       MemorySize: 1536
       Timeout: 300
+      Layers:
+        - !Ref DurableOtelPluginLayerArn
       Environment:
         Variables:
           COORDINATOR_MODEL_ID: !Sub global.${CoordinatorModelId}
@@ -90,8 +132,88 @@ Resources:
           - coordinator.ts
         External:
           - '@aws-sdk/*'
+          - '@aws/durable-execution-sdk-js-otel'
+        # Only the plugin package itself is external — its own require() calls
+        # for @opentelemetry/api etc. resolve from the layer's own node_modules
+        # (a plain ancestor-directory walk, no NODE_PATH needed). Marking those
+        # packages external here too would break OTHER bundled code that
+        # requires them directly (e.g. @strands-agents/sdk's telemetry config
+        # pulls in @opentelemetry/sdk-trace-base, which does a bare CJS
+        # require('@opentelemetry/api') — esbuild's ESM interop shim can't
+        # satisfy that at runtime for an externalized module ("Dynamic require
+        # of ... is not supported"), so those must stay bundled normally.
         Banner:
-          - js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);
+          - js=import { createRequire as __esbuildCreateRequire } from 'module'; const require = __esbuildCreateRequire(import.meta.url);
+        # This Banner defines a bundle-wide `require` that esbuild's internal
+        # __require shim falls back to for plain CJS require() calls buried in
+        # OTHER bundled deps (e.g. @opentelemetry/core's require("perf_hooks")).
+        # coordinator.ts imports its own createRequire under the alias
+        # `createNodeRequire` specifically to avoid colliding with this
+        # Banner-injected `createRequire` binding.
+
+  # ---------------------------------------------------------------------------
+  # Coordinator (InvocationOtelPlugin mode) — identical handler code and
+  # specialists as CoordinatorFunction above, but OTEL_PLUGIN_MODE=invocation
+  # switches src/handlers/coordinator.ts to InvocationOtelPlugin: durable
+  # steps parent under the per-physical-invocation Invocation span instead of
+  # the execution-wide Workflow span. Deployed side-by-side with
+  # CoordinatorFunction so both trace shapes can be compared directly.
+  # ---------------------------------------------------------------------------
+  CoordinatorInvocationModeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/handlers/
+      Handler: coordinator.handler
+      MemorySize: 1536
+      Timeout: 300
+      Layers:
+        - !Ref DurableOtelPluginLayerArn
+      Environment:
+        Variables:
+          OTEL_PLUGIN_MODE: invocation
+          COORDINATOR_MODEL_ID: !Sub global.${CoordinatorModelId}
+          PRICE_RESEARCH_FUNCTION: !Ref PriceResearchFunction
+          FINANCING_FUNCTION: !Ref FinancingFunction
+          DELIVERY_FUNCTION: !Ref DeliveryFunction
+          RISK_ASSESSMENT_FUNCTION: !Ref RiskAssessmentFunction
+          CONTRACT_REVIEW_FUNCTION: !Ref ContractReviewFunction
+      Policies:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicDurableExecutionRolePolicy
+        - Statement:
+            - Effect: Allow
+              Action:
+                - bedrock:InvokeModel
+                - bedrock:InvokeModelWithResponseStream
+              Resource:
+                - !Sub arn:aws:bedrock:*::foundation-model/${CoordinatorModelId}
+                - !Sub arn:aws:bedrock:${AWS::Region}:${AWS::AccountId}:inference-profile/global.${CoordinatorModelId}
+            - Effect: Allow
+              Action: lambda:InvokeFunction
+              Resource:
+                - !GetAtt PriceResearchFunction.Arn
+                - !GetAtt FinancingFunction.Arn
+                - !GetAtt DeliveryFunction.Arn
+                - !GetAtt RiskAssessmentFunction.Arn
+                - !GetAtt ContractReviewFunction.Arn
+      DurableConfig:
+        ExecutionTimeout: 86400
+        RetentionPeriodInDays: 7
+      AutoPublishAlias: live
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: es2022
+        Format: esm
+        OutExtension:
+          - .js=.mjs
+        EntryPoints:
+          - coordinator.ts
+        External:
+          - '@aws-sdk/*'
+          - '@aws/durable-execution-sdk-js-otel'
+        Banner:
+          - js=import { createRequire as __esbuildCreateRequire } from 'module'; const require = __esbuildCreateRequire(import.meta.url);
 
   # ---------------------------------------------------------------------------
   # Specialist Functions — shared handler, different PROMPT_NAME env var.
@@ -139,7 +261,7 @@ Resources:
         External:
           - '@aws-sdk/*'
         Banner:
-          - js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);
+          - js=import { createRequire as __esbuildCreateRequire } from 'module'; const require = __esbuildCreateRequire(import.meta.url);
 
   FinancingFunction:
     Type: AWS::Serverless::Function
@@ -174,7 +296,7 @@ Resources:
         External:
           - '@aws-sdk/*'
         Banner:
-          - js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);
+          - js=import { createRequire as __esbuildCreateRequire } from 'module'; const require = __esbuildCreateRequire(import.meta.url);
 
   DeliveryFunction:
     Type: AWS::Serverless::Function
@@ -209,7 +331,7 @@ Resources:
         External:
           - '@aws-sdk/*'
         Banner:
-          - js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);
+          - js=import { createRequire as __esbuildCreateRequire } from 'module'; const require = __esbuildCreateRequire(import.meta.url);
 
   # Risk assessment uses the advanced model (Sonnet 4.6) for stronger reasoning —
   # matching the Strands blog post's per-agent model selection pattern.
@@ -246,7 +368,7 @@ Resources:
         External:
           - '@aws-sdk/*'
         Banner:
-          - js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);
+          - js=import { createRequire as __esbuildCreateRequire } from 'module'; const require = __esbuildCreateRequire(import.meta.url);
 
   ContractReviewFunction:
     Type: AWS::Serverless::Function
@@ -281,7 +403,7 @@ Resources:
         External:
           - '@aws-sdk/*'
         Banner:
-          - js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);
+          - js=import { createRequire as __esbuildCreateRequire } from 'module'; const require = __esbuildCreateRequire(import.meta.url);
 
 Outputs:
   # SAM constructs the alias logical ID as {FunctionLogicalId}Alias{AliasName}.
@@ -299,4 +421,15 @@ Outputs:
   DemoCommand:
     Description: Run the interactive demo against the deployed stack
     Value: !Sub npm run demo:cloud -- --function-arn=${CoordinatorFunctionAliaslive}
+      --region=${AWS::Region}
+
+  CoordinatorInvocationModeFunctionArn:
+    Description: Coordinator (InvocationOtelPlugin mode) function ARN (qualified
+      with :live alias) — use this for invocations
+    Value: !Ref CoordinatorInvocationModeFunctionAliaslive
+
+  DemoCommandInvocationMode:
+    Description: Run the interactive demo against the InvocationOtelPlugin-mode
+      coordinator, for comparing trace shapes
+    Value: !Sub npm run demo:cloud -- --function-arn=${CoordinatorInvocationModeFunctionAliaslive}
       --region=${AWS::Region}
