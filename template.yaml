@@ -23,13 +23,26 @@ Parameters:
     Default: anthropic.claude-sonnet-4-6
     Description: Bedrock model ID for specialists needing stronger reasoning (e.g.
       risk-assessment)
+  InstrumentationMode:
+    Type: String
+    Default: dash0
+    AllowedValues:
+      - dash0
+      - appsignals
+    Description: Selects which OTel auto-instrumentation layer/wrapper is active
+      on every function. 'dash0' attaches the Dash0 Lambda extension and ships
+      traces/logs/metrics straight to Dash0 via OTLP. 'appsignals' attaches
+      AWS's own AWS Lambda Layer for OpenTelemetry and reports to CloudWatch
+      Application Signals + X-Ray instead. The two are mutually exclusive —
+      both require AWS_LAMBDA_EXEC_WRAPPER, which can only point at one
+      wrapper script per function — so this is a toggle, not an additive flag.
   Dash0ExtensionLayerArn:
     Type: String
-    Default: arn:aws:lambda:eu-central-1:115813213817:layer:dash0-extension-node:22
+    Default: arn:aws:lambda:eu-central-1:115813213817:layer:dash0-extension-node:23
     Description: Dash0 Lambda Extension layer for Node.js — auto-instrumentation
       via OpenTelemetry, ships traces/logs/metrics straight to Dash0. Region-specific;
       see https://github.com/dash0hq/dash0-lambda-extension for current versions
-      and supported regions.
+      and supported regions. Used when InstrumentationMode=dash0.
   Dash0Endpoint:
     Type: String
     Default: https://ingress.eu-west-1.aws.dash0-dev.com:4318
@@ -37,8 +50,18 @@ Parameters:
   Dash0AuthToken:
     Type: String
     NoEcho: true
+    Default: ''
     Description: Dash0 auth token (starts with auth_). Pass via --parameter-overrides
-      at deploy time — do not commit a real token as the default here.
+      at deploy time — do not commit a real token as the default here. Only
+      required when InstrumentationMode=dash0.
+  AppSignalsLayerArn:
+    Type: String
+    Default: arn:aws:lambda:eu-central-1:615299751070:layer:AWSOpenTelemetryDistroJs:15
+    Description: AWS Lambda Layer for OpenTelemetry (Node.js) — AWS-owned public
+      layer (account 615299751070), enables CloudWatch Application Signals plus
+      OTel-based X-Ray tracing. Region-specific; verify the ARN/version for
+      other regions at https://aws-otel.github.io. Used when
+      InstrumentationMode=appsignals.
   DurableOtelPluginLayerArn:
     Type: String
     Default: arn:aws:lambda:eu-central-1:713881787121:layer:durable-execution-sdk-js-otel:4
@@ -51,24 +74,48 @@ Parameters:
       durable-execution Workflow/Invocation/operation spans into one trace
       across replays and suspensions — attached to the coordinator only.
 
+Conditions:
+  UseAppSignals: !Equals [!Ref InstrumentationMode, appsignals]
+
 Globals:
   Function:
     Runtime: nodejs24.x
     Architectures:
       - arm64
     Tracing: Active
+    LoggingConfig:
+      # AWS's own log-level filter — independent of DASH0_DISTRO_DEBUG below.
+      # Anything below these levels is dropped before it reaches CloudWatch,
+      # regardless of what the Dash0 extension itself tries to emit.
+      # LogLevel filtering requires LogFormat: JSON (structured logs) —
+      # Lambda rejects it outright under the default "Text" format.
+      LogFormat: JSON
+      ApplicationLogLevel: DEBUG
+      SystemLogLevel: DEBUG
     Layers:
-      - !Ref Dash0ExtensionLayerArn
+      - !If [UseAppSignals, !Ref AppSignalsLayerArn, !Ref Dash0ExtensionLayerArn]
     Environment:
       Variables:
-        AWS_LAMBDA_EXEC_WRAPPER: /opt/wrapper
-        DASH0_ENDPOINT: !Ref Dash0Endpoint
-        DASH0_TOKEN: !Ref Dash0AuthToken
+        # The two instrumentation modes ship different wrapper scripts under
+        # this same env var — only one can be active per function, hence the
+        # InstrumentationMode toggle rather than both layers at once.
+        AWS_LAMBDA_EXEC_WRAPPER: !If [UseAppSignals, /opt/otel-instrument, /opt/wrapper]
+        DASH0_ENDPOINT: !If [UseAppSignals, !Ref 'AWS::NoValue', !Ref Dash0Endpoint]
+        DASH0_TOKEN: !If [UseAppSignals, !Ref 'AWS::NoValue', !Ref Dash0AuthToken]
         # X-Ray active tracing stays on (Tracing: Active above) so trace IDs still
-        # surface in the Lambda console; this tells the extension to reuse that
-        # X-Ray trace context for its OTel spans instead of creating a second,
-        # disconnected trace.
-        DASH0_XRAY_TRACES_ENABLED: 'true'
+        # surface in the Lambda console; this tells the Dash0 extension to reuse
+        # that X-Ray trace context for its OTel spans instead of creating a
+        # second, disconnected trace. Application Signals does its own
+        # equivalent internally, so this is Dash0-mode only.
+        DASH0_XRAY_TRACES_ENABLED: !If [UseAppSignals, !Ref 'AWS::NoValue', 'true']
+        # Verbose extension-internal logging (span processing, export attempts,
+        # payload handling) — surfaced in CloudWatch logs. Dash0-mode only.
+        # DASH0_DISTRO_DEBUG alone produces nothing: the extension's own
+        # logger defaults to 'warn' and silently drops the debug/trace
+        # output DASH0_DISTRO_DEBUG generates unless DASH0_EXTENSION_LOG_LEVEL
+        # is also raised — the two gate different things.
+        DASH0_DISTRO_DEBUG: !If [UseAppSignals, !Ref 'AWS::NoValue', 'true']
+        DASH0_EXTENSION_LOG_LEVEL: !If [UseAppSignals, !Ref 'AWS::NoValue', 'trace']
 
 Resources:
   # ---------------------------------------------------------------------------
@@ -92,6 +139,7 @@ Resources:
           RISK_ASSESSMENT_FUNCTION: !Ref RiskAssessmentFunction
           CONTRACT_REVIEW_FUNCTION: !Ref ContractReviewFunction
       Policies:
+        - !If [UseAppSignals, arn:aws:iam::aws:policy/CloudWatchLambdaApplicationSignalsExecutionRolePolicy, !Ref 'AWS::NoValue']
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicDurableExecutionRolePolicy
         - Statement:
             # InvokeModelWithResponseStream is included because the Strands SDK's
@@ -178,6 +226,7 @@ Resources:
           RISK_ASSESSMENT_FUNCTION: !Ref RiskAssessmentFunction
           CONTRACT_REVIEW_FUNCTION: !Ref ContractReviewFunction
       Policies:
+        - !If [UseAppSignals, arn:aws:iam::aws:policy/CloudWatchLambdaApplicationSignalsExecutionRolePolicy, !Ref 'AWS::NoValue']
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicDurableExecutionRolePolicy
         - Statement:
             - Effect: Allow
@@ -240,6 +289,7 @@ Resources:
           PROMPT_NAME: price-research
           SPECIALIST_MODEL_ID: !Sub global.${SpecialistModelId}
       Policies:
+        - !If [UseAppSignals, arn:aws:iam::aws:policy/CloudWatchLambdaApplicationSignalsExecutionRolePolicy, !Ref 'AWS::NoValue']
         - Statement:
             - Effect: Allow
               Action:
@@ -275,6 +325,7 @@ Resources:
           PROMPT_NAME: financing
           SPECIALIST_MODEL_ID: !Sub global.${SpecialistModelId}
       Policies:
+        - !If [UseAppSignals, arn:aws:iam::aws:policy/CloudWatchLambdaApplicationSignalsExecutionRolePolicy, !Ref 'AWS::NoValue']
         - Statement:
             - Effect: Allow
               Action:
@@ -310,6 +361,7 @@ Resources:
           PROMPT_NAME: delivery
           SPECIALIST_MODEL_ID: !Sub global.${SpecialistModelId}
       Policies:
+        - !If [UseAppSignals, arn:aws:iam::aws:policy/CloudWatchLambdaApplicationSignalsExecutionRolePolicy, !Ref 'AWS::NoValue']
         - Statement:
             - Effect: Allow
               Action:
@@ -347,6 +399,7 @@ Resources:
           PROMPT_NAME: risk-assessment
           SPECIALIST_MODEL_ID: !Sub global.${AdvancedSpecialistModelId}
       Policies:
+        - !If [UseAppSignals, arn:aws:iam::aws:policy/CloudWatchLambdaApplicationSignalsExecutionRolePolicy, !Ref 'AWS::NoValue']
         - Statement:
             - Effect: Allow
               Action:
@@ -382,6 +435,7 @@ Resources:
           PROMPT_NAME: contract-review
           SPECIALIST_MODEL_ID: !Sub global.${SpecialistModelId}
       Policies:
+        - !If [UseAppSignals, arn:aws:iam::aws:policy/CloudWatchLambdaApplicationSignalsExecutionRolePolicy, !Ref 'AWS::NoValue']
         - Statement:
             - Effect: Allow
               Action:
