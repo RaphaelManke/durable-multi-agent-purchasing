@@ -64,8 +64,8 @@ Parameters:
       InstrumentationMode=appsignals.
   DurableOtelPluginLayerArn:
     Type: String
-    Default: arn:aws:lambda:eu-central-1:713881787121:layer:durable-execution-sdk-js-otel:4
-    Description: Lambda layer bundling @aws/durable-execution-sdk-js-otel@1.0.0
+    Default: arn:aws:lambda:eu-central-1:713881787121:layer:durable-execution-sdk-js-otel:5
+    Description: Lambda layer bundling @aws/durable-execution-sdk-js-otel@1.1.0
       (published to npm — includes the execution-trace-context fix for
       deterministic invocation/workflow span parenting) plus its runtime peer
       deps (@opentelemetry/api, @opentelemetry/core,
