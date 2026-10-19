@@ -22,9 +22,34 @@ import {
   type DurableContext,
 } from '@aws/durable-execution-sdk-js'
 import { Agent, tool } from '@strands-agents/sdk'
+import { createRequire as createNodeRequire } from 'node:module'
 import { z } from 'zod'
 import { createModel, COORDINATOR_MODEL } from '../lib/models.js'
 import { loadPrompt } from '../lib/prompts.js'
+
+// The otel plugin ships in a Lambda layer (mounted under /opt/nodejs/node_modules),
+// resolvable only via NODE_PATH-aware CJS `require()` — Node's native ESM `import`
+// resolver does not consult NODE_PATH, so a static `import` would fail to find it
+// at runtime for this esbuild-bundled ESM handler. `createRequire` works
+// identically here and in local dev/test (tsx, ts-jest), where there's no layer
+// and no bundler-injected `require` to rely on.
+//
+// Imported here as `createNodeRequire` (not `createRequire`): esbuild's Banner
+// also imports `createRequire` from 'module' to define a bundle-wide `require`
+// (needed by other bundled CJS deps for plain Node-builtin requires, e.g.
+// @opentelemetry/core's `require("perf_hooks")`) — using the same import name
+// here would collide with that injected declaration.
+const otelRequire = createNodeRequire(`${process.cwd()}/`)
+const { ExecutionOtelPlugin, InvocationOtelPlugin } = otelRequire('@aws/durable-execution-sdk-js-otel') as typeof import('@aws/durable-execution-sdk-js-otel')
+
+// Selects which of the plugin's two operation-hierarchy modes to run:
+// ExecutionOtelPlugin parents durable steps under one execution-wide Workflow
+// span; InvocationOtelPlugin parents them under the per-physical-invocation
+// Invocation span instead. Switchable via env var so the same handler code
+// can back two separately-deployed Lambda functions for side-by-side
+// comparison — see OTEL_PLUGIN_MODE in template.yaml.
+const otelPlugin =
+  process.env.OTEL_PLUGIN_MODE === 'invocation' ? new InvocationOtelPlugin() : new ExecutionOtelPlugin()
 
 // ---------------------------------------------------------------------------
 // Types
@@ -254,4 +279,4 @@ export const handler = withDurableExecution(async (
     recommendation: response,
     routing,
   }
-})
+}, { plugins: [otelPlugin] })

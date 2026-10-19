@@ -23,12 +23,140 @@ Parameters:
     Default: anthropic.claude-sonnet-4-6
     Description: Bedrock model ID for specialists needing stronger reasoning (e.g.
       risk-assessment)
+  InstrumentationMode:
+    Type: String
+    Default: dash0
+    AllowedValues:
+      - dash0
+      - appsignals
+      - none
+    Description: Selects which OTel auto-instrumentation layer/wrapper is active
+      on every function. 'dash0' attaches the Dash0 Lambda extension and ships
+      traces/logs/metrics straight to Dash0 via OTLP. 'appsignals' attaches
+      AWS's own AWS Lambda Layer for OpenTelemetry and reports to CloudWatch
+      Application Signals + X-Ray instead. 'none' attaches no extension layer
+      at all — only native X-Ray (Tracing Active) is active; use this in
+      regions where neither the Dash0 extension nor the AppSignals layer is
+      published yet. Without a registered OTel TracerProvider, the
+      durable-execution-sdk-js-otel plugin's own Workflow/operation spans are
+      not exported anywhere in this mode — only native X-Ray segments are
+      captured. These are mutually exclusive — dash0/appsignals both require
+      AWS_LAMBDA_EXEC_WRAPPER, which can only point at one wrapper script per
+      function — so this is a toggle, not an additive flag.
+  Dash0ExtensionLayerArn:
+    Type: String
+    Default: arn:aws:lambda:eu-central-1:115813213817:layer:dash0-extension-node:23
+    Description: Dash0 Lambda Extension layer for Node.js — auto-instrumentation
+      via OpenTelemetry, ships traces/logs/metrics straight to Dash0. Region-specific;
+      see https://github.com/dash0hq/dash0-lambda-extension for current versions
+      and supported regions. Used when InstrumentationMode=dash0.
+  Dash0Endpoint:
+    Type: String
+    Default: https://ingress.eu-west-1.aws.dash0-dev.com:4318
+    Description: OTLP HTTP endpoint for this Dash0 organization.
+  Dash0AuthToken:
+    Type: String
+    NoEcho: true
+    Default: '{{resolve:secretsmanager:dash0/durable-multi-agent-auth-token}}'
+    Description: Dash0 auth token (starts with auth_). Defaults to a
+      CloudFormation dynamic reference resolving the
+      dash0/durable-multi-agent-auth-token secret (replicated across regions
+      via Secrets Manager replication) — CloudFormation resolves this
+      server-side at deploy time, so the plaintext never passes through the
+      CLI or template state. Override via --parameter-overrides only if you
+      need a different token. Only required when InstrumentationMode=dash0.
+  AppSignalsLayerArn:
+    Type: String
+    Default: arn:aws:lambda:eu-central-1:615299751070:layer:AWSOpenTelemetryDistroJs:15
+    Description: AWS Lambda Layer for OpenTelemetry (Node.js) — AWS-owned public
+      layer (account 615299751070), enables CloudWatch Application Signals plus
+      OTel-based X-Ray tracing. Region-specific; verify the ARN/version for
+      other regions at https://aws-otel.github.io. Used when
+      InstrumentationMode=appsignals.
+  DurableOtelPluginLayerArn:
+    Type: String
+    Default: arn:aws:lambda:eu-central-1:713881787121:layer:durable-execution-sdk-js-otel:5
+    Description: Lambda layer bundling @aws/durable-execution-sdk-js-otel@1.1.0
+      (published to npm — includes the execution-trace-context fix for
+      deterministic invocation/workflow span parenting) plus its runtime peer
+      deps (@opentelemetry/api, @opentelemetry/core,
+      @opentelemetry/sdk-trace-node@2.x). Rebuild via `npm install
+      --omit=dev --legacy-peer-deps` into a `nodejs/` layer dir. Stitches
+      durable-execution Workflow/Invocation/operation spans into one trace
+      across replays and suspensions — attached to the coordinator only.
+  NoopLayerArn:
+    Type: String
+    Default: arn:aws:lambda:eu-central-1:713881787121:layer:noop-placeholder:1
+    Description: Harmless empty placeholder layer, attached in whichever of the
+      Dash0/AppSignals Layers slots is inactive for the current
+      InstrumentationMode. Works around a SAM CLI local-build limitation
+      (_locate_layer_from_ref) that cannot resolve a Layers list entry that
+      evaluates to AWS::NoValue — CloudFormation itself handles NoValue here
+      fine, but `sam build`'s local function provider crashes on it, so every
+      mode must resolve every Layers entry to a real ARN instead. Region-
+      specific; publish via `aws lambda publish-layer-version` with an
+      arbitrary non-empty zip (e.g. a single-line nodejs/noop.js) in any
+      region you deploy to.
+
+Conditions:
+  UseAppSignals: !Equals [!Ref InstrumentationMode, appsignals]
+  UseDash0: !Equals [!Ref InstrumentationMode, dash0]
+  UseNone: !Equals [!Ref InstrumentationMode, none]
 
 Globals:
   Function:
     Runtime: nodejs24.x
     Architectures:
       - arm64
+    Tracing: Active
+    LoggingConfig:
+      # AWS's own log-level filter — independent of DASH0_DISTRO_DEBUG below.
+      # Anything below these levels is dropped before it reaches CloudWatch,
+      # regardless of what the Dash0 extension itself tries to emit.
+      # LogLevel filtering requires LogFormat: JSON (structured logs) —
+      # Lambda rejects it outright under the default "Text" format.
+      LogFormat: JSON
+      ApplicationLogLevel: DEBUG
+      SystemLogLevel: DEBUG
+    Layers:
+      # Single entry, nested Fn::If, but it always resolves to exactly one
+      # real layer ARN — never AWS::NoValue, and never two identical ARNs in
+      # the same Layers list (Lambda rejects duplicate layer ARNs). SAM CLI's
+      # local build-time layer resolver (_locate_layer_from_ref) crashes on a
+      # Layers entry that evaluates to AWS::NoValue — even though
+      # CloudFormation itself deploys that fine — so InstrumentationMode=none
+      # falls back to NoopLayerArn, a harmless empty placeholder layer,
+      # instead of omitting the entry.
+      - !If
+        - UseDash0
+        - !Ref Dash0ExtensionLayerArn
+        - !If [UseAppSignals, !Ref AppSignalsLayerArn, !Ref NoopLayerArn]
+    Environment:
+      Variables:
+        # The two extension-based instrumentation modes ship different wrapper
+        # scripts under this same env var — only one can be active per
+        # function — and 'none' sets no wrapper at all, hence the
+        # InstrumentationMode toggle rather than an additive flag.
+        AWS_LAMBDA_EXEC_WRAPPER: !If
+          - UseNone
+          - !Ref 'AWS::NoValue'
+          - !If [UseAppSignals, /opt/otel-instrument, /opt/wrapper]
+        DASH0_ENDPOINT: !If [UseDash0, !Ref Dash0Endpoint, !Ref 'AWS::NoValue']
+        DASH0_TOKEN: !If [UseDash0, !Ref Dash0AuthToken, !Ref 'AWS::NoValue']
+        # X-Ray active tracing stays on (Tracing: Active above) so trace IDs still
+        # surface in the Lambda console; this tells the Dash0 extension to reuse
+        # that X-Ray trace context for its OTel spans instead of creating a
+        # second, disconnected trace. Application Signals does its own
+        # equivalent internally, so this is Dash0-mode only.
+        DASH0_XRAY_TRACES_ENABLED: !If [UseDash0, 'true', !Ref 'AWS::NoValue']
+        # Verbose extension-internal logging (span processing, export attempts,
+        # payload handling) — surfaced in CloudWatch logs. Dash0-mode only.
+        # DASH0_DISTRO_DEBUG alone produces nothing: the extension's own
+        # logger defaults to 'warn' and silently drops the debug/trace
+        # output DASH0_DISTRO_DEBUG generates unless DASH0_EXTENSION_LOG_LEVEL
+        # is also raised — the two gate different things.
+        DASH0_DISTRO_DEBUG: !If [UseDash0, 'true', !Ref 'AWS::NoValue']
+        DASH0_EXTENSION_LOG_LEVEL: !If [UseDash0, 'trace', !Ref 'AWS::NoValue']
 
 Resources:
   # ---------------------------------------------------------------------------
@@ -41,6 +169,8 @@ Resources:
       Handler: coordinator.handler
       MemorySize: 1536
       Timeout: 300
+      Layers:
+        - !Ref DurableOtelPluginLayerArn
       Environment:
         Variables:
           COORDINATOR_MODEL_ID: !Sub global.${CoordinatorModelId}
@@ -50,6 +180,7 @@ Resources:
           RISK_ASSESSMENT_FUNCTION: !Ref RiskAssessmentFunction
           CONTRACT_REVIEW_FUNCTION: !Ref ContractReviewFunction
       Policies:
+        - !If [UseAppSignals, arn:aws:iam::aws:policy/CloudWatchLambdaApplicationSignalsExecutionRolePolicy, !Ref 'AWS::NoValue']
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicDurableExecutionRolePolicy
         - Statement:
             # InvokeModelWithResponseStream is included because the Strands SDK's
@@ -90,8 +221,89 @@ Resources:
           - coordinator.ts
         External:
           - '@aws-sdk/*'
+          - '@aws/durable-execution-sdk-js-otel'
+        # Only the plugin package itself is external — its own require() calls
+        # for @opentelemetry/api etc. resolve from the layer's own node_modules
+        # (a plain ancestor-directory walk, no NODE_PATH needed). Marking those
+        # packages external here too would break OTHER bundled code that
+        # requires them directly (e.g. @strands-agents/sdk's telemetry config
+        # pulls in @opentelemetry/sdk-trace-base, which does a bare CJS
+        # require('@opentelemetry/api') — esbuild's ESM interop shim can't
+        # satisfy that at runtime for an externalized module ("Dynamic require
+        # of ... is not supported"), so those must stay bundled normally.
         Banner:
-          - js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);
+          - js=import { createRequire as __esbuildCreateRequire } from 'module'; const require = __esbuildCreateRequire(import.meta.url);
+        # This Banner defines a bundle-wide `require` that esbuild's internal
+        # __require shim falls back to for plain CJS require() calls buried in
+        # OTHER bundled deps (e.g. @opentelemetry/core's require("perf_hooks")).
+        # coordinator.ts imports its own createRequire under the alias
+        # `createNodeRequire` specifically to avoid colliding with this
+        # Banner-injected `createRequire` binding.
+
+  # ---------------------------------------------------------------------------
+  # Coordinator (InvocationOtelPlugin mode) — identical handler code and
+  # specialists as CoordinatorFunction above, but OTEL_PLUGIN_MODE=invocation
+  # switches src/handlers/coordinator.ts to InvocationOtelPlugin: durable
+  # steps parent under the per-physical-invocation Invocation span instead of
+  # the execution-wide Workflow span. Deployed side-by-side with
+  # CoordinatorFunction so both trace shapes can be compared directly.
+  # ---------------------------------------------------------------------------
+  CoordinatorInvocationModeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/handlers/
+      Handler: coordinator.handler
+      MemorySize: 1536
+      Timeout: 300
+      Layers:
+        - !Ref DurableOtelPluginLayerArn
+      Environment:
+        Variables:
+          OTEL_PLUGIN_MODE: invocation
+          COORDINATOR_MODEL_ID: !Sub global.${CoordinatorModelId}
+          PRICE_RESEARCH_FUNCTION: !Ref PriceResearchFunction
+          FINANCING_FUNCTION: !Ref FinancingFunction
+          DELIVERY_FUNCTION: !Ref DeliveryFunction
+          RISK_ASSESSMENT_FUNCTION: !Ref RiskAssessmentFunction
+          CONTRACT_REVIEW_FUNCTION: !Ref ContractReviewFunction
+      Policies:
+        - !If [UseAppSignals, arn:aws:iam::aws:policy/CloudWatchLambdaApplicationSignalsExecutionRolePolicy, !Ref 'AWS::NoValue']
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicDurableExecutionRolePolicy
+        - Statement:
+            - Effect: Allow
+              Action:
+                - bedrock:InvokeModel
+                - bedrock:InvokeModelWithResponseStream
+              Resource:
+                - !Sub arn:aws:bedrock:*::foundation-model/${CoordinatorModelId}
+                - !Sub arn:aws:bedrock:${AWS::Region}:${AWS::AccountId}:inference-profile/global.${CoordinatorModelId}
+            - Effect: Allow
+              Action: lambda:InvokeFunction
+              Resource:
+                - !GetAtt PriceResearchFunction.Arn
+                - !GetAtt FinancingFunction.Arn
+                - !GetAtt DeliveryFunction.Arn
+                - !GetAtt RiskAssessmentFunction.Arn
+                - !GetAtt ContractReviewFunction.Arn
+      DurableConfig:
+        ExecutionTimeout: 86400
+        RetentionPeriodInDays: 7
+      AutoPublishAlias: live
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: es2022
+        Format: esm
+        OutExtension:
+          - .js=.mjs
+        EntryPoints:
+          - coordinator.ts
+        External:
+          - '@aws-sdk/*'
+          - '@aws/durable-execution-sdk-js-otel'
+        Banner:
+          - js=import { createRequire as __esbuildCreateRequire } from 'module'; const require = __esbuildCreateRequire(import.meta.url);
 
   # ---------------------------------------------------------------------------
   # Specialist Functions — shared handler, different PROMPT_NAME env var.
@@ -118,6 +330,7 @@ Resources:
           PROMPT_NAME: price-research
           SPECIALIST_MODEL_ID: !Sub global.${SpecialistModelId}
       Policies:
+        - !If [UseAppSignals, arn:aws:iam::aws:policy/CloudWatchLambdaApplicationSignalsExecutionRolePolicy, !Ref 'AWS::NoValue']
         - Statement:
             - Effect: Allow
               Action:
@@ -139,7 +352,7 @@ Resources:
         External:
           - '@aws-sdk/*'
         Banner:
-          - js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);
+          - js=import { createRequire as __esbuildCreateRequire } from 'module'; const require = __esbuildCreateRequire(import.meta.url);
 
   FinancingFunction:
     Type: AWS::Serverless::Function
@@ -153,6 +366,7 @@ Resources:
           PROMPT_NAME: financing
           SPECIALIST_MODEL_ID: !Sub global.${SpecialistModelId}
       Policies:
+        - !If [UseAppSignals, arn:aws:iam::aws:policy/CloudWatchLambdaApplicationSignalsExecutionRolePolicy, !Ref 'AWS::NoValue']
         - Statement:
             - Effect: Allow
               Action:
@@ -174,7 +388,7 @@ Resources:
         External:
           - '@aws-sdk/*'
         Banner:
-          - js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);
+          - js=import { createRequire as __esbuildCreateRequire } from 'module'; const require = __esbuildCreateRequire(import.meta.url);
 
   DeliveryFunction:
     Type: AWS::Serverless::Function
@@ -188,6 +402,7 @@ Resources:
           PROMPT_NAME: delivery
           SPECIALIST_MODEL_ID: !Sub global.${SpecialistModelId}
       Policies:
+        - !If [UseAppSignals, arn:aws:iam::aws:policy/CloudWatchLambdaApplicationSignalsExecutionRolePolicy, !Ref 'AWS::NoValue']
         - Statement:
             - Effect: Allow
               Action:
@@ -209,7 +424,7 @@ Resources:
         External:
           - '@aws-sdk/*'
         Banner:
-          - js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);
+          - js=import { createRequire as __esbuildCreateRequire } from 'module'; const require = __esbuildCreateRequire(import.meta.url);
 
   # Risk assessment uses the advanced model (Sonnet 4.6) for stronger reasoning —
   # matching the Strands blog post's per-agent model selection pattern.
@@ -225,6 +440,7 @@ Resources:
           PROMPT_NAME: risk-assessment
           SPECIALIST_MODEL_ID: !Sub global.${AdvancedSpecialistModelId}
       Policies:
+        - !If [UseAppSignals, arn:aws:iam::aws:policy/CloudWatchLambdaApplicationSignalsExecutionRolePolicy, !Ref 'AWS::NoValue']
         - Statement:
             - Effect: Allow
               Action:
@@ -246,7 +462,7 @@ Resources:
         External:
           - '@aws-sdk/*'
         Banner:
-          - js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);
+          - js=import { createRequire as __esbuildCreateRequire } from 'module'; const require = __esbuildCreateRequire(import.meta.url);
 
   ContractReviewFunction:
     Type: AWS::Serverless::Function
@@ -260,6 +476,7 @@ Resources:
           PROMPT_NAME: contract-review
           SPECIALIST_MODEL_ID: !Sub global.${SpecialistModelId}
       Policies:
+        - !If [UseAppSignals, arn:aws:iam::aws:policy/CloudWatchLambdaApplicationSignalsExecutionRolePolicy, !Ref 'AWS::NoValue']
         - Statement:
             - Effect: Allow
               Action:
@@ -281,7 +498,7 @@ Resources:
         External:
           - '@aws-sdk/*'
         Banner:
-          - js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);
+          - js=import { createRequire as __esbuildCreateRequire } from 'module'; const require = __esbuildCreateRequire(import.meta.url);
 
 Outputs:
   # SAM constructs the alias logical ID as {FunctionLogicalId}Alias{AliasName}.
@@ -299,4 +516,15 @@ Outputs:
   DemoCommand:
     Description: Run the interactive demo against the deployed stack
     Value: !Sub npm run demo:cloud -- --function-arn=${CoordinatorFunctionAliaslive}
+      --region=${AWS::Region}
+
+  CoordinatorInvocationModeFunctionArn:
+    Description: Coordinator (InvocationOtelPlugin mode) function ARN (qualified
+      with :live alias) — use this for invocations
+    Value: !Ref CoordinatorInvocationModeFunctionAliaslive
+
+  DemoCommandInvocationMode:
+    Description: Run the interactive demo against the InvocationOtelPlugin-mode
+      coordinator, for comparing trace shapes
+    Value: !Sub npm run demo:cloud -- --function-arn=${CoordinatorInvocationModeFunctionAliaslive}
       --region=${AWS::Region}
