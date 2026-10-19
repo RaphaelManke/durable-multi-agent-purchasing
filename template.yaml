@@ -29,13 +29,20 @@ Parameters:
     AllowedValues:
       - dash0
       - appsignals
+      - none
     Description: Selects which OTel auto-instrumentation layer/wrapper is active
       on every function. 'dash0' attaches the Dash0 Lambda extension and ships
       traces/logs/metrics straight to Dash0 via OTLP. 'appsignals' attaches
       AWS's own AWS Lambda Layer for OpenTelemetry and reports to CloudWatch
-      Application Signals + X-Ray instead. The two are mutually exclusive —
-      both require AWS_LAMBDA_EXEC_WRAPPER, which can only point at one
-      wrapper script per function — so this is a toggle, not an additive flag.
+      Application Signals + X-Ray instead. 'none' attaches no extension layer
+      at all — only native X-Ray (Tracing Active) is active; use this in
+      regions where neither the Dash0 extension nor the AppSignals layer is
+      published yet. Without a registered OTel TracerProvider, the
+      durable-execution-sdk-js-otel plugin's own Workflow/operation spans are
+      not exported anywhere in this mode — only native X-Ray segments are
+      captured. These are mutually exclusive — dash0/appsignals both require
+      AWS_LAMBDA_EXEC_WRAPPER, which can only point at one wrapper script per
+      function — so this is a toggle, not an additive flag.
   Dash0ExtensionLayerArn:
     Type: String
     Default: arn:aws:lambda:eu-central-1:115813213817:layer:dash0-extension-node:23
@@ -50,10 +57,14 @@ Parameters:
   Dash0AuthToken:
     Type: String
     NoEcho: true
-    Default: ''
-    Description: Dash0 auth token (starts with auth_). Pass via --parameter-overrides
-      at deploy time — do not commit a real token as the default here. Only
-      required when InstrumentationMode=dash0.
+    Default: '{{resolve:secretsmanager:dash0/durable-multi-agent-auth-token}}'
+    Description: Dash0 auth token (starts with auth_). Defaults to a
+      CloudFormation dynamic reference resolving the
+      dash0/durable-multi-agent-auth-token secret (replicated across regions
+      via Secrets Manager replication) — CloudFormation resolves this
+      server-side at deploy time, so the plaintext never passes through the
+      CLI or template state. Override via --parameter-overrides only if you
+      need a different token. Only required when InstrumentationMode=dash0.
   AppSignalsLayerArn:
     Type: String
     Default: arn:aws:lambda:eu-central-1:615299751070:layer:AWSOpenTelemetryDistroJs:15
@@ -73,9 +84,24 @@ Parameters:
       --omit=dev --legacy-peer-deps` into a `nodejs/` layer dir. Stitches
       durable-execution Workflow/Invocation/operation spans into one trace
       across replays and suspensions — attached to the coordinator only.
+  NoopLayerArn:
+    Type: String
+    Default: arn:aws:lambda:eu-central-1:713881787121:layer:noop-placeholder:1
+    Description: Harmless empty placeholder layer, attached in whichever of the
+      Dash0/AppSignals Layers slots is inactive for the current
+      InstrumentationMode. Works around a SAM CLI local-build limitation
+      (_locate_layer_from_ref) that cannot resolve a Layers list entry that
+      evaluates to AWS::NoValue — CloudFormation itself handles NoValue here
+      fine, but `sam build`'s local function provider crashes on it, so every
+      mode must resolve every Layers entry to a real ARN instead. Region-
+      specific; publish via `aws lambda publish-layer-version` with an
+      arbitrary non-empty zip (e.g. a single-line nodejs/noop.js) in any
+      region you deploy to.
 
 Conditions:
   UseAppSignals: !Equals [!Ref InstrumentationMode, appsignals]
+  UseDash0: !Equals [!Ref InstrumentationMode, dash0]
+  UseNone: !Equals [!Ref InstrumentationMode, none]
 
 Globals:
   Function:
@@ -93,29 +119,44 @@ Globals:
       ApplicationLogLevel: DEBUG
       SystemLogLevel: DEBUG
     Layers:
-      - !If [UseAppSignals, !Ref AppSignalsLayerArn, !Ref Dash0ExtensionLayerArn]
+      # Single entry, nested Fn::If, but it always resolves to exactly one
+      # real layer ARN — never AWS::NoValue, and never two identical ARNs in
+      # the same Layers list (Lambda rejects duplicate layer ARNs). SAM CLI's
+      # local build-time layer resolver (_locate_layer_from_ref) crashes on a
+      # Layers entry that evaluates to AWS::NoValue — even though
+      # CloudFormation itself deploys that fine — so InstrumentationMode=none
+      # falls back to NoopLayerArn, a harmless empty placeholder layer,
+      # instead of omitting the entry.
+      - !If
+        - UseDash0
+        - !Ref Dash0ExtensionLayerArn
+        - !If [UseAppSignals, !Ref AppSignalsLayerArn, !Ref NoopLayerArn]
     Environment:
       Variables:
-        # The two instrumentation modes ship different wrapper scripts under
-        # this same env var — only one can be active per function, hence the
-        # InstrumentationMode toggle rather than both layers at once.
-        AWS_LAMBDA_EXEC_WRAPPER: !If [UseAppSignals, /opt/otel-instrument, /opt/wrapper]
-        DASH0_ENDPOINT: !If [UseAppSignals, !Ref 'AWS::NoValue', !Ref Dash0Endpoint]
-        DASH0_TOKEN: !If [UseAppSignals, !Ref 'AWS::NoValue', !Ref Dash0AuthToken]
+        # The two extension-based instrumentation modes ship different wrapper
+        # scripts under this same env var — only one can be active per
+        # function — and 'none' sets no wrapper at all, hence the
+        # InstrumentationMode toggle rather than an additive flag.
+        AWS_LAMBDA_EXEC_WRAPPER: !If
+          - UseNone
+          - !Ref 'AWS::NoValue'
+          - !If [UseAppSignals, /opt/otel-instrument, /opt/wrapper]
+        DASH0_ENDPOINT: !If [UseDash0, !Ref Dash0Endpoint, !Ref 'AWS::NoValue']
+        DASH0_TOKEN: !If [UseDash0, !Ref Dash0AuthToken, !Ref 'AWS::NoValue']
         # X-Ray active tracing stays on (Tracing: Active above) so trace IDs still
         # surface in the Lambda console; this tells the Dash0 extension to reuse
         # that X-Ray trace context for its OTel spans instead of creating a
         # second, disconnected trace. Application Signals does its own
         # equivalent internally, so this is Dash0-mode only.
-        DASH0_XRAY_TRACES_ENABLED: !If [UseAppSignals, !Ref 'AWS::NoValue', 'true']
+        DASH0_XRAY_TRACES_ENABLED: !If [UseDash0, 'true', !Ref 'AWS::NoValue']
         # Verbose extension-internal logging (span processing, export attempts,
         # payload handling) — surfaced in CloudWatch logs. Dash0-mode only.
         # DASH0_DISTRO_DEBUG alone produces nothing: the extension's own
         # logger defaults to 'warn' and silently drops the debug/trace
         # output DASH0_DISTRO_DEBUG generates unless DASH0_EXTENSION_LOG_LEVEL
         # is also raised — the two gate different things.
-        DASH0_DISTRO_DEBUG: !If [UseAppSignals, !Ref 'AWS::NoValue', 'true']
-        DASH0_EXTENSION_LOG_LEVEL: !If [UseAppSignals, !Ref 'AWS::NoValue', 'trace']
+        DASH0_DISTRO_DEBUG: !If [UseDash0, 'true', !Ref 'AWS::NoValue']
+        DASH0_EXTENSION_LOG_LEVEL: !If [UseDash0, 'trace', !Ref 'AWS::NoValue']
 
 Resources:
   # ---------------------------------------------------------------------------

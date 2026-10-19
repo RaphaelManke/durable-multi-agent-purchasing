@@ -14,8 +14,8 @@
     "demo:cloud": "tsx scripts/demo.ts --cloud"
   },
   "dependencies": {
-    "@aws/durable-execution-sdk-js": "^2.4.0",
-    "@aws/durable-execution-sdk-js-otel": "^1.1.0",
+    "@aws/durable-execution-sdk-js": "^2.7.0",
+    "@aws/durable-execution-sdk-js-otel": "^1.2.0",
     "@strands-agents/sdk": "^0.6.0",
     "zod": "^4.1.12"
   },
