@@ -86,8 +86,12 @@ run_once() {
     aws logs filter-log-events --log-group-name "$LOG_GROUP" --start-time "$start_ms" --output json \
       | jq -r '.events[] | "\(.timestamp) \(.message | rtrimstr("\n"))"' > "$ART/logs.txt"
     if [ "${SAVE_REPORT:-0}" = "1" ]; then
-      grep -E '[[:space:]]REPORT RequestId' "$ART/logs.txt" > "$ART/report.txt" || true
-      [ -s "$ART/report.txt" ] && break
+      # Functions log JSON, so the REPORT line arrives as a platform.report record.
+      grep -E 'platform\.report' "$ART/logs.txt" \
+        | sed -E 's/^[0-9]+ //' \
+        | jq -r '.record | "REPORT RequestId: \(.requestId)\tDuration: \(.metrics.durationMs) ms\tBilled Duration: \(.metrics.billedDurationMs) ms\tMemory Size: \(.metrics.memorySizeMB) MB\tMax Memory Used: \(.metrics.maxMemoryUsedMB) MB\tStatus: \(.status // "success")"' > "$ART/report.txt" || true
+      # Done once every invocation in the history (InvocationCompleted) has its platform.report.
+      [ -s "$ART/report.txt" ] && [ "$(grep -c 'platform\.report' "$ART/logs.txt")" -ge "$(jq '[.Events[] | select(.EventType == "InvocationCompleted")] | length' "$ART/history.json")" ] && break
     else
       [ -s "$ART/logs.txt" ] && grep -q 'END RequestId' "$ART/logs.txt" && break
     fi

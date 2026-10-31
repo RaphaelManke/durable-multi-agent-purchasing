@@ -1,0 +1,19 @@
+{
+    "DurableExecutionArn": "arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-01-retry:2/durable-execution/14b62773-262a-4419-b8fc-3e2952252c5c/433ebc7b-64ce-3bde-99b5-30221d8270ee",
+    "DurableExecutionName": "14b62773-262a-4419-b8fc-3e2952252c5c",
+    "FunctionArn": "arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-01-retry:2",
+    "InputPayload": "{\n  \"name\": \"durable world\"\n}\n",
+    "Result": "{\"status\":\"completed\",\"greeting\":\"Hello, durable world\",\"succeededOnAttempt\":2}",
+    "StartTimestamp": "2026-10-31T11:51:32.078000+01:00",
+    "Status": "SUCCEEDED",
+    "EndTimestamp": "2026-10-31T11:51:35.307000+01:00",
+    "Version": "2",
+    "TraceHeader": {
+        "XAmznTraceId": "Root=1-6ae5c833-368cc8de4ffb62422285f231;Parent=09db3ed70f10cf19;Sampled=0"
+    },
+    "ExecutionDataIncluded": true,
+    "DurableConfig": {
+        "RetentionPeriodInDays": 7,
+        "ExecutionTimeout": 300
+    }
+}

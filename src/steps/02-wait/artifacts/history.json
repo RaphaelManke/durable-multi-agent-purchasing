@@ -1,0 +1,183 @@
+{
+    "Events": [
+        {
+            "EventType": "ExecutionStarted",
+            "EventId": 1,
+            "Id": "8ee1eb82-7baf-371e-8fcb-6519ae5fc9ef",
+            "Name": "cebba598-2afa-4225-804a-ed24d64c411e",
+            "EventTimestamp": "2026-10-31T11:58:44.934000+01:00",
+            "ExecutionStartedDetails": {
+                "Input": {
+                    "Truncated": true
+                },
+                "ExecutionTimeout": 900
+            }
+        },
+        {
+            "EventType": "StepStarted",
+            "SubType": "Step",
+            "EventId": 2,
+            "Id": "c4ca4238a0b92382",
+            "Name": "prepare",
+            "EventTimestamp": "2026-10-31T11:58:45.026000+01:00",
+            "StepStartedDetails": {}
+        },
+        {
+            "EventType": "StepSucceeded",
+            "SubType": "Step",
+            "EventId": 3,
+            "Id": "c4ca4238a0b92382",
+            "Name": "prepare",
+            "EventTimestamp": "2026-10-31T11:58:45.026000+01:00",
+            "StepSucceededDetails": {
+                "Result": {
+                    "Truncated": true
+                },
+                "RetryDetails": {
+                    "CurrentAttempt": 1
+                }
+            }
+        },
+        {
+            "EventType": "StepStarted",
+            "SubType": "Step",
+            "EventId": 4,
+            "Id": "c81e728d9d4c2f63",
+            "Name": "flaky",
+            "EventTimestamp": "2026-10-31T11:58:45.061000+01:00",
+            "StepStartedDetails": {}
+        },
+        {
+            "EventType": "StepFailed",
+            "SubType": "Step",
+            "EventId": 5,
+            "Id": "c81e728d9d4c2f63",
+            "Name": "flaky",
+            "EventTimestamp": "2026-10-31T11:58:45.061000+01:00",
+            "StepFailedDetails": {
+                "Error": {
+                    "Truncated": true
+                },
+                "RetryDetails": {
+                    "CurrentAttempt": 1,
+                    "NextAttemptDelaySeconds": 1
+                }
+            }
+        },
+        {
+            "EventType": "InvocationCompleted",
+            "EventId": 6,
+            "EventTimestamp": "2026-10-31T11:58:45.082000+01:00",
+            "InvocationCompletedDetails": {
+                "StartTimestamp": "2026-10-31T11:58:44.987000+01:00",
+                "EndTimestamp": "2026-10-31T11:58:45.078000+01:00",
+                "RequestId": "af35107c-e7bf-4dc9-8b8d-c00204868179"
+            }
+        },
+        {
+            "EventType": "StepStarted",
+            "SubType": "Step",
+            "EventId": 7,
+            "Id": "c81e728d9d4c2f63",
+            "Name": "flaky",
+            "EventTimestamp": "2026-10-31T11:58:46.145000+01:00",
+            "StepStartedDetails": {}
+        },
+        {
+            "EventType": "StepSucceeded",
+            "SubType": "Step",
+            "EventId": 8,
+            "Id": "c81e728d9d4c2f63",
+            "Name": "flaky",
+            "EventTimestamp": "2026-10-31T11:58:46.145000+01:00",
+            "StepSucceededDetails": {
+                "Result": {
+                    "Truncated": true
+                },
+                "RetryDetails": {
+                    "CurrentAttempt": 2
+                }
+            }
+        },
+        {
+            "EventType": "WaitStarted",
+            "SubType": "Wait",
+            "EventId": 9,
+            "Id": "eccbc87e4b5ce2fe",
+            "Name": "cooldown",
+            "EventTimestamp": "2026-10-31T11:58:46.179000+01:00",
+            "WaitStartedDetails": {
+                "Duration": 60,
+                "ScheduledEndTimestamp": "2026-10-31T11:59:46.179000+01:00"
+            }
+        },
+        {
+            "EventType": "InvocationCompleted",
+            "EventId": 10,
+            "EventTimestamp": "2026-10-31T11:58:46.200000+01:00",
+            "InvocationCompletedDetails": {
+                "StartTimestamp": "2026-10-31T11:58:46.114000+01:00",
+                "EndTimestamp": "2026-10-31T11:58:46.195000+01:00",
+                "RequestId": "9bb40dcf-a2e4-4f12-a69e-d38139b170a6"
+            }
+        },
+        {
+            "EventType": "WaitSucceeded",
+            "SubType": "Wait",
+            "EventId": 11,
+            "Id": "eccbc87e4b5ce2fe",
+            "Name": "cooldown",
+            "EventTimestamp": "2026-10-31T11:59:46.179000+01:00",
+            "WaitSucceededDetails": {
+                "Duration": 60
+            }
+        },
+        {
+            "EventType": "StepStarted",
+            "SubType": "Step",
+            "EventId": 12,
+            "Id": "a87ff679a2f3e71d",
+            "Name": "finish",
+            "EventTimestamp": "2026-10-31T11:59:46.264000+01:00",
+            "StepStartedDetails": {}
+        },
+        {
+            "EventType": "StepSucceeded",
+            "SubType": "Step",
+            "EventId": 13,
+            "Id": "a87ff679a2f3e71d",
+            "Name": "finish",
+            "EventTimestamp": "2026-10-31T11:59:46.264000+01:00",
+            "StepSucceededDetails": {
+                "Result": {
+                    "Truncated": true
+                },
+                "RetryDetails": {
+                    "CurrentAttempt": 1
+                }
+            }
+        },
+        {
+            "EventType": "InvocationCompleted",
+            "EventId": 14,
+            "EventTimestamp": "2026-10-31T11:59:46.291000+01:00",
+            "InvocationCompletedDetails": {
+                "StartTimestamp": "2026-10-31T11:59:46.225000+01:00",
+                "EndTimestamp": "2026-10-31T11:59:46.286000+01:00",
+                "RequestId": "f359fcbd-b6ce-484b-b318-fc6c3ca948e4"
+            }
+        },
+        {
+            "EventType": "ExecutionSucceeded",
+            "EventId": 15,
+            "Id": "8ee1eb82-7baf-371e-8fcb-6519ae5fc9ef",
+            "Name": "cebba598-2afa-4225-804a-ed24d64c411e",
+            "EventTimestamp": "2026-10-31T11:59:46.291000+01:00",
+            "ExecutionSucceededDetails": {
+                "Result": {
+                    "Truncated": true
+                }
+            }
+        }
+    ]
+}

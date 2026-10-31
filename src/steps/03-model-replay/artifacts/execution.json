@@ -1,0 +1,19 @@
+{
+    "DurableExecutionArn": "arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-03-model-replay:2/durable-execution/2a254ee5-8352-423d-b2c4-2d6aee575b47/fa4cab4c-0aed-3898-bf48-1df156818abc",
+    "DurableExecutionName": "2a254ee5-8352-423d-b2c4-2d6aee575b47",
+    "FunctionArn": "arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-03-model-replay:2",
+    "InputPayload": "{\n  \"prompt\": \"In one sentence, explain what a checkpoint is in a durable workflow.\",\n  \"failStepBAttempts\": 1\n}\n",
+    "Result": "{\"status\":\"completed\",\"modelId\":\"global.anthropic.claude-haiku-4-5-20251001-v1:0\",\"stepA\":\"A checkpoint is a saved state of a workflow that allows it to resume from that point if interrupted, rather than restarting from the beginning.\",\"stepB\":\"Checkpoint: resume workflow from interruption.\",\"failStepBAttempts\":1}",
+    "StartTimestamp": "2026-10-31T12:00:14.344000+01:00",
+    "Status": "SUCCEEDED",
+    "EndTimestamp": "2026-10-31T12:00:19.385000+01:00",
+    "Version": "2",
+    "TraceHeader": {
+        "XAmznTraceId": "Root=1-6ae5ca3e-061da2b825233e1857374948;Parent=13af6a76a306c5f2;Sampled=0"
+    },
+    "ExecutionDataIncluded": true,
+    "DurableConfig": {
+        "RetentionPeriodInDays": 7,
+        "ExecutionTimeout": 900
+    }
+}

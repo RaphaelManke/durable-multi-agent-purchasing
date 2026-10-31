@@ -1,0 +1,19 @@
+{
+    "DurableExecutionArn": "arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-02-wait:2/durable-execution/cebba598-2afa-4225-804a-ed24d64c411e/8ee1eb82-7baf-371e-8fcb-6519ae5fc9ef",
+    "DurableExecutionName": "cebba598-2afa-4225-804a-ed24d64c411e",
+    "FunctionArn": "arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-02-wait:2",
+    "InputPayload": "{\n  \"name\": \"durable world\",\n  \"waitSeconds\": 60\n}\n",
+    "Result": "{\"status\":\"completed\",\"greeting\":\"Hello, durable world\",\"flaky\":{\"succeededOnAttempt\":2},\"waitSeconds\":60,\"finished\":\"done\"}",
+    "StartTimestamp": "2026-10-31T11:58:44.934000+01:00",
+    "Status": "SUCCEEDED",
+    "EndTimestamp": "2026-10-31T11:59:46.291000+01:00",
+    "Version": "2",
+    "TraceHeader": {
+        "XAmznTraceId": "Root=1-6ae5c9e4-402c365561bb72557f7ff86c;Parent=2f911c355fd1c1e9;Sampled=0"
+    },
+    "ExecutionDataIncluded": true,
+    "DurableConfig": {
+        "RetentionPeriodInDays": 7,
+        "ExecutionTimeout": 900
+    }
+}

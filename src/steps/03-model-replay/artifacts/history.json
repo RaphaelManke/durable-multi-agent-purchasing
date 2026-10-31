@@ -1,0 +1,125 @@
+{
+    "Events": [
+        {
+            "EventType": "ExecutionStarted",
+            "EventId": 1,
+            "Id": "fa4cab4c-0aed-3898-bf48-1df156818abc",
+            "Name": "2a254ee5-8352-423d-b2c4-2d6aee575b47",
+            "EventTimestamp": "2026-10-31T12:00:14.344000+01:00",
+            "ExecutionStartedDetails": {
+                "Input": {
+                    "Truncated": true
+                },
+                "ExecutionTimeout": 900
+            }
+        },
+        {
+            "EventType": "StepStarted",
+            "SubType": "Step",
+            "EventId": 2,
+            "Id": "c4ca4238a0b92382",
+            "Name": "model-a",
+            "EventTimestamp": "2026-10-31T12:00:15.419000+01:00",
+            "StepStartedDetails": {}
+        },
+        {
+            "EventType": "StepSucceeded",
+            "SubType": "Step",
+            "EventId": 3,
+            "Id": "c4ca4238a0b92382",
+            "Name": "model-a",
+            "EventTimestamp": "2026-10-31T12:00:16.074000+01:00",
+            "StepSucceededDetails": {
+                "Result": {
+                    "Truncated": true
+                },
+                "RetryDetails": {
+                    "CurrentAttempt": 1
+                }
+            }
+        },
+        {
+            "EventType": "StepStarted",
+            "SubType": "Step",
+            "EventId": 4,
+            "Id": "c81e728d9d4c2f63",
+            "Name": "model-b",
+            "EventTimestamp": "2026-10-31T12:00:16.107000+01:00",
+            "StepStartedDetails": {}
+        },
+        {
+            "EventType": "StepFailed",
+            "SubType": "Step",
+            "EventId": 5,
+            "Id": "c81e728d9d4c2f63",
+            "Name": "model-b",
+            "EventTimestamp": "2026-10-31T12:00:16.691000+01:00",
+            "StepFailedDetails": {
+                "Error": {
+                    "Truncated": true
+                },
+                "RetryDetails": {
+                    "CurrentAttempt": 1,
+                    "NextAttemptDelaySeconds": 2
+                }
+            }
+        },
+        {
+            "EventType": "InvocationCompleted",
+            "EventId": 6,
+            "EventTimestamp": "2026-10-31T12:00:16.712000+01:00",
+            "InvocationCompletedDetails": {
+                "StartTimestamp": "2026-10-31T12:00:14.391000+01:00",
+                "EndTimestamp": "2026-10-31T12:00:16.708000+01:00",
+                "RequestId": "406863ae-aa7f-4d5f-8bb3-abac471dd8d3"
+            }
+        },
+        {
+            "EventType": "StepStarted",
+            "SubType": "Step",
+            "EventId": 7,
+            "Id": "c81e728d9d4c2f63",
+            "Name": "model-b",
+            "EventTimestamp": "2026-10-31T12:00:18.779000+01:00",
+            "StepStartedDetails": {}
+        },
+        {
+            "EventType": "StepSucceeded",
+            "SubType": "Step",
+            "EventId": 8,
+            "Id": "c81e728d9d4c2f63",
+            "Name": "model-b",
+            "EventTimestamp": "2026-10-31T12:00:19.363000+01:00",
+            "StepSucceededDetails": {
+                "Result": {
+                    "Truncated": true
+                },
+                "RetryDetails": {
+                    "CurrentAttempt": 2
+                }
+            }
+        },
+        {
+            "EventType": "InvocationCompleted",
+            "EventId": 9,
+            "EventTimestamp": "2026-10-31T12:00:19.385000+01:00",
+            "InvocationCompletedDetails": {
+                "StartTimestamp": "2026-10-31T12:00:18.728000+01:00",
+                "EndTimestamp": "2026-10-31T12:00:19.381000+01:00",
+                "RequestId": "c602406a-6cf6-4193-be3e-81912a6f8c8b"
+            }
+        },
+        {
+            "EventType": "ExecutionSucceeded",
+            "EventId": 10,
+            "Id": "fa4cab4c-0aed-3898-bf48-1df156818abc",
+            "Name": "2a254ee5-8352-423d-b2c4-2d6aee575b47",
+            "EventTimestamp": "2026-10-31T12:00:19.385000+01:00",
+            "ExecutionSucceededDetails": {
+                "Result": {
+                    "Truncated": true
+                }
+            }
+        }
+    ]
+}
