@@ -57,7 +57,7 @@ Resources:
         External:
           - '@aws-sdk/*'
         Banner:
-          - "js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);"
+          - "js=import { createRequire as __bannerCreateRequire } from 'module'; const require = __bannerCreateRequire(import.meta.url);"
 
   # Step 02: adds context.wait. Wait time is not billed.
   Fn02Wait:
@@ -87,7 +87,7 @@ Resources:
         External:
           - '@aws-sdk/*'
         Banner:
-          - "js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);"
+          - "js=import { createRequire as __bannerCreateRequire } from 'module'; const require = __bannerCreateRequire(import.meta.url);"
 
   # Step 03: model call A is replayed, not re-invoked, when model call B is retried.
   Fn03ModelReplay:
@@ -128,7 +128,7 @@ Resources:
         External:
           - '@aws-sdk/*'
         Banner:
-          - "js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);"
+          - "js=import { createRequire as __bannerCreateRequire } from 'module'; const require = __bannerCreateRequire(import.meta.url);"
 
   # Step 04: first Strands agent in one durable function.
   Fn04Agent:
@@ -169,7 +169,7 @@ Resources:
         External:
           - '@aws-sdk/*'
         Banner:
-          - "js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);"
+          - "js=import { createRequire as __bannerCreateRequire } from 'module'; const require = __bannerCreateRequire(import.meta.url);"
 
   Fn05Coordinator:
     Type: AWS::Serverless::Function
@@ -222,7 +222,7 @@ Resources:
         External:
           - '@aws-sdk/*'
         Banner:
-          - "js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);"
+          - "js=import { createRequire as __bannerCreateRequire } from 'module'; const require = __bannerCreateRequire(import.meta.url);"
 
   # Steps 05/06: coordinator and one specialist function per permission boundary. No tracing.
   Fn05Price:
@@ -260,7 +260,7 @@ Resources:
         External:
           - '@aws-sdk/*'
         Banner:
-          - "js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);"
+          - "js=import { createRequire as __bannerCreateRequire } from 'module'; const require = __bannerCreateRequire(import.meta.url);"
 
   Fn05Financing:
     Type: AWS::Serverless::Function
@@ -297,7 +297,7 @@ Resources:
         External:
           - '@aws-sdk/*'
         Banner:
-          - "js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);"
+          - "js=import { createRequire as __bannerCreateRequire } from 'module'; const require = __bannerCreateRequire(import.meta.url);"
 
   Fn05Delivery:
     Type: AWS::Serverless::Function
@@ -334,7 +334,7 @@ Resources:
         External:
           - '@aws-sdk/*'
         Banner:
-          - "js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);"
+          - "js=import { createRequire as __bannerCreateRequire } from 'module'; const require = __bannerCreateRequire(import.meta.url);"
 
   Fn05Risk:
     Type: AWS::Serverless::Function
@@ -371,7 +371,7 @@ Resources:
         External:
           - '@aws-sdk/*'
         Banner:
-          - "js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);"
+          - "js=import { createRequire as __bannerCreateRequire } from 'module'; const require = __bannerCreateRequire(import.meta.url);"
 
   Fn05Contract:
     Type: AWS::Serverless::Function
@@ -408,7 +408,7 @@ Resources:
         External:
           - '@aws-sdk/*'
         Banner:
-          - "js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);"
+          - "js=import { createRequire as __bannerCreateRequire } from 'module'; const require = __bannerCreateRequire(import.meta.url);"
 
   Fn07XrayCoordinator:
     Type: AWS::Serverless::Function
@@ -462,7 +462,7 @@ Resources:
         External:
           - '@aws-sdk/*'
         Banner:
-          - "js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);"
+          - "js=import { createRequire as __bannerCreateRequire } from 'module'; const require = __bannerCreateRequire(import.meta.url);"
 
   # Step 07: Tracing: Active (X-Ray) on the coordinator and all specialists.
   Fn07XrayPrice:
@@ -501,7 +501,7 @@ Resources:
         External:
           - '@aws-sdk/*'
         Banner:
-          - "js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);"
+          - "js=import { createRequire as __bannerCreateRequire } from 'module'; const require = __bannerCreateRequire(import.meta.url);"
 
   Fn07XrayFinancing:
     Type: AWS::Serverless::Function
@@ -539,7 +539,7 @@ Resources:
         External:
           - '@aws-sdk/*'
         Banner:
-          - "js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);"
+          - "js=import { createRequire as __bannerCreateRequire } from 'module'; const require = __bannerCreateRequire(import.meta.url);"
 
   Fn07XrayDelivery:
     Type: AWS::Serverless::Function
@@ -577,7 +577,7 @@ Resources:
         External:
           - '@aws-sdk/*'
         Banner:
-          - "js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);"
+          - "js=import { createRequire as __bannerCreateRequire } from 'module'; const require = __bannerCreateRequire(import.meta.url);"
 
   Fn07XrayRisk:
     Type: AWS::Serverless::Function
@@ -615,7 +615,7 @@ Resources:
         External:
           - '@aws-sdk/*'
         Banner:
-          - "js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);"
+          - "js=import { createRequire as __bannerCreateRequire } from 'module'; const require = __bannerCreateRequire(import.meta.url);"
 
   Fn07XrayContract:
     Type: AWS::Serverless::Function
@@ -653,7 +653,7 @@ Resources:
         External:
           - '@aws-sdk/*'
         Banner:
-          - "js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);"
+          - "js=import { createRequire as __bannerCreateRequire } from 'module'; const require = __bannerCreateRequire(import.meta.url);"
 
   Fn08OtelCoordinator:
     Type: AWS::Serverless::Function
@@ -712,7 +712,7 @@ Resources:
         External:
           - '@aws-sdk/*'
         Banner:
-          - "js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);"
+          - "js=import { createRequire as __bannerCreateRequire } from 'module'; const require = __bannerCreateRequire(import.meta.url);"
 
   # Step 08: OTel plugin and OTel layer on the coordinator. Specialists carry no tracing (reused by step 10).
   Fn08OtelPrice:
@@ -750,7 +750,7 @@ Resources:
         External:
           - '@aws-sdk/*'
         Banner:
-          - "js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);"
+          - "js=import { createRequire as __bannerCreateRequire } from 'module'; const require = __bannerCreateRequire(import.meta.url);"
 
   Fn08OtelFinancing:
     Type: AWS::Serverless::Function
@@ -787,7 +787,7 @@ Resources:
         External:
           - '@aws-sdk/*'
         Banner:
-          - "js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);"
+          - "js=import { createRequire as __bannerCreateRequire } from 'module'; const require = __bannerCreateRequire(import.meta.url);"
 
   Fn08OtelDelivery:
     Type: AWS::Serverless::Function
@@ -824,7 +824,7 @@ Resources:
         External:
           - '@aws-sdk/*'
         Banner:
-          - "js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);"
+          - "js=import { createRequire as __bannerCreateRequire } from 'module'; const require = __bannerCreateRequire(import.meta.url);"
 
   Fn08OtelRisk:
     Type: AWS::Serverless::Function
@@ -861,7 +861,7 @@ Resources:
         External:
           - '@aws-sdk/*'
         Banner:
-          - "js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);"
+          - "js=import { createRequire as __bannerCreateRequire } from 'module'; const require = __bannerCreateRequire(import.meta.url);"
 
   Fn08OtelContract:
     Type: AWS::Serverless::Function
@@ -898,7 +898,7 @@ Resources:
         External:
           - '@aws-sdk/*'
         Banner:
-          - "js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);"
+          - "js=import { createRequire as __bannerCreateRequire } from 'module'; const require = __bannerCreateRequire(import.meta.url);"
 
   # Step 10: InvocationOtelPlugin (switched mode) on the coordinator only. Reuses the step 08 specialists.
   Fn10OtelMode2Coordinator:
@@ -958,7 +958,7 @@ Resources:
         External:
           - '@aws-sdk/*'
         Banner:
-          - "js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);"
+          - "js=import { createRequire as __bannerCreateRequire } from 'module'; const require = __bannerCreateRequire(import.meta.url);"
 
   Fn11OtelAllCoordinator:
     Type: AWS::Serverless::Function
@@ -1017,7 +1017,7 @@ Resources:
         External:
           - '@aws-sdk/*'
         Banner:
-          - "js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);"
+          - "js=import { createRequire as __bannerCreateRequire } from 'module'; const require = __bannerCreateRequire(import.meta.url);"
 
   # Step 11: OTel layer and active tracing on every function. Shows context propagation.
   Fn11OtelPrice:
@@ -1060,7 +1060,7 @@ Resources:
         External:
           - '@aws-sdk/*'
         Banner:
-          - "js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);"
+          - "js=import { createRequire as __bannerCreateRequire } from 'module'; const require = __bannerCreateRequire(import.meta.url);"
 
   Fn11OtelFinancing:
     Type: AWS::Serverless::Function
@@ -1102,7 +1102,7 @@ Resources:
         External:
           - '@aws-sdk/*'
         Banner:
-          - "js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);"
+          - "js=import { createRequire as __bannerCreateRequire } from 'module'; const require = __bannerCreateRequire(import.meta.url);"
 
   Fn11OtelDelivery:
     Type: AWS::Serverless::Function
@@ -1144,7 +1144,7 @@ Resources:
         External:
           - '@aws-sdk/*'
         Banner:
-          - "js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);"
+          - "js=import { createRequire as __bannerCreateRequire } from 'module'; const require = __bannerCreateRequire(import.meta.url);"
 
   Fn11OtelRisk:
     Type: AWS::Serverless::Function
@@ -1186,7 +1186,7 @@ Resources:
         External:
           - '@aws-sdk/*'
         Banner:
-          - "js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);"
+          - "js=import { createRequire as __bannerCreateRequire } from 'module'; const require = __bannerCreateRequire(import.meta.url);"
 
   Fn11OtelContract:
     Type: AWS::Serverless::Function
@@ -1228,7 +1228,7 @@ Resources:
         External:
           - '@aws-sdk/*'
         Banner:
-          - "js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);"
+          - "js=import { createRequire as __bannerCreateRequire } from 'module'; const require = __bannerCreateRequire(import.meta.url);"
 
 Outputs:
   Fn01RetryArn:

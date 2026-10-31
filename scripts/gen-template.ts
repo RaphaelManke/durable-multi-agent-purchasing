@@ -143,7 +143,7 @@ function fn(spec: FnSpec): { comment?: string; resource: Yaml } {
           OutExtension: ['.js=.mjs'],
           EntryPoints: [`${spec.entry}.ts`],
           External: ['@aws-sdk/*'],
-          Banner: ["js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);"],
+          Banner: ["js=import { createRequire as __bannerCreateRequire } from 'module'; const require = __bannerCreateRequire(import.meta.url);"],
         },
       },
     },
