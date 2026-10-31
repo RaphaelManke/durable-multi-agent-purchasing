@@ -1,0 +1,56 @@
+1793444651350 {"time":"2026-10-31T11:04:11.350Z","type":"platform.start","record":{"requestId":"6b8129b9-865c-4a53-8526-27aacafd72c1","functionArn":"arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-05-coordinator:2","version":"2"}}
+1793444651351 {"requestId":"6b8129b9-865c-4a53-8526-27aacafd72c1","timestamp":"2026-10-31T11:04:11.351Z","level":"INFO","executionArn":"arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-05-coordinator:2/durable-execution/554a031d-4ad0-4c9b-b8af-b18b1889e3bd/2f16e5b3-e54b-3d5d-b2af-ba29321fd768","message":"request_received { mode: 'async', requireApproval: false, promptLength: 56 }"}
+1793444662282 {"requestId":"6b8129b9-865c-4a53-8526-27aacafd72c1","timestamp":"2026-10-31T11:04:22.282Z","level":"INFO","executionArn":"arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-05-coordinator:2/durable-execution/554a031d-4ad0-4c9b-b8af-b18b1889e3bd/2f16e5b3-e54b-3d5d-b2af-ba29321fd768","message":"plan_created { specialistsCalled: [ 'Price Research', 'Financing', 'Delivery & Logistics', 'Contract Review', 'Risk Assessment' ], specialistsSkipped: [] }"}
+1793444662415 {"time":"2026-10-31T11:04:22.415Z","type":"platform.report","record":{"requestId":"6b8129b9-865c-4a53-8526-27aacafd72c1","metrics":{"durationMs":11064.501,"billedDurationMs":11065,"memorySizeMB":1536,"maxMemoryUsedMB":164},"status":"success"}}
+1793444665619 {"time":"2026-10-31T11:04:25.619Z","type":"platform.start","record":{"requestId":"7eba4592-2622-4fe1-bb50-3726d7c43f1b","functionArn":"arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-05-coordinator:2","version":"2"}}
+1793444665659 {"time":"2026-10-31T11:04:25.659Z","type":"platform.report","record":{"requestId":"7eba4592-2622-4fe1-bb50-3726d7c43f1b","metrics":{"durationMs":39.632,"billedDurationMs":40,"memorySizeMB":1536,"maxMemoryUsedMB":164},"status":"success"}}
+1793444673584 {"time":"2026-10-31T11:04:33.584Z","type":"platform.start","record":{"requestId":"3e62100b-a48f-4a16-ad6b-e72156bcaf29","functionArn":"arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-05-coordinator:2","version":"2"}}
+1793444673623 {"time":"2026-10-31T11:04:33.623Z","type":"platform.report","record":{"requestId":"3e62100b-a48f-4a16-ad6b-e72156bcaf29","metrics":{"durationMs":37.992,"billedDurationMs":38,"memorySizeMB":1536,"maxMemoryUsedMB":164},"status":"success"}}
+1793444679862 {"time":"2026-10-31T11:04:39.862Z","type":"platform.start","record":{"requestId":"f65317d3-8f1f-41e8-a0d6-6e245b3b62f6","functionArn":"arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-05-coordinator:2","version":"2"}}
+1793444679912 {"time":"2026-10-31T11:04:39.912Z","type":"platform.report","record":{"requestId":"f65317d3-8f1f-41e8-a0d6-6e245b3b62f6","metrics":{"durationMs":48.727,"billedDurationMs":49,"memorySizeMB":1536,"maxMemoryUsedMB":164},"status":"success"}}
+1793444684941 {"time":"2026-10-31T11:04:44.941Z","type":"platform.start","record":{"requestId":"5d202cc3-a78a-4f31-b92a-eef036665ae9","functionArn":"arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-05-coordinator:2","version":"2"}}
+1793444684986 {"time":"2026-10-31T11:04:44.986Z","type":"platform.report","record":{"requestId":"5d202cc3-a78a-4f31-b92a-eef036665ae9","metrics":{"durationMs":44.553,"billedDurationMs":45,"memorySizeMB":1536,"maxMemoryUsedMB":164},"status":"success"}}
+1793444698325 {"time":"2026-10-31T11:04:58.325Z","type":"platform.start","record":{"requestId":"90196104-751c-4b3e-bade-d37aa66c7d04","functionArn":"arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-05-coordinator:2","version":"2"}}
+1793444698328 {"requestId":"90196104-751c-4b3e-bade-d37aa66c7d04","timestamp":"2026-10-31T11:04:58.328Z","level":"INFO","executionArn":"arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-05-coordinator:2/durable-execution/554a031d-4ad0-4c9b-b8af-b18b1889e3bd/2f16e5b3-e54b-3d5d-b2af-ba29321fd768","message":"specialists_completed { count: 5 }"}
+1793444720358 {"requestId":"90196104-751c-4b3e-bade-d37aa66c7d04","timestamp":"2026-10-31T11:05:20.358Z","level":"INFO","executionArn":"arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-05-coordinator:2/durable-execution/554a031d-4ad0-4c9b-b8af-b18b1889e3bd/2f16e5b3-e54b-3d5d-b2af-ba29321fd768","message":"recommendation_generated { responseLength: 6876 }"}
+1793444720358 {"requestId":"90196104-751c-4b3e-bade-d37aa66c7d04","timestamp":"2026-10-31T11:05:20.358Z","level":"INFO","executionArn":"arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-05-coordinator:2/durable-execution/554a031d-4ad0-4c9b-b8af-b18b1889e3bd/2f16e5b3-e54b-3d5d-b2af-ba29321fd768","message":"recommendation_saved { routing: { called: [ 'Price Research', 'Financing', 'Delivery & Logistics', 'Contract Review', 'Risk Assessment' ], skipped: [] } }"}
+1793444720358 {"requestId":"90196104-751c-4b3e-bade-d37aa66c7d04","timestamp":"2026-10-31T11:05:20.358Z","level":"INFO","executionArn":"arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-05-coordinator:2/durable-execution/554a031d-4ad0-4c9b-b8af-b18b1889e3bd/2f16e5b3-e54b-3d5d-b2af-ba29321fd768","message":"request_completed"}
+1793444720360 {"time":"2026-10-31T11:05:20.360Z","type":"platform.report","record":{"requestId":"90196104-751c-4b3e-bade-d37aa66c7d04","metrics":{"durationMs":22033.987,"billedDurationMs":22034,"memorySizeMB":1536,"maxMemoryUsedMB":166},"status":"success"}}
+
+===== /aws/lambda/dfdemo-05-price =====
+1793444662443 START RequestId: 6f950df7-d92f-44ff-a813-aefe64523c0c Version: $LATEST
+1793444662445 2026-10-31T11:04:22.445Z	6f950df7-d92f-44ff-a813-aefe64523c0c	INFO	{"level":"INFO","handler":"price-research","requestId":"6f950df7-d92f-44ff-a813-aefe64523c0c","event":"request_received","timestamp":"2026-10-31T11:04:22.445Z","promptLength":349}
+1793444665557 2026-10-31T11:04:25.557Z	6f950df7-d92f-44ff-a813-aefe64523c0c	INFO	{"level":"INFO","handler":"price-research","requestId":"6f950df7-d92f-44ff-a813-aefe64523c0c","event":"request_completed","timestamp":"2026-10-31T11:04:25.557Z","durationMs":3112,"responseLength":1566}
+1793444665559 END RequestId: 6f950df7-d92f-44ff-a813-aefe64523c0c
+1793444665559 REPORT RequestId: 6f950df7-d92f-44ff-a813-aefe64523c0c	Duration: 3115.10 ms	Billed Duration: 3116 ms	Memory Size: 1024 MB	Max Memory Used: 137 MB	
+
+===== /aws/lambda/dfdemo-05-financing =====
+1793444662563 INIT_START Runtime Version: nodejs:24.mainline.v115	Runtime Version ARN: arn:aws:lambda:eu-central-1::runtime:f305b3a259f8bcf7f8730f9e324e16ed868f53b02f82487bf989585baabe4b58
+1793444663066 START RequestId: 3b20b1b2-66a2-4a76-b2e2-86b1175114b9 Version: $LATEST
+1793444663070 2026-10-31T11:04:23.070Z	3b20b1b2-66a2-4a76-b2e2-86b1175114b9	INFO	{"level":"INFO","handler":"financing","requestId":"3b20b1b2-66a2-4a76-b2e2-86b1175114b9","event":"request_received","timestamp":"2026-10-31T11:04:23.068Z","promptLength":359}
+1793444684872 2026-10-31T11:04:44.872Z	3b20b1b2-66a2-4a76-b2e2-86b1175114b9	INFO	{"level":"INFO","handler":"financing","requestId":"3b20b1b2-66a2-4a76-b2e2-86b1175114b9","event":"request_completed","timestamp":"2026-10-31T11:04:44.872Z","durationMs":21804,"responseLength":11538}
+1793444684881 END RequestId: 3b20b1b2-66a2-4a76-b2e2-86b1175114b9
+1793444684881 REPORT RequestId: 3b20b1b2-66a2-4a76-b2e2-86b1175114b9	Duration: 21814.29 ms	Billed Duration: 22314 ms	Memory Size: 1024 MB	Max Memory Used: 152 MB	Init Duration: 499.64 ms	
+
+===== /aws/lambda/dfdemo-05-delivery =====
+1793444662439 START RequestId: 6b3797f2-1059-467f-85a3-a4dcb34150d3 Version: $LATEST
+1793444662441 2026-10-31T11:04:22.441Z	6b3797f2-1059-467f-85a3-a4dcb34150d3	INFO	{"level":"INFO","handler":"delivery","requestId":"6b3797f2-1059-467f-85a3-a4dcb34150d3","event":"request_received","timestamp":"2026-10-31T11:04:22.441Z","promptLength":290}
+1793444673528 2026-10-31T11:04:33.528Z	6b3797f2-1059-467f-85a3-a4dcb34150d3	INFO	{"level":"INFO","handler":"delivery","requestId":"6b3797f2-1059-467f-85a3-a4dcb34150d3","event":"request_completed","timestamp":"2026-10-31T11:04:33.528Z","durationMs":11086,"responseLength":6287}
+1793444673530 END RequestId: 6b3797f2-1059-467f-85a3-a4dcb34150d3
+1793444673530 REPORT RequestId: 6b3797f2-1059-467f-85a3-a4dcb34150d3	Duration: 11090.40 ms	Billed Duration: 11091 ms	Memory Size: 1024 MB	Max Memory Used: 149 MB	
+
+===== /aws/lambda/dfdemo-05-risk =====
+1793444662559 INIT_START Runtime Version: nodejs:24.mainline.v115	Runtime Version ARN: arn:aws:lambda:eu-central-1::runtime:f305b3a259f8bcf7f8730f9e324e16ed868f53b02f82487bf989585baabe4b58
+1793444663050 START RequestId: a6afbd4b-d7b6-45b9-aadc-b6e906b143bf Version: $LATEST
+1793444663053 2026-10-31T11:04:23.053Z	a6afbd4b-d7b6-45b9-aadc-b6e906b143bf	INFO	{"level":"INFO","handler":"risk-assessment","requestId":"a6afbd4b-d7b6-45b9-aadc-b6e906b143bf","event":"request_received","timestamp":"2026-10-31T11:04:23.052Z","promptLength":329}
+1793444698263 2026-10-31T11:04:58.263Z	a6afbd4b-d7b6-45b9-aadc-b6e906b143bf	INFO	{"level":"INFO","handler":"risk-assessment","requestId":"a6afbd4b-d7b6-45b9-aadc-b6e906b143bf","event":"request_completed","timestamp":"2026-10-31T11:04:58.263Z","durationMs":35210,"responseLength":9928}
+1793444698267 END RequestId: a6afbd4b-d7b6-45b9-aadc-b6e906b143bf
+1793444698267 REPORT RequestId: a6afbd4b-d7b6-45b9-aadc-b6e906b143bf	Duration: 35216.08 ms	Billed Duration: 35704 ms	Memory Size: 1024 MB	Max Memory Used: 143 MB	Init Duration: 487.74 ms	
+
+===== /aws/lambda/dfdemo-05-contract =====
+1793444662576 INIT_START Runtime Version: nodejs:24.mainline.v115	Runtime Version ARN: arn:aws:lambda:eu-central-1::runtime:f305b3a259f8bcf7f8730f9e324e16ed868f53b02f82487bf989585baabe4b58
+1793444662930 START RequestId: 5bc7a83d-8719-4916-b297-1516ba70af81 Version: $LATEST
+1793444662932 2026-10-31T11:04:22.932Z	5bc7a83d-8719-4916-b297-1516ba70af81	INFO	{"level":"INFO","handler":"contract-review","requestId":"5bc7a83d-8719-4916-b297-1516ba70af81","event":"request_received","timestamp":"2026-10-31T11:04:22.931Z","promptLength":318}
+1793444679799 2026-10-31T11:04:39.799Z	5bc7a83d-8719-4916-b297-1516ba70af81	INFO	{"level":"INFO","handler":"contract-review","requestId":"5bc7a83d-8719-4916-b297-1516ba70af81","event":"request_completed","timestamp":"2026-10-31T11:04:39.799Z","durationMs":16868,"responseLength":8468}
+1793444679802 END RequestId: 5bc7a83d-8719-4916-b297-1516ba70af81
+1793444679803 REPORT RequestId: 5bc7a83d-8719-4916-b297-1516ba70af81	Duration: 16871.82 ms	Billed Duration: 17223 ms	Memory Size: 1024 MB	Max Memory Used: 143 MB	Init Duration: 351.15 ms	

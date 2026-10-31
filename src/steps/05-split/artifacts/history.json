@@ -1,0 +1,239 @@
+{
+    "Events": [
+        {
+            "EventType": "ExecutionStarted",
+            "EventId": 1,
+            "Id": "3372c20d-790d-3125-83f0-d6419592a234",
+            "Name": "753847a5-69d4-4b57-a464-f0b6da883777",
+            "EventTimestamp": "2026-10-31T12:02:39.026000+01:00",
+            "ExecutionStartedDetails": {
+                "Input": {
+                    "Truncated": true
+                },
+                "ExecutionTimeout": 86400
+            }
+        },
+        {
+            "EventType": "StepStarted",
+            "SubType": "Step",
+            "EventId": 2,
+            "Id": "c4ca4238a0b92382",
+            "Name": "plan",
+            "EventTimestamp": "2026-10-31T12:02:40.295000+01:00",
+            "StepStartedDetails": {}
+        },
+        {
+            "EventType": "StepSucceeded",
+            "SubType": "Step",
+            "EventId": 3,
+            "Id": "c4ca4238a0b92382",
+            "Name": "plan",
+            "EventTimestamp": "2026-10-31T12:02:47.224000+01:00",
+            "StepSucceededDetails": {
+                "Result": {
+                    "Truncated": true
+                },
+                "RetryDetails": {
+                    "CurrentAttempt": 1
+                }
+            }
+        },
+        {
+            "EventType": "ContextStarted",
+            "SubType": "Parallel",
+            "EventId": 4,
+            "Id": "c81e728d9d4c2f63",
+            "Name": "specialists",
+            "EventTimestamp": "2026-10-31T12:02:47.336000+01:00",
+            "ContextStartedDetails": {}
+        },
+        {
+            "EventType": "ContextStarted",
+            "SubType": "ParallelBranch",
+            "EventId": 5,
+            "Id": "8fbdbf5573b18fae",
+            "Name": "price-research",
+            "EventTimestamp": "2026-10-31T12:02:47.336000+01:00",
+            "ParentId": "c81e728d9d4c2f63",
+            "ContextStartedDetails": {}
+        },
+        {
+            "EventType": "ContextStarted",
+            "SubType": "ParallelBranch",
+            "EventId": 6,
+            "Id": "3c46a0407be60a1f",
+            "Name": "delivery",
+            "EventTimestamp": "2026-10-31T12:02:47.336000+01:00",
+            "ParentId": "c81e728d9d4c2f63",
+            "ContextStartedDetails": {}
+        },
+        {
+            "EventType": "ChainedInvokeStarted",
+            "SubType": "ChainedInvoke",
+            "EventId": 7,
+            "Id": "de9160b4a2cf6c27",
+            "Name": "price-research",
+            "EventTimestamp": "2026-10-31T12:02:47.336000+01:00",
+            "ParentId": "8fbdbf5573b18fae",
+            "ChainedInvokeStartedDetails": {
+                "FunctionName": "dfdemo-05-price",
+                "Input": {
+                    "Truncated": true
+                },
+                "ExecutedVersion": "$LATEST"
+            }
+        },
+        {
+            "EventType": "ChainedInvokeStarted",
+            "SubType": "ChainedInvoke",
+            "EventId": 8,
+            "Id": "61e70e07c25ca2dd",
+            "Name": "delivery",
+            "EventTimestamp": "2026-10-31T12:02:47.336000+01:00",
+            "ParentId": "3c46a0407be60a1f",
+            "ChainedInvokeStartedDetails": {
+                "FunctionName": "dfdemo-05-delivery",
+                "Input": {
+                    "Truncated": true
+                },
+                "ExecutedVersion": "$LATEST"
+            }
+        },
+        {
+            "EventType": "InvocationCompleted",
+            "EventId": 9,
+            "EventTimestamp": "2026-10-31T12:02:47.359000+01:00",
+            "InvocationCompletedDetails": {
+                "StartTimestamp": "2026-10-31T12:02:39.089000+01:00",
+                "EndTimestamp": "2026-10-31T12:02:47.354000+01:00",
+                "RequestId": "897af3f6-baa0-4e63-81b0-06b51ccfb4ec"
+            }
+        },
+        {
+            "EventType": "ChainedInvokeSucceeded",
+            "SubType": "ChainedInvoke",
+            "EventId": 10,
+            "Id": "de9160b4a2cf6c27",
+            "Name": "price-research",
+            "EventTimestamp": "2026-10-31T12:02:51.350000+01:00",
+            "ParentId": "8fbdbf5573b18fae",
+            "ChainedInvokeSucceededDetails": {
+                "Result": {
+                    "Truncated": true
+                }
+            }
+        },
+        {
+            "EventType": "ContextSucceeded",
+            "SubType": "ParallelBranch",
+            "EventId": 11,
+            "Id": "8fbdbf5573b18fae",
+            "Name": "price-research",
+            "EventTimestamp": "2026-10-31T12:02:51.435000+01:00",
+            "ParentId": "c81e728d9d4c2f63",
+            "ContextSucceededDetails": {
+                "Result": {
+                    "Truncated": true
+                }
+            }
+        },
+        {
+            "EventType": "InvocationCompleted",
+            "EventId": 12,
+            "EventTimestamp": "2026-10-31T12:02:51.460000+01:00",
+            "InvocationCompletedDetails": {
+                "StartTimestamp": "2026-10-31T12:02:51.386000+01:00",
+                "EndTimestamp": "2026-10-31T12:02:51.456000+01:00",
+                "RequestId": "bb250423-1530-4ca5-a8db-0ca599ce4378"
+            }
+        },
+        {
+            "EventType": "ChainedInvokeSucceeded",
+            "SubType": "ChainedInvoke",
+            "EventId": 13,
+            "Id": "61e70e07c25ca2dd",
+            "Name": "delivery",
+            "EventTimestamp": "2026-10-31T12:03:01.871000+01:00",
+            "ParentId": "3c46a0407be60a1f",
+            "ChainedInvokeSucceededDetails": {
+                "Result": {
+                    "Truncated": true
+                }
+            }
+        },
+        {
+            "EventType": "ContextSucceeded",
+            "SubType": "ParallelBranch",
+            "EventId": 14,
+            "Id": "3c46a0407be60a1f",
+            "Name": "delivery",
+            "EventTimestamp": "2026-10-31T12:03:01.961000+01:00",
+            "ParentId": "c81e728d9d4c2f63",
+            "ContextSucceededDetails": {
+                "Result": {
+                    "Truncated": true
+                }
+            }
+        },
+        {
+            "EventType": "ContextSucceeded",
+            "SubType": "Parallel",
+            "EventId": 15,
+            "Id": "c81e728d9d4c2f63",
+            "Name": "specialists",
+            "EventTimestamp": "2026-10-31T12:03:01.961000+01:00",
+            "ContextSucceededDetails": {
+                "Result": {
+                    "Truncated": true
+                }
+            }
+        },
+        {
+            "EventType": "StepStarted",
+            "SubType": "Step",
+            "EventId": 16,
+            "Id": "eccbc87e4b5ce2fe",
+            "Name": "synthesize",
+            "EventTimestamp": "2026-10-31T12:03:01.961000+01:00",
+            "StepStartedDetails": {}
+        },
+        {
+            "EventType": "StepSucceeded",
+            "SubType": "Step",
+            "EventId": 17,
+            "Id": "eccbc87e4b5ce2fe",
+            "Name": "synthesize",
+            "EventTimestamp": "2026-10-31T12:03:15.546000+01:00",
+            "StepSucceededDetails": {
+                "Result": {
+                    "Truncated": true
+                },
+                "RetryDetails": {
+                    "CurrentAttempt": 1
+                }
+            }
+        },
+        {
+            "EventType": "InvocationCompleted",
+            "EventId": 18,
+            "EventTimestamp": "2026-10-31T12:03:15.571000+01:00",
+            "InvocationCompletedDetails": {
+                "StartTimestamp": "2026-10-31T12:03:01.914000+01:00",
+                "EndTimestamp": "2026-10-31T12:03:15.567000+01:00",
+                "RequestId": "1f8d48eb-75dc-4880-b1e2-ffeb10888acd"
+            }
+        },
+        {
+            "EventType": "ExecutionSucceeded",
+            "EventId": 19,
+            "Id": "3372c20d-790d-3125-83f0-d6419592a234",
+            "Name": "753847a5-69d4-4b57-a464-f0b6da883777",
+            "EventTimestamp": "2026-10-31T12:03:15.571000+01:00",
+            "ExecutionSucceededDetails": {
+                "Result": {
+                    "Truncated": true
+                }
+            }
+        }
+    ]
+}

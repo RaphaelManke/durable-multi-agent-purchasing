@@ -1,0 +1,19 @@
+{
+    "DurableExecutionArn": "arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-04-agent:2/durable-execution/1c04a5df-2ca1-4432-81d3-753a65453630/8bd7d5a2-6b60-3e59-b7b0-fe7b8001e75c",
+    "DurableExecutionName": "1c04a5df-2ca1-4432-81d3-753a65453630",
+    "FunctionArn": "arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-04-agent:2",
+    "InputPayload": "{\n  \"request\": \"I want to finance a $1,500 laptop over 24 months at 6% annual interest. What is my monthly payment?\"\n}\n",
+    "Result": "{\"status\":\"completed\",\"answer\":\"Your monthly payment would be **$66.48** for a $1,500 laptop financed over 24 months at 6% annual interest.\"}",
+    "StartTimestamp": "2026-10-31T12:01:56.798000+01:00",
+    "Status": "SUCCEEDED",
+    "EndTimestamp": "2026-10-31T12:01:59.094000+01:00",
+    "Version": "2",
+    "TraceHeader": {
+        "XAmznTraceId": "Root=1-6ae5caa4-6b0c49d4670a60937725cfba;Parent=46d7ea26b4ac7ace;Sampled=0"
+    },
+    "ExecutionDataIncluded": true,
+    "DurableConfig": {
+        "RetentionPeriodInDays": 7,
+        "ExecutionTimeout": 900
+    }
+}
