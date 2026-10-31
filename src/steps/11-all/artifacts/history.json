@@ -1,0 +1,431 @@
+{
+    "Events": [
+        {
+            "EventType": "ExecutionStarted",
+            "EventId": 1,
+            "Id": "7e6e9ccf-899e-32e0-b4c2-9543c535d012",
+            "Name": "1ac685cd-f9cd-4ed4-a2bf-ba3de46512f0",
+            "EventTimestamp": "2026-10-31T12:12:28.587000+01:00",
+            "ExecutionStartedDetails": {
+                "Input": {
+                    "Truncated": true
+                },
+                "ExecutionTimeout": 86400
+            }
+        },
+        {
+            "EventType": "StepStarted",
+            "SubType": "Step",
+            "EventId": 2,
+            "Id": "c4ca4238a0b92382",
+            "Name": "plan",
+            "EventTimestamp": "2026-10-31T12:12:30.463000+01:00",
+            "StepStartedDetails": {}
+        },
+        {
+            "EventType": "StepSucceeded",
+            "SubType": "Step",
+            "EventId": 3,
+            "Id": "c4ca4238a0b92382",
+            "Name": "plan",
+            "EventTimestamp": "2026-10-31T12:12:41.789000+01:00",
+            "StepSucceededDetails": {
+                "Result": {
+                    "Truncated": true
+                },
+                "RetryDetails": {
+                    "CurrentAttempt": 1
+                }
+            }
+        },
+        {
+            "EventType": "ContextStarted",
+            "SubType": "Parallel",
+            "EventId": 4,
+            "Id": "c81e728d9d4c2f63",
+            "Name": "specialists",
+            "EventTimestamp": "2026-10-31T12:12:41.908000+01:00",
+            "ContextStartedDetails": {}
+        },
+        {
+            "EventType": "ContextStarted",
+            "SubType": "ParallelBranch",
+            "EventId": 5,
+            "Id": "8fbdbf5573b18fae",
+            "Name": "price-research",
+            "EventTimestamp": "2026-10-31T12:12:41.908000+01:00",
+            "ParentId": "c81e728d9d4c2f63",
+            "ContextStartedDetails": {}
+        },
+        {
+            "EventType": "ContextStarted",
+            "SubType": "ParallelBranch",
+            "EventId": 6,
+            "Id": "3c46a0407be60a1f",
+            "Name": "financing",
+            "EventTimestamp": "2026-10-31T12:12:41.908000+01:00",
+            "ParentId": "c81e728d9d4c2f63",
+            "ContextStartedDetails": {}
+        },
+        {
+            "EventType": "ContextStarted",
+            "SubType": "ParallelBranch",
+            "EventId": 7,
+            "Id": "c22c60349630d688",
+            "Name": "delivery",
+            "EventTimestamp": "2026-10-31T12:12:41.908000+01:00",
+            "ParentId": "c81e728d9d4c2f63",
+            "ContextStartedDetails": {}
+        },
+        {
+            "EventType": "ContextStarted",
+            "SubType": "ParallelBranch",
+            "EventId": 8,
+            "Id": "620726cce3cbc8c5",
+            "Name": "contract-review",
+            "EventTimestamp": "2026-10-31T12:12:41.908000+01:00",
+            "ParentId": "c81e728d9d4c2f63",
+            "ContextStartedDetails": {}
+        },
+        {
+            "EventType": "ContextStarted",
+            "SubType": "ParallelBranch",
+            "EventId": 9,
+            "Id": "2db0874cc1843a75",
+            "Name": "risk-assessment",
+            "EventTimestamp": "2026-10-31T12:12:41.908000+01:00",
+            "ParentId": "c81e728d9d4c2f63",
+            "ContextStartedDetails": {}
+        },
+        {
+            "EventType": "ChainedInvokeStarted",
+            "SubType": "ChainedInvoke",
+            "EventId": 10,
+            "Id": "de9160b4a2cf6c27",
+            "Name": "price-research",
+            "EventTimestamp": "2026-10-31T12:12:41.908000+01:00",
+            "ParentId": "8fbdbf5573b18fae",
+            "ChainedInvokeStartedDetails": {
+                "FunctionName": "dfdemo-11-otel-price",
+                "Input": {
+                    "Truncated": true
+                },
+                "ExecutedVersion": "$LATEST"
+            }
+        },
+        {
+            "EventType": "ChainedInvokeStarted",
+            "SubType": "ChainedInvoke",
+            "EventId": 11,
+            "Id": "61e70e07c25ca2dd",
+            "Name": "financing",
+            "EventTimestamp": "2026-10-31T12:12:41.908000+01:00",
+            "ParentId": "3c46a0407be60a1f",
+            "ChainedInvokeStartedDetails": {
+                "FunctionName": "dfdemo-11-otel-financing",
+                "Input": {
+                    "Truncated": true
+                },
+                "ExecutedVersion": "$LATEST"
+            }
+        },
+        {
+            "EventType": "ChainedInvokeStarted",
+            "SubType": "ChainedInvoke",
+            "EventId": 12,
+            "Id": "cefadbd4e385ee74",
+            "Name": "delivery",
+            "EventTimestamp": "2026-10-31T12:12:41.908000+01:00",
+            "ParentId": "c22c60349630d688",
+            "ChainedInvokeStartedDetails": {
+                "FunctionName": "dfdemo-11-otel-delivery",
+                "Input": {
+                    "Truncated": true
+                },
+                "ExecutedVersion": "$LATEST"
+            }
+        },
+        {
+            "EventType": "ChainedInvokeStarted",
+            "SubType": "ChainedInvoke",
+            "EventId": 13,
+            "Id": "f5e53d37563755ed",
+            "Name": "contract-review",
+            "EventTimestamp": "2026-10-31T12:12:41.908000+01:00",
+            "ParentId": "620726cce3cbc8c5",
+            "ChainedInvokeStartedDetails": {
+                "FunctionName": "dfdemo-11-otel-contract",
+                "Input": {
+                    "Truncated": true
+                },
+                "ExecutedVersion": "$LATEST"
+            }
+        },
+        {
+            "EventType": "ChainedInvokeStarted",
+            "SubType": "ChainedInvoke",
+            "EventId": 14,
+            "Id": "18e8e1e1b8434524",
+            "Name": "risk-assessment",
+            "EventTimestamp": "2026-10-31T12:12:41.908000+01:00",
+            "ParentId": "2db0874cc1843a75",
+            "ChainedInvokeStartedDetails": {
+                "FunctionName": "dfdemo-11-otel-risk",
+                "Input": {
+                    "Truncated": true
+                },
+                "ExecutedVersion": "$LATEST"
+            }
+        },
+        {
+            "EventType": "InvocationCompleted",
+            "EventId": 15,
+            "EventTimestamp": "2026-10-31T12:12:42.039000+01:00",
+            "InvocationCompletedDetails": {
+                "StartTimestamp": "2026-10-31T12:12:28.634000+01:00",
+                "EndTimestamp": "2026-10-31T12:12:42.034000+01:00",
+                "RequestId": "57b16585-6cd9-42b2-8602-4c6513646622"
+            }
+        },
+        {
+            "EventType": "ChainedInvokeSucceeded",
+            "SubType": "ChainedInvoke",
+            "EventId": 16,
+            "Id": "de9160b4a2cf6c27",
+            "Name": "price-research",
+            "EventTimestamp": "2026-10-31T12:12:56.426000+01:00",
+            "ParentId": "8fbdbf5573b18fae",
+            "ChainedInvokeSucceededDetails": {
+                "Result": {
+                    "Truncated": true
+                }
+            }
+        },
+        {
+            "EventType": "ContextSucceeded",
+            "SubType": "ParallelBranch",
+            "EventId": 17,
+            "Id": "8fbdbf5573b18fae",
+            "Name": "price-research",
+            "EventTimestamp": "2026-10-31T12:12:56.514000+01:00",
+            "ParentId": "c81e728d9d4c2f63",
+            "ContextSucceededDetails": {
+                "Result": {
+                    "Truncated": true
+                }
+            }
+        },
+        {
+            "EventType": "InvocationCompleted",
+            "EventId": 18,
+            "EventTimestamp": "2026-10-31T12:12:56.575000+01:00",
+            "InvocationCompletedDetails": {
+                "StartTimestamp": "2026-10-31T12:12:56.461000+01:00",
+                "EndTimestamp": "2026-10-31T12:12:56.571000+01:00",
+                "RequestId": "25a55b47-6cf0-4ce2-ba02-ad949c730484"
+            }
+        },
+        {
+            "EventType": "ChainedInvokeSucceeded",
+            "SubType": "ChainedInvoke",
+            "EventId": 19,
+            "Id": "cefadbd4e385ee74",
+            "Name": "delivery",
+            "EventTimestamp": "2026-10-31T12:12:57.515000+01:00",
+            "ParentId": "c22c60349630d688",
+            "ChainedInvokeSucceededDetails": {
+                "Result": {
+                    "Truncated": true
+                }
+            }
+        },
+        {
+            "EventType": "ContextSucceeded",
+            "SubType": "ParallelBranch",
+            "EventId": 20,
+            "Id": "c22c60349630d688",
+            "Name": "delivery",
+            "EventTimestamp": "2026-10-31T12:12:57.598000+01:00",
+            "ParentId": "c81e728d9d4c2f63",
+            "ContextSucceededDetails": {
+                "Result": {
+                    "Truncated": true
+                }
+            }
+        },
+        {
+            "EventType": "InvocationCompleted",
+            "EventId": 21,
+            "EventTimestamp": "2026-10-31T12:12:57.656000+01:00",
+            "InvocationCompletedDetails": {
+                "StartTimestamp": "2026-10-31T12:12:57.548000+01:00",
+                "EndTimestamp": "2026-10-31T12:12:57.652000+01:00",
+                "RequestId": "e0ad1a57-6802-4082-8489-2c25bafc3ad3"
+            }
+        },
+        {
+            "EventType": "ChainedInvokeSucceeded",
+            "SubType": "ChainedInvoke",
+            "EventId": 22,
+            "Id": "f5e53d37563755ed",
+            "Name": "contract-review",
+            "EventTimestamp": "2026-10-31T12:13:00.913000+01:00",
+            "ParentId": "620726cce3cbc8c5",
+            "ChainedInvokeSucceededDetails": {
+                "Result": {
+                    "Truncated": true
+                }
+            }
+        },
+        {
+            "EventType": "ContextSucceeded",
+            "SubType": "ParallelBranch",
+            "EventId": 23,
+            "Id": "620726cce3cbc8c5",
+            "Name": "contract-review",
+            "EventTimestamp": "2026-10-31T12:13:00.997000+01:00",
+            "ParentId": "c81e728d9d4c2f63",
+            "ContextSucceededDetails": {
+                "Result": {
+                    "Truncated": true
+                }
+            }
+        },
+        {
+            "EventType": "InvocationCompleted",
+            "EventId": 24,
+            "EventTimestamp": "2026-10-31T12:13:01.047000+01:00",
+            "InvocationCompletedDetails": {
+                "StartTimestamp": "2026-10-31T12:13:00.948000+01:00",
+                "EndTimestamp": "2026-10-31T12:13:01.043000+01:00",
+                "RequestId": "86561a37-8260-4f38-a9c2-c53efb996d5a"
+            }
+        },
+        {
+            "EventType": "ChainedInvokeSucceeded",
+            "SubType": "ChainedInvoke",
+            "EventId": 25,
+            "Id": "61e70e07c25ca2dd",
+            "Name": "financing",
+            "EventTimestamp": "2026-10-31T12:13:04.192000+01:00",
+            "ParentId": "3c46a0407be60a1f",
+            "ChainedInvokeSucceededDetails": {
+                "Result": {
+                    "Truncated": true
+                }
+            }
+        },
+        {
+            "EventType": "ContextSucceeded",
+            "SubType": "ParallelBranch",
+            "EventId": 26,
+            "Id": "3c46a0407be60a1f",
+            "Name": "financing",
+            "EventTimestamp": "2026-10-31T12:13:04.284000+01:00",
+            "ParentId": "c81e728d9d4c2f63",
+            "ContextSucceededDetails": {
+                "Result": {
+                    "Truncated": true
+                }
+            }
+        },
+        {
+            "EventType": "InvocationCompleted",
+            "EventId": 27,
+            "EventTimestamp": "2026-10-31T12:13:04.344000+01:00",
+            "InvocationCompletedDetails": {
+                "StartTimestamp": "2026-10-31T12:13:04.234000+01:00",
+                "EndTimestamp": "2026-10-31T12:13:04.340000+01:00",
+                "RequestId": "3c4e59ee-7a89-4df5-89b3-69fcbe552fad"
+            }
+        },
+        {
+            "EventType": "ChainedInvokeSucceeded",
+            "SubType": "ChainedInvoke",
+            "EventId": 28,
+            "Id": "18e8e1e1b8434524",
+            "Name": "risk-assessment",
+            "EventTimestamp": "2026-10-31T12:13:27.186000+01:00",
+            "ParentId": "2db0874cc1843a75",
+            "ChainedInvokeSucceededDetails": {
+                "Result": {
+                    "Truncated": true
+                }
+            }
+        },
+        {
+            "EventType": "ContextSucceeded",
+            "SubType": "ParallelBranch",
+            "EventId": 29,
+            "Id": "2db0874cc1843a75",
+            "Name": "risk-assessment",
+            "EventTimestamp": "2026-10-31T12:13:27.289000+01:00",
+            "ParentId": "c81e728d9d4c2f63",
+            "ContextSucceededDetails": {
+                "Result": {
+                    "Truncated": true
+                }
+            }
+        },
+        {
+            "EventType": "ContextSucceeded",
+            "SubType": "Parallel",
+            "EventId": 30,
+            "Id": "c81e728d9d4c2f63",
+            "Name": "specialists",
+            "EventTimestamp": "2026-10-31T12:13:27.289000+01:00",
+            "ContextSucceededDetails": {
+                "Result": {
+                    "Truncated": true
+                }
+            }
+        },
+        {
+            "EventType": "StepStarted",
+            "SubType": "Step",
+            "EventId": 31,
+            "Id": "eccbc87e4b5ce2fe",
+            "Name": "synthesize",
+            "EventTimestamp": "2026-10-31T12:13:27.289000+01:00",
+            "StepStartedDetails": {}
+        },
+        {
+            "EventType": "StepSucceeded",
+            "SubType": "Step",
+            "EventId": 32,
+            "Id": "eccbc87e4b5ce2fe",
+            "Name": "synthesize",
+            "EventTimestamp": "2026-10-31T12:13:48.463000+01:00",
+            "StepSucceededDetails": {
+                "Result": {
+                    "Truncated": true
+                },
+                "RetryDetails": {
+                    "CurrentAttempt": 1
+                }
+            }
+        },
+        {
+            "EventType": "InvocationCompleted",
+            "EventId": 33,
+            "EventTimestamp": "2026-10-31T12:13:48.528000+01:00",
+            "InvocationCompletedDetails": {
+                "StartTimestamp": "2026-10-31T12:13:27.227000+01:00",
+                "EndTimestamp": "2026-10-31T12:13:48.523000+01:00",
+                "RequestId": "56652023-f820-495f-93f2-a1116fb24578"
+            }
+        },
+        {
+            "EventType": "ExecutionSucceeded",
+            "EventId": 34,
+            "Id": "7e6e9ccf-899e-32e0-b4c2-9543c535d012",
+            "Name": "1ac685cd-f9cd-4ed4-a2bf-ba3de46512f0",
+            "EventTimestamp": "2026-10-31T12:13:48.528000+01:00",
+            "ExecutionSucceededDetails": {
+                "Result": {
+                    "Truncated": true
+                }
+            }
+        }
+    ]
+}
