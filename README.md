@@ -189,15 +189,21 @@ The coordinator uses `context.logger` (replay-aware), so log lines only appear o
 
 ```text
 src/
-  handlers/
-    coordinator.ts          # Durable execution workflow — plan, parallel, synthesize, approval
-    coordinator.test.ts     # Unit tests with LocalDurableTestRunner
-    specialist.ts           # Shared handler for all 5 specialists, selected by PROMPT_NAME
+  steps/                    # One folder per step of the presentation outline
+    01-retry/               # handler.ts, request.json, invoke.sh, artifacts/
+    02-wait/
+    03-model-replay/
+    04-agent/
+    05-split/               # coordinator.ts, specialist.ts, tests (reused by steps 06 to 11)
+    06-full/ 07-xray/ 08-otel/ 09-traces/ 10-mode/ 11-all/ 12-analysis/
   lib/
     models.ts               # Model configuration — coordinator (Sonnet 4.6) and specialist (Haiku 4.5)
     prompts.ts              # Prompt loader — maps prompt names to RISEN prompt modules
     specialist-tools.ts     # Per-specialist tool registry (e.g. save_price_snapshot)
     logger.ts               # Structured JSON logger for non-durable handlers
+scripts/
+  gen-template.ts           # Generates template.yaml (npm run gen:template)
+  lib/invoke-step.sh        # Shared invoke + poll + artifact capture for steps/*/invoke.sh
 prompts/
   coordinator-plan.ts       # RISEN prompt — routing logic in Steps section
   coordinator-synthesis.ts  # RISEN prompt — synthesizes specialist findings

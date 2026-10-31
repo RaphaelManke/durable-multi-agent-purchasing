@@ -23,8 +23,9 @@ import {
 } from '@aws/durable-execution-sdk-js'
 import { Agent, tool } from '@strands-agents/sdk'
 import { z } from 'zod'
-import { createModel, COORDINATOR_MODEL } from '../lib/models.js'
-import { loadPrompt } from '../lib/prompts.js'
+import { createModel, COORDINATOR_MODEL } from '../../lib/models.js'
+import { loadPrompt } from '../../lib/prompts.js'
+import { loadOtelPlugins } from '../../lib/otel.js'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -60,6 +61,7 @@ interface AnalysisPlan {
 const planPrompt = loadPrompt('coordinator-plan')
 const synthesisPrompt = loadPrompt('coordinator-synthesis')
 const model = createModel(COORDINATOR_MODEL)
+const plugins = loadOtelPlugins()
 
 // Retry strategy for Bedrock steps (plan + synthesize). Handles Bedrock
 // throttling with exponential backoff and full jitter.
@@ -254,4 +256,4 @@ export const handler = withDurableExecution(async (
     recommendation: response,
     routing,
   }
-})
+}, { plugins })

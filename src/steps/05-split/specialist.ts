@@ -13,10 +13,10 @@
 
 import type { Context } from 'aws-lambda'
 import { Agent } from '@strands-agents/sdk'
-import { createModel, SPECIALIST_MODEL } from '../lib/models.js'
-import { loadPrompt } from '../lib/prompts.js'
-import { loadSpecialistTools } from '../lib/specialist-tools.js'
-import { makeLogger } from '../lib/logger.js'
+import { createModel, SPECIALIST_MODEL } from '../../lib/models.js'
+import { loadPrompt } from '../../lib/prompts.js'
+import { loadSpecialistTools } from '../../lib/specialist-tools.js'
+import { makeLogger } from '../../lib/logger.js'
 
 const promptName = process.env.PROMPT_NAME!
 if (!promptName) throw new Error('PROMPT_NAME environment variable is required')
