@@ -367,6 +367,20 @@ ${section('Q6. Ten slowest spans of the step 11 trace', 'q6-slowest-spans-step11
 }
 
 // ---------------------------------------------------------------- render
+// Console "durable execution" detail page: operations tree and every event expanded, plus Input/Output.
+function execDetail(s) {
+  const n = s.n
+  if (!existsSync(join(ROOT, 'report/img', `${n}-exec-events-p1.png`))) return ''
+  const io = existsSync(join(ROOT, 'report/img', `${n}-exec-io.png`))
+    ? img(`${n}-exec-io.png`, 'Input/Output tab of the durable execution') : ''
+  const ops = existsSync(join(ROOT, 'report/img', `${n}-exec-operations.png`))
+    ? img(`${n}-exec-operations.png`, 'Durable operations of the execution: every nested operation expanded (parallel branches, chained invokes), with a timeline per operation') : ''
+  const pages = [1, 2, 3, 4].filter((k) => existsSync(join(ROOT, 'report/img', `${n}-exec-events-p${k}.png`)))
+  const ev = pages.map((k) => `<figure class="tall"><a href="img/${n}-exec-events-p${k}.png"><img loading="lazy" src="img/${n}-exec-events-p${k}.png" alt="Durable execution detail, event history page ${k}"></a><figcaption>Durable execution detail page${pages.length > 1 ? `, events page ${k} of ${pages.length}` : ''}: durable operations (nested ones expanded) and the event history with every event expanded. Scroll inside the frame or click to open the full image.</figcaption></figure>`).join('')
+  return `<h3>Durable execution drill-down (console)</h3>
+  <div class="execdetail">${ops}${io}${ev}</div>`
+}
+
 function renderStep(s) {
   const f = s.noInvoke ? facts('08-otel') : facts(s.dir)
   const toc = `${s.n}`
@@ -401,6 +415,7 @@ function renderStep(s) {
   ${s.extra(f)}
   <h3>Screenshots</h3>
   <div class="shots">${shots}</div>
+  ${execDetail(s)}
   <h3>Prompt that would generate this</h3>
   <div class="prompt"><button class="copy" type="button">Copy</button><pre>${esc(s.prompt)}</pre></div>
 </section>`
@@ -476,7 +491,7 @@ pre{margin:0;padding:12px;overflow:auto;color:var(--codefg);font:12.5px/1.45 ui-
 code{font-family:ui-monospace,Menlo,monospace;font-size:.9em;word-break:break-all}p code,td code,li code{background:#eef1f6;border-radius:4px;padding:1px 4px}
 table{border-collapse:collapse;width:100%;margin:10px 0;font-size:14px}th,td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top}th{background:#f0f3f8}
 table.ids th{width:230px}.callout{background:#fff7e0;border:1px solid #f0d58a;border-radius:8px;padding:10px 14px;margin:12px 0}.note{color:var(--mut);font-size:14px}
-.shots{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:14px}figure{margin:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fff}figure img{width:100%;display:block}figcaption{font-size:13px;color:var(--mut);padding:6px 10px}
+.shots{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:14px}figure{margin:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fff}figure img{width:100%;display:block}.execdetail{display:grid;gap:14px}figure.tall{max-height:980px;overflow:auto}figure.tall img{width:100%}figcaption{font-size:13px;color:var(--mut);padding:6px 10px}
 .prompt{position:relative;background:#eef4ff;border:1px solid #bcd0ff;border-radius:8px}.prompt pre{color:#10213f;font:13px/1.5 ui-monospace,Menlo,monospace}.copy{position:absolute;right:8px;top:8px;border:0;background:var(--acc);color:#fff;border-radius:6px;padding:4px 10px;cursor:pointer}
 .evidence{border:1px solid var(--line);border-radius:8px;padding:4px 16px;background:#fbfcfe}
 .cover{background:linear-gradient(135deg,#0b5fff,#6a3df0);color:#fff;border-radius:14px;padding:32px 36px}.cover h1{margin:0 0 8px;font-size:32px}.cover p{margin:4px 0;opacity:.95}

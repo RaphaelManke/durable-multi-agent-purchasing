@@ -18,3 +18,15 @@ Taken 2026-10-31 from the AWS console. Execution IDs are in `src/steps/NN-*/arti
 | 07-11-trace-map-all.png | 07-11 | CloudWatch Trace Map (last 3h) with the 07 X-Ray nodes and the 10/11 OTel nodes |
 
 Step 09 uses 08-trace-detail.png (same run). Step 12 has no function and no screenshot.
+
+## Durable execution drill-down (scripts/exec-screenshots.sh)
+
+Lambda console, durable execution detail page of each step's recorded run (steps 01-08, 10, 11).
+
+| File | Shows |
+|---|---|
+| NN-exec-operations.png | Durable operations table with every nested operation expanded (parallel branches and their chained invokes), plus the timeline per operation |
+| NN-exec-io.png | Input/Output tab (request and result of the durable execution) |
+| NN-exec-events-pK.png | Page and header of the execution with the full event history, every event expanded to its JSON. Executions with more than 25 events are split into pages of 25 events (steps 06, 07, 08, 10, 11 have 34 events, so p1 and p2) |
+
+The console's "Logger output" tab is not captured: it only shows output written through the durable SDK logger, and these handlers log with console.log, so it is empty.
