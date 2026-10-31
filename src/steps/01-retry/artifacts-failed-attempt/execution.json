@@ -1,0 +1,22 @@
+{
+    "DurableExecutionArn": "arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-01-retry:1/durable-execution/e95d02cf-79be-4180-947f-38803cb57279/073114be-765b-3e6b-956e-2cd53e2068fa",
+    "DurableExecutionName": "e95d02cf-79be-4180-947f-38803cb57279",
+    "FunctionArn": "arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-01-retry:1",
+    "InputPayload": "{\n  \"name\": \"durable world\"\n}\n",
+    "Error": {
+        "ErrorMessage": "SyntaxError: Identifier 'createRequire' has already been declared",
+        "ErrorType": "Runtime.UserCodeSyntaxError"
+    },
+    "StartTimestamp": "2026-10-31T11:46:54.001000+01:00",
+    "Status": "FAILED",
+    "EndTimestamp": "2026-10-31T11:47:00.567000+01:00",
+    "Version": "1",
+    "TraceHeader": {
+        "XAmznTraceId": "Root=1-6ae5c71d-15a994cd785d3f457b68eb2d;Parent=127584d2c4c75028;Sampled=0"
+    },
+    "ExecutionDataIncluded": true,
+    "DurableConfig": {
+        "RetentionPeriodInDays": 7,
+        "ExecutionTimeout": 300
+    }
+}

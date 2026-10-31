@@ -1,0 +1,5 @@
+# Log groups: coordinators of steps 05, 07, 08, 10, 11
+# Distinct handler invocations that logged for each durable execution (replay-aware logger: replayed code stays silent)
+filter ispresent(executionArn)
+| stats count() as logLines, count_distinct(requestId) as invocationsThatLogged, min(@timestamp) as firstSeen, max(@timestamp) as lastSeen by executionArn
+| sort firstSeen asc

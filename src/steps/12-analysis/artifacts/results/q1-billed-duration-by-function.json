@@ -1,0 +1,124 @@
+{
+  "queryLanguage": "CWLI",
+  "results": [
+    [
+      {
+        "field": "@log",
+        "value": "913524906826:/aws/lambda/dfdemo-05-coordinator"
+      },
+      {
+        "field": "invocations",
+        "value": "9"
+      },
+      {
+        "field": "billedMs",
+        "value": "55055"
+      },
+      {
+        "field": "avgDurationMs",
+        "value": "6016.7941"
+      },
+      {
+        "field": "maxMemMB",
+        "value": "166"
+      }
+    ],
+    [
+      {
+        "field": "@log",
+        "value": "913524906826:/aws/lambda/dfdemo-10-otel-mode2-coordinator"
+      },
+      {
+        "field": "invocations",
+        "value": "6"
+      },
+      {
+        "field": "billedMs",
+        "value": "39377"
+      },
+      {
+        "field": "avgDurationMs",
+        "value": "6326.8462"
+      },
+      {
+        "field": "maxMemMB",
+        "value": "264"
+      }
+    ],
+    [
+      {
+        "field": "@log",
+        "value": "913524906826:/aws/lambda/dfdemo-07-xray-coordinator"
+      },
+      {
+        "field": "invocations",
+        "value": "6"
+      },
+      {
+        "field": "billedMs",
+        "value": "39278"
+      },
+      {
+        "field": "avgDurationMs",
+        "value": "6442.363"
+      },
+      {
+        "field": "maxMemMB",
+        "value": "158"
+      }
+    ],
+    [
+      {
+        "field": "@log",
+        "value": "913524906826:/aws/lambda/dfdemo-08-otel-coordinator"
+      },
+      {
+        "field": "invocations",
+        "value": "6"
+      },
+      {
+        "field": "billedMs",
+        "value": "36038"
+      },
+      {
+        "field": "avgDurationMs",
+        "value": "5839.0018"
+      },
+      {
+        "field": "maxMemMB",
+        "value": "260"
+      }
+    ],
+    [
+      {
+        "field": "@log",
+        "value": "913524906826:/aws/lambda/dfdemo-11-otel-all-coordinator"
+      },
+      {
+        "field": "invocations",
+        "value": "6"
+      },
+      {
+        "field": "billedMs",
+        "value": "34905"
+      },
+      {
+        "field": "avgDurationMs",
+        "value": "5586.4077"
+      },
+      {
+        "field": "maxMemMB",
+        "value": "262"
+      }
+    ]
+  ],
+  "statistics": {
+    "recordsMatched": 33.0,
+    "recordsScanned": 143.0,
+    "estimatedRecordsSkipped": 32.0,
+    "bytesScanned": 55711.0,
+    "estimatedBytesSkipped": 8038.0,
+    "logGroupsScanned": 5.0
+  },
+  "status": "Complete"
+}

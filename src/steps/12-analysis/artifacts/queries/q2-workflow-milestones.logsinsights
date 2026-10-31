@@ -1,0 +1,5 @@
+# Log groups: coordinators of steps 05, 07, 08, 10, 11
+# Workflow milestones logged by context.logger, one row per event
+filter message like /plan_created|specialists_completed|recommendation_generated|request_completed/
+| fields @timestamp, @log, requestId, executionArn, message
+| sort @timestamp asc

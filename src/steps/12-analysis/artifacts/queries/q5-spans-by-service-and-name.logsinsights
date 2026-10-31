@@ -1,0 +1,5 @@
+# Log group: aws/spans
+# Which services and span names appear in each trace (context propagation: step 11 should show specialist services in the same trace)
+filter traceId in ["6ae5cbc4712cf6fd1703fd806783e1ad", "6ae5cc3b44cc9da909fe2c2e7aebf8f3", "6ae5cca544a55195411c3a0251cd3b9a", "6ae5cd1c75705e4c04ad9fe673a2a55e"]
+| stats count() as spans by traceId, attributes.aws.local.service
+| sort traceId asc, spans desc

@@ -1,0 +1,5 @@
+# Log groups: coordinators of steps 05, 07, 08, 10, 11
+# Billed vs. execution time per handler invocation, from Lambda platform.report records
+filter type = "platform.report"
+| stats count() as invocations, sum(record.metrics.billedDurationMs) as billedMs, avg(record.metrics.durationMs) as avgDurationMs, max(record.metrics.maxMemoryUsedMB) as maxMemMB by @log
+| sort billedMs desc

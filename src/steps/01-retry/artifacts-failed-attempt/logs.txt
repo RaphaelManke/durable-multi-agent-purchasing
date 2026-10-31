@@ -1,0 +1,96 @@
+1793443614070 {"time":"2026-10-31T10:46:54.070Z","type":"platform.initStart","record":{"initializationType":"on-demand","phase":"invoke","runtimeVersion":"nodejs:24.DurableFunction.v96","runtimeVersionArn":"arn:aws:lambda:eu-central-1::runtime:29e9250f10a464c84b2897eeb2514f5a2f4485727574d14749c938eea2130159","functionName":"dfdemo-01-retry","functionVersion":"1","instanceId":"2026/10/31/[1]c94d010018b744ca8f1c785ae319cdc3","instanceMaxMemory":268435456}}
+1793443614132 {"timestamp":"2026-10-31T10:46:54.132Z","level":"ERROR","requestId":"-","message":{"errorType":"UserCodeSyntaxError","errorMessage":"SyntaxError: Identifier 'createRequire' has already been declared","stackTrace":["SyntaxError: Identifier 'createRequire' has already been declared","    at compileSourceTextModule (node:internal/modules/esm/utils:319:16)","    at ModuleLoader.moduleStrategy (node:internal/modules/esm/translators:89:18)","    at #translate (node:internal/modules/esm/loader:438:20)","    at afterLoad (node:internal/modules/esm/loader:506:29)","    at ModuleLoader.loadAndTranslate (node:internal/modules/esm/loader:511:12)","    at #getOrCreateModuleJobAfterResolve (node:internal/modules/esm/loader:564:36)","    at afterResolve (node:internal/modules/esm/loader:611:52)","    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:617:12)","    at node:internal/modules/esm/loader:636:32","    at TracingChannel.tracePromise (node:diagnostics_channel:370:14)"],"name":"Runtime.UserCodeSyntaxError"}}
+1793443614145 node:internal/process/promises:394
+1793443614145 triggerUncaughtException(err, true /* fromPromise */);
+1793443614145 ^
+1793443614145 SyntaxError: Identifier 'createRequire' has already been declared
+1793443614145 at compileSourceTextModule (node:internal/modules/esm/utils:319:16)
+1793443614145 at ModuleLoader.moduleStrategy (node:internal/modules/esm/translators:89:18)
+1793443614145 at #translate (node:internal/modules/esm/loader:438:20)
+1793443614145 at afterLoad (node:internal/modules/esm/loader:506:29)
+1793443614145 at ModuleLoader.loadAndTranslate (node:internal/modules/esm/loader:511:12)
+1793443614145 at #getOrCreateModuleJobAfterResolve (node:internal/modules/esm/loader:564:36)
+1793443614145 at afterResolve (node:internal/modules/esm/loader:611:52)
+1793443614145 at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:617:12)
+1793443614145 at node:internal/modules/esm/loader:636:32
+1793443614145 at TracingChannel.tracePromise (node:diagnostics_channel:370:14) {
+1793443614145 name: 'Runtime.UserCodeSyntaxError'
+1793443614145 }
+1793443614145 Node.js v24.22.2
+1793443614151 {"time":"2026-10-31T10:46:54.151Z","type":"platform.initRuntimeDone","record":{"initializationType":"on-demand","phase":"invoke","status":"error","errorType":"Runtime.UserCodeSyntaxError"}}
+1793443614151 {"time":"2026-10-31T10:46:54.151Z","type":"platform.initReport","record":{"initializationType":"on-demand","phase":"invoke","status":"error","errorType":"Runtime.UserCodeSyntaxError","metrics":{"durationMs":80.686}}}
+1793443614151 {"time":"2026-10-31T10:46:54.151Z","type":"platform.start","record":{"requestId":"054a896c-e8a8-45d7-9662-41158fc98f81","functionArn":"arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-01-retry:1","version":"1"}}
+1793443614151 {"time":"2026-10-31T10:46:54.151Z","type":"platform.runtimeDone","record":{"requestId":"054a896c-e8a8-45d7-9662-41158fc98f81","status":"error","errorType":"Runtime.UserCodeSyntaxError","metrics":{"durationMs":0.0,"producedBytes":0}}}
+1793443614161 {"time":"2026-10-31T10:46:54.161Z","type":"platform.report","record":{"requestId":"054a896c-e8a8-45d7-9662-41158fc98f81","metrics":{"durationMs":97.28,"billedDurationMs":98,"memorySizeMB":256,"maxMemoryUsedMB":76},"status":"error","errorType":"Runtime.UserCodeSyntaxError"}}
+1793443615204 {"time":"2026-10-31T10:46:55.204Z","type":"platform.initStart","record":{"initializationType":"on-demand","phase":"invoke","runtimeVersion":"nodejs:24.DurableFunction.v96","runtimeVersionArn":"arn:aws:lambda:eu-central-1::runtime:29e9250f10a464c84b2897eeb2514f5a2f4485727574d14749c938eea2130159","functionName":"dfdemo-01-retry","functionVersion":"1","instanceId":"2026/10/31/[1]c94d010018b744ca8f1c785ae319cdc3","instanceMaxMemory":268435456}}
+1793443615269 {"timestamp":"2026-10-31T10:46:55.269Z","level":"ERROR","requestId":"-","message":{"errorType":"UserCodeSyntaxError","errorMessage":"SyntaxError: Identifier 'createRequire' has already been declared","stackTrace":["SyntaxError: Identifier 'createRequire' has already been declared","    at compileSourceTextModule (node:internal/modules/esm/utils:319:16)","    at ModuleLoader.moduleStrategy (node:internal/modules/esm/translators:89:18)","    at #translate (node:internal/modules/esm/loader:438:20)","    at afterLoad (node:internal/modules/esm/loader:506:29)","    at ModuleLoader.loadAndTranslate (node:internal/modules/esm/loader:511:12)","    at #getOrCreateModuleJobAfterResolve (node:internal/modules/esm/loader:564:36)","    at afterResolve (node:internal/modules/esm/loader:611:52)","    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:617:12)","    at node:internal/modules/esm/loader:636:32","    at TracingChannel.tracePromise (node:diagnostics_channel:370:14)"],"name":"Runtime.UserCodeSyntaxError"}}
+1793443615281 node:internal/process/promises:394
+1793443615281 triggerUncaughtException(err, true /* fromPromise */);
+1793443615281 ^
+1793443615281 SyntaxError: Identifier 'createRequire' has already been declared
+1793443615281 at compileSourceTextModule (node:internal/modules/esm/utils:319:16)
+1793443615281 at ModuleLoader.moduleStrategy (node:internal/modules/esm/translators:89:18)
+1793443615281 at #translate (node:internal/modules/esm/loader:438:20)
+1793443615281 at afterLoad (node:internal/modules/esm/loader:506:29)
+1793443615281 at ModuleLoader.loadAndTranslate (node:internal/modules/esm/loader:511:12)
+1793443615281 at #getOrCreateModuleJobAfterResolve (node:internal/modules/esm/loader:564:36)
+1793443615281 at afterResolve (node:internal/modules/esm/loader:611:52)
+1793443615281 at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:617:12)
+1793443615281 at node:internal/modules/esm/loader:636:32
+1793443615281 at TracingChannel.tracePromise (node:diagnostics_channel:370:14) {
+1793443615281 name: 'Runtime.UserCodeSyntaxError'
+1793443615281 }
+1793443615281 Node.js v24.22.2
+1793443615285 {"time":"2026-10-31T10:46:55.285Z","type":"platform.initRuntimeDone","record":{"initializationType":"on-demand","phase":"invoke","status":"error","errorType":"Runtime.UserCodeSyntaxError"}}
+1793443615285 {"time":"2026-10-31T10:46:55.285Z","type":"platform.initReport","record":{"initializationType":"on-demand","phase":"invoke","status":"error","errorType":"Runtime.UserCodeSyntaxError","metrics":{"durationMs":81.123}}}
+1793443615285 {"time":"2026-10-31T10:46:55.285Z","type":"platform.start","record":{"requestId":"5402f844-a768-4db5-a980-1ade974587d4","functionArn":"arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-01-retry:1","version":"1"}}
+1793443615285 {"time":"2026-10-31T10:46:55.285Z","type":"platform.runtimeDone","record":{"requestId":"5402f844-a768-4db5-a980-1ade974587d4","status":"error","errorType":"Runtime.UserCodeSyntaxError","metrics":{"durationMs":0.0,"producedBytes":0}}}
+1793443615295 {"time":"2026-10-31T10:46:55.295Z","type":"platform.report","record":{"requestId":"5402f844-a768-4db5-a980-1ade974587d4","metrics":{"durationMs":97.706,"billedDurationMs":98,"memorySizeMB":256,"maxMemoryUsedMB":76},"status":"error","errorType":"Runtime.UserCodeSyntaxError"}}
+1793443616344 {"time":"2026-10-31T10:46:56.344Z","type":"platform.initStart","record":{"initializationType":"on-demand","phase":"invoke","runtimeVersion":"nodejs:24.DurableFunction.v96","runtimeVersionArn":"arn:aws:lambda:eu-central-1::runtime:29e9250f10a464c84b2897eeb2514f5a2f4485727574d14749c938eea2130159","functionName":"dfdemo-01-retry","functionVersion":"1","instanceId":"2026/10/31/[1]c94d010018b744ca8f1c785ae319cdc3","instanceMaxMemory":268435456}}
+1793443616406 {"timestamp":"2026-10-31T10:46:56.406Z","level":"ERROR","requestId":"-","message":{"errorType":"UserCodeSyntaxError","errorMessage":"SyntaxError: Identifier 'createRequire' has already been declared","stackTrace":["SyntaxError: Identifier 'createRequire' has already been declared","    at compileSourceTextModule (node:internal/modules/esm/utils:319:16)","    at ModuleLoader.moduleStrategy (node:internal/modules/esm/translators:89:18)","    at #translate (node:internal/modules/esm/loader:438:20)","    at afterLoad (node:internal/modules/esm/loader:506:29)","    at ModuleLoader.loadAndTranslate (node:internal/modules/esm/loader:511:12)","    at #getOrCreateModuleJobAfterResolve (node:internal/modules/esm/loader:564:36)","    at afterResolve (node:internal/modules/esm/loader:611:52)","    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:617:12)","    at node:internal/modules/esm/loader:636:32","    at TracingChannel.tracePromise (node:diagnostics_channel:370:14)"],"name":"Runtime.UserCodeSyntaxError"}}
+1793443616420 node:internal/process/promises:394
+1793443616420 triggerUncaughtException(err, true /* fromPromise */);
+1793443616420 ^
+1793443616420 SyntaxError: Identifier 'createRequire' has already been declared
+1793443616420 at compileSourceTextModule (node:internal/modules/esm/utils:319:16)
+1793443616420 at ModuleLoader.moduleStrategy (node:internal/modules/esm/translators:89:18)
+1793443616420 at #translate (node:internal/modules/esm/loader:438:20)
+1793443616420 at afterLoad (node:internal/modules/esm/loader:506:29)
+1793443616420 at ModuleLoader.loadAndTranslate (node:internal/modules/esm/loader:511:12)
+1793443616420 at #getOrCreateModuleJobAfterResolve (node:internal/modules/esm/loader:564:36)
+1793443616420 at afterResolve (node:internal/modules/esm/loader:611:52)
+1793443616420 at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:617:12)
+1793443616420 at node:internal/modules/esm/loader:636:32
+1793443616420 at TracingChannel.tracePromise (node:diagnostics_channel:370:14) {
+1793443616420 name: 'Runtime.UserCodeSyntaxError'
+1793443616420 }
+1793443616420 Node.js v24.22.2
+1793443616428 {"time":"2026-10-31T10:46:56.428Z","type":"platform.initRuntimeDone","record":{"initializationType":"on-demand","phase":"invoke","status":"error","errorType":"Runtime.UserCodeSyntaxError"}}
+1793443616428 {"time":"2026-10-31T10:46:56.428Z","type":"platform.initReport","record":{"initializationType":"on-demand","phase":"invoke","status":"error","errorType":"Runtime.UserCodeSyntaxError","metrics":{"durationMs":84.004}}}
+1793443616428 {"time":"2026-10-31T10:46:56.428Z","type":"platform.start","record":{"requestId":"3ccf3763-073b-4e25-949c-a4a0753d7464","functionArn":"arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-01-retry:1","version":"1"}}
+1793443616429 {"time":"2026-10-31T10:46:56.429Z","type":"platform.runtimeDone","record":{"requestId":"3ccf3763-073b-4e25-949c-a4a0753d7464","status":"error","errorType":"Runtime.UserCodeSyntaxError","metrics":{"durationMs":0.0,"producedBytes":0}}}
+1793443616440 {"time":"2026-10-31T10:46:56.440Z","type":"platform.report","record":{"requestId":"3ccf3763-073b-4e25-949c-a4a0753d7464","metrics":{"durationMs":101.305,"billedDurationMs":102,"memorySizeMB":256,"maxMemoryUsedMB":76},"status":"error","errorType":"Runtime.UserCodeSyntaxError"}}
+1793443620482 {"time":"2026-10-31T10:47:00.482Z","type":"platform.initStart","record":{"initializationType":"on-demand","phase":"invoke","runtimeVersion":"nodejs:24.DurableFunction.v96","runtimeVersionArn":"arn:aws:lambda:eu-central-1::runtime:29e9250f10a464c84b2897eeb2514f5a2f4485727574d14749c938eea2130159","functionName":"dfdemo-01-retry","functionVersion":"1","instanceId":"2026/10/31/[1]c94d010018b744ca8f1c785ae319cdc3","instanceMaxMemory":268435456}}
+1793443620544 {"timestamp":"2026-10-31T10:47:00.544Z","level":"ERROR","requestId":"-","message":{"errorType":"UserCodeSyntaxError","errorMessage":"SyntaxError: Identifier 'createRequire' has already been declared","stackTrace":["SyntaxError: Identifier 'createRequire' has already been declared","    at compileSourceTextModule (node:internal/modules/esm/utils:319:16)","    at ModuleLoader.moduleStrategy (node:internal/modules/esm/translators:89:18)","    at #translate (node:internal/modules/esm/loader:438:20)","    at afterLoad (node:internal/modules/esm/loader:506:29)","    at ModuleLoader.loadAndTranslate (node:internal/modules/esm/loader:511:12)","    at #getOrCreateModuleJobAfterResolve (node:internal/modules/esm/loader:564:36)","    at afterResolve (node:internal/modules/esm/loader:611:52)","    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:617:12)","    at node:internal/modules/esm/loader:636:32","    at TracingChannel.tracePromise (node:diagnostics_channel:370:14)"],"name":"Runtime.UserCodeSyntaxError"}}
+1793443620557 node:internal/process/promises:394
+1793443620557 triggerUncaughtException(err, true /* fromPromise */);
+1793443620557 ^
+1793443620557 SyntaxError: Identifier 'createRequire' has already been declared
+1793443620557 at compileSourceTextModule (node:internal/modules/esm/utils:319:16)
+1793443620557 at ModuleLoader.moduleStrategy (node:internal/modules/esm/translators:89:18)
+1793443620557 at #translate (node:internal/modules/esm/loader:438:20)
+1793443620557 at afterLoad (node:internal/modules/esm/loader:506:29)
+1793443620557 at ModuleLoader.loadAndTranslate (node:internal/modules/esm/loader:511:12)
+1793443620557 at #getOrCreateModuleJobAfterResolve (node:internal/modules/esm/loader:564:36)
+1793443620557 at afterResolve (node:internal/modules/esm/loader:611:52)
+1793443620557 at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:617:12)
+1793443620557 at node:internal/modules/esm/loader:636:32
+1793443620557 at TracingChannel.tracePromise (node:diagnostics_channel:370:14) {
+1793443620557 name: 'Runtime.UserCodeSyntaxError'
+1793443620557 }
+1793443620557 Node.js v24.22.2
+1793443620560 {"time":"2026-10-31T10:47:00.560Z","type":"platform.initRuntimeDone","record":{"initializationType":"on-demand","phase":"invoke","status":"error","errorType":"Runtime.UserCodeSyntaxError"}}
+1793443620560 {"time":"2026-10-31T10:47:00.560Z","type":"platform.initReport","record":{"initializationType":"on-demand","phase":"invoke","status":"error","errorType":"Runtime.UserCodeSyntaxError","metrics":{"durationMs":77.713}}}
+1793443620560 {"time":"2026-10-31T10:47:00.560Z","type":"platform.start","record":{"requestId":"d37ea2a7-4b61-44b5-865c-acf4a8b05db3","functionArn":"arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-01-retry:1","version":"1"}}
+1793443620560 {"time":"2026-10-31T10:47:00.560Z","type":"platform.runtimeDone","record":{"requestId":"d37ea2a7-4b61-44b5-865c-acf4a8b05db3","status":"error","errorType":"Runtime.UserCodeSyntaxError","metrics":{"durationMs":0.0,"producedBytes":0}}}
+1793443620569 {"time":"2026-10-31T10:47:00.569Z","type":"platform.report","record":{"requestId":"d37ea2a7-4b61-44b5-865c-acf4a8b05db3","metrics":{"durationMs":93.394,"billedDurationMs":94,"memorySizeMB":256,"maxMemoryUsedMB":76},"status":"error","errorType":"Runtime.UserCodeSyntaxError"}}

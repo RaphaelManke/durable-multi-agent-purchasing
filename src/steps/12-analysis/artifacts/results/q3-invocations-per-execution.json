@@ -1,0 +1,146 @@
+{
+  "queryLanguage": "CWLI",
+  "results": [
+    [
+      {
+        "field": "executionArn",
+        "value": "arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-05-coordinator:2/durable-execution/753847a5-69d4-4b57-a464-f0b6da883777/3372c20d-790d-3125-83f0-d6419592a234"
+      },
+      {
+        "field": "logLines",
+        "value": "5"
+      },
+      {
+        "field": "invocationsThatLogged",
+        "value": "2"
+      },
+      {
+        "field": "firstSeen",
+        "value": "2026-10-31 11:02:47.242"
+      },
+      {
+        "field": "lastSeen",
+        "value": "2026-10-31 11:03:15.565"
+      }
+    ],
+    [
+      {
+        "field": "executionArn",
+        "value": "arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-05-coordinator:2/durable-execution/554a031d-4ad0-4c9b-b8af-b18b1889e3bd/2f16e5b3-e54b-3d5d-b2af-ba29321fd768"
+      },
+      {
+        "field": "logLines",
+        "value": "6"
+      },
+      {
+        "field": "invocationsThatLogged",
+        "value": "2"
+      },
+      {
+        "field": "firstSeen",
+        "value": "2026-10-31 11:04:11.351"
+      },
+      {
+        "field": "lastSeen",
+        "value": "2026-10-31 11:05:20.358"
+      }
+    ],
+    [
+      {
+        "field": "executionArn",
+        "value": "arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-07-xray-coordinator:2/durable-execution/1d506a32-806a-43be-9c14-213d6813aa15/e4ffa2e0-958e-3d26-b2a0-68290637b62b"
+      },
+      {
+        "field": "logLines",
+        "value": "5"
+      },
+      {
+        "field": "invocationsThatLogged",
+        "value": "2"
+      },
+      {
+        "field": "firstSeen",
+        "value": "2026-10-31 11:06:57.022"
+      },
+      {
+        "field": "lastSeen",
+        "value": "2026-10-31 11:08:01.705"
+      }
+    ],
+    [
+      {
+        "field": "executionArn",
+        "value": "arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-08-otel-coordinator:2/durable-execution/5bd43b10-8346-4222-aa12-017dd496f49a/edb32974-ffc3-3431-a72c-9cc3b706a724"
+      },
+      {
+        "field": "logLines",
+        "value": "6"
+      },
+      {
+        "field": "invocationsThatLogged",
+        "value": "2"
+      },
+      {
+        "field": "firstSeen",
+        "value": "2026-10-31 11:08:45.038"
+      },
+      {
+        "field": "lastSeen",
+        "value": "2026-10-31 11:09:52.791"
+      }
+    ],
+    [
+      {
+        "field": "executionArn",
+        "value": "arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-10-otel-mode2-coordinator:2/durable-execution/da0c4393-ebfc-438b-83ed-c16d23aa94ef/d3009dd3-053e-32bf-ab94-407c9d9aafb9"
+      },
+      {
+        "field": "logLines",
+        "value": "5"
+      },
+      {
+        "field": "invocationsThatLogged",
+        "value": "2"
+      },
+      {
+        "field": "firstSeen",
+        "value": "2026-10-31 11:10:41.599"
+      },
+      {
+        "field": "lastSeen",
+        "value": "2026-10-31 11:11:51.891"
+      }
+    ],
+    [
+      {
+        "field": "executionArn",
+        "value": "arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-11-otel-all-coordinator:2/durable-execution/1ac685cd-f9cd-4ed4-a2bf-ba3de46512f0/7e6e9ccf-899e-32e0-b4c2-9543c535d012"
+      },
+      {
+        "field": "logLines",
+        "value": "5"
+      },
+      {
+        "field": "invocationsThatLogged",
+        "value": "2"
+      },
+      {
+        "field": "firstSeen",
+        "value": "2026-10-31 11:12:41.809"
+      },
+      {
+        "field": "lastSeen",
+        "value": "2026-10-31 11:13:48.480"
+      }
+    ]
+  ],
+  "statistics": {
+    "recordsMatched": 32.0,
+    "recordsScanned": 175.0,
+    "estimatedRecordsSkipped": 0.0,
+    "bytesScanned": 63749.0,
+    "estimatedBytesSkipped": 0.0,
+    "logGroupsScanned": 5.0
+  },
+  "status": "Complete"
+}

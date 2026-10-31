@@ -1,0 +1,6 @@
+# Log group: aws/spans
+# Ten slowest spans of the step 11 trace (all functions traced)
+filter traceId = "6ae5cd1c75705e4c04ad9fe673a2a55e"
+| fields name, kind, attributes.aws.local.service, (endTimeUnixNano - startTimeUnixNano) / 1000000 as durationMs
+| sort durationMs desc
+| limit 10
