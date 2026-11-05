@@ -207,7 +207,7 @@ function facts(dir) {
 
 const img = (file, caption) =>
   existsSync(join(ROOT, 'report/img', file))
-    ? `<figure><a href="img/${file}"><img loading="lazy" src="img/${file}" alt="${esc(caption)}"></a><figcaption>${esc(caption)}</figcaption></figure>`
+    ? `<figure${/trace-timeline/.test(file) ? ' class="wide tall"' : /trace-map\.png/.test(file) ? ' class="wide"' : ''}><a href="img/${file}"><img loading="lazy" src="img/${file}" alt="${esc(caption)}"></a><figcaption>${esc(caption)}</figcaption></figure>`
     : (() => { throw new Error(`missing screenshot ${file}`) })()
 
 // ---------------------------------------------------------------- step definitions
@@ -325,7 +325,7 @@ Each specialist gets its own Lambda with its own IAM role that can only call its
       'What you get is basic: Lambda service and function segments and the invocation attempts. Step names, the plan and synthesize phases and retries are not named operations in this trace.',
     ],
     prompt: `Now to running this at scale, starting with X-Ray. Add a second copy of the coordinator and the five specialists with active tracing, and keep the untraced ones as they are so I can compare the traces with the plain runs.`,
-    shots: [['07-durable-executions.png', 'Durable executions tab'], ['07-cloudwatch-logs.png', 'CloudWatch log events'], ['07-trace-detail.png', 'X-Ray / CloudWatch trace: segments graph, Durable Execution Attempt spans']],
+    shots: [['07-durable-executions.png', 'Durable executions tab'], ['07-cloudwatch-logs.png', 'CloudWatch log events'], ['07-trace-map.png', 'X-Ray trace map of one run (47 spans): client, coordinator and the five specialists, each with its Lambda context and function'], ['07-trace-timeline.png', 'Span timeline of the same trace: Lambda service and function segments and the durable execution attempts. Step names and retries are not named here']],
     extra: (f) => `<p class="note">Trace header of the execution: <code>${esc(f.traceHeader)}</code>. ${esc(txt('07-xray', 'trace-ids.txt').split('\n')[0])}.</p>`,
   },
   {
@@ -355,7 +355,7 @@ Each specialist gets its own Lambda with its own IAM role that can only call its
       'Transaction Search is enabled in the account, which stores spans in the aws/spans log group so they can be queried (step 12).',
     ],
     prompt: `Write a short note for the presenter on how to look at the traces of the last step in CloudWatch: Application Signals, then Transaction Search, search for the trace ID, and what to point at in the trace (the trace map, the timeline, the durable operation spans and the Bedrock call).`,
-    shots: [['08-trace-detail.png', 'Trace of the step 08 run in CloudWatch: 52 spans, Bedrock node'], ['07-11-trace-map-all.png', 'CloudWatch Trace Map (last 3 h) with the X-Ray and OTel nodes']],
+    shots: [['08-trace-map.png', 'Trace map of the step 08 run (OpenTelemetry, 52 spans): the coordinator now has a Bedrock node'], ['08-trace-timeline.png', 'Span timeline of the same trace: durable operations and the Bedrock calls are named spans'], ['07-11-trace-map-all.png', 'CloudWatch Trace Map (last 3 h) with the X-Ray and OTel nodes']],
     extra: () => '',
   },
   {
@@ -370,7 +370,7 @@ Each specialist gets its own Lambda with its own IAM role that can only call its
       'Specialists are unchanged; they are the step 08 functions.',
     ],
     prompt: `The plugin also has an invocation-centered mode. Add one more coordinator that is the same as the last one but uses that mode. It should still call the same specialists, so I can compare how the two modes shape the same work.`,
-    shots: [['10-durable-executions.png', 'Durable executions tab'], ['10-cloudwatch-logs.png', 'CloudWatch log events'], ['10-trace-detail.png', 'Trace of the mode 2 (invocation) coordinator']],
+    shots: [['10-durable-executions.png', 'Durable executions tab'], ['10-cloudwatch-logs.png', 'CloudWatch log events'], ['10-trace-map.png', 'Trace map of the mode 2 (invocation) coordinator, 52 spans'], ['10-trace-timeline.png', 'Span timeline of the same trace, invocation-centered']],
     extra: (f) => `<p class="note">Trace header: <code>${esc(f.traceHeader)}</code>.</p>`,
   },
   {
@@ -385,7 +385,7 @@ Each specialist gets its own Lambda with its own IAM role that can only call its
       'Step 12 proves this with a query.',
     ],
     prompt: `In the trace the specialists are still black boxes. Instrument them with the OpenTelemetry layer too and add a coordinator that calls those copies, so one trace goes through the coordinator and all five specialists and shows the context being propagated across the Lambda invocations.`,
-    shots: [['11-durable-executions.png', 'Durable executions tab'], ['11-cloudwatch-logs.png', 'CloudWatch log events'], ['11-trace-detail.png', 'One trace across coordinator and specialists: 94 spans'], ['07-11-trace-map-all.png', 'Trace map with all nodes']],
+    shots: [['11-durable-executions.png', 'Durable executions tab'], ['11-cloudwatch-logs.png', 'CloudWatch log events'], ['11-trace-map.png', 'Trace map of one trace across the coordinator, the five specialists and Bedrock (94 spans): the context is propagated'], ['11-trace-timeline.png', 'Span timeline of the same trace: the specialists run in parallel, below the coordinator'], ['07-11-trace-map-all.png', 'Trace map with all nodes']],
     extra: (f) => `<p class="note">Trace header: <code>${esc(f.traceHeader)}</code>.</p>`,
   },
 ]
@@ -556,7 +556,7 @@ pre{margin:0;padding:12px;overflow:auto;color:var(--codefg);font:12.5px/1.45 ui-
 code{font-family:ui-monospace,Menlo,monospace;font-size:.9em;word-break:break-all}p code,td code,li code{background:#eef1f6;border-radius:4px;padding:1px 4px}
 table{border-collapse:collapse;width:100%;margin:10px 0;font-size:14px}th,td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top}th{background:#f0f3f8}
 table.ids th{width:230px}.callout{background:#fff7e0;border:1px solid #f0d58a;border-radius:8px;padding:10px 14px;margin:12px 0}.note{color:var(--mut);font-size:14px}
-.shots{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:14px}figure{margin:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fff}figure img{width:100%;display:block}.execdetail{display:grid;gap:14px}figure.tall{max-height:980px;overflow:auto}figure.tall img{width:100%}figcaption{font-size:13px;color:var(--mut);padding:6px 10px}
+.shots{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:14px}figure{margin:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fff}figure img{width:100%;display:block}.execdetail{display:grid;gap:14px}figure.tall{max-height:980px;overflow:auto}figure.wide{grid-column:1/-1}figure.tall img{width:100%}figcaption{font-size:13px;color:var(--mut);padding:6px 10px}
 .prompt .turn{font:600 11px ui-monospace,Menlo,monospace;letter-spacing:.06em;text-transform:uppercase;color:#4a63a3;padding:8px 12px 0}.prompt+.prompt{margin-top:10px}.prompt{position:relative;background:#eef4ff;border:1px solid #bcd0ff;border-radius:8px}.prompt pre{color:#10213f;font:13px/1.5 ui-monospace,Menlo,monospace}.copy{position:absolute;right:8px;top:8px;border:0;background:var(--acc);color:#fff;border-radius:6px;padding:4px 10px;cursor:pointer}
 .evidence{border:1px solid var(--line);border-radius:8px;padding:4px 16px;background:#fbfcfe}
 .cover{background:linear-gradient(135deg,#0b5fff,#6a3df0);color:#fff;border-radius:14px;padding:32px 36px}.cover h1{margin:0 0 8px;font-size:32px}.cover p{margin:4px 0;opacity:.95}
