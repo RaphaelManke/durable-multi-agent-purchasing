@@ -224,8 +224,11 @@ const steps = [
       'The new invocation replays the handler from the top. "prepare" returns its stored result without running its body; only "flaky" runs again, now with attempt 2.',
       'Look at the logs: prepare_body_executed appears once, flaky_body_executed twice, handler_invoked twice.',
     ],
-    prompt: `I want a really small AWS Lambda durable function in TypeScript to explain checkpoint and replay. Two steps: the first just builds a greeting, the second fails on its first attempt and works on the retry (let it retry up to three times with a short backoff).
-Log with plain console.log at the top of the handler and inside each step, so later I can see in CloudWatch which code ran again after the replay. Add it to the SAM template with durable execution switched on, and give me a request.json to invoke it with.`,
+    prompt: [
+      `I am preparing a talk on AWS Lambda durable functions and I want to build it up step by step in this repo, one folder per step under src/steps. The purchasing agent that is already here will end up as step 5, so move its handlers into src/steps/05-split for now.
+Step 1 is a really small durable function in TypeScript to explain checkpoint and replay: two steps, the first just builds a greeting, the second fails on its first attempt and works on the retry (up to three attempts with a short backoff). Log with plain console.log at the top of the handler and inside each step, so I can see in CloudWatch which code ran again after a replay. Add it to the SAM template with durable execution switched on and give me a request.json to invoke it with.`,
+      `The deployed function fails when it loads: "Identifier createRequire has already been declared". Please fix the build.`,
+    ],
     shots: [['01-durable-executions.png', 'Durable executions tab with the recorded run'], ['01-cloudwatch-logs.png', 'CloudWatch log events: handler_invoked twice, flaky body twice']],
     extra: (f) => `<p class="note">History event sequence (history.json): <code>${esc(f.history.join(' → '))}</code>. <code>StepFailed(flaky)</code> then a second <code>StepStarted(flaky)</code>, but no second <code>StepStarted(prepare)</code>.</p>
 ${code(formatJsonLogs(rd(`${stepDir('01-retry')}/logs.txt`), (l) => l.includes('event')), 'logs.txt (application events only, JSON formatted)', 'json')}`,
@@ -241,7 +244,7 @@ ${code(formatJsonLogs(rd(`${stepDir('01-retry')}/logs.txt`), (l) => l.includes('
       'Wall clock for the execution: 61.357 s. Billed: three invocations, 71 + 67 + 41 = 179 ms.',
       'Takeaway: you do not pay for the wait time. This is why durable functions suit waits of minutes, hours or days.',
     ],
-    prompt: `Take the retry function from the last step and add a one minute wait at the end, followed by a final step that returns done. I want to show that the REPORT line only bills the few milliseconds of real work and not the 60 seconds we waited, so make the wait length something I can set in the request.`,
+    prompt: `That works. Now extend the same function with a wait: after the flaky step wait a minute, then run a final step that returns done. I want to show in the REPORT line that we are billed for the few milliseconds of real work and not for the 60 seconds of waiting, so let me set the wait length in the request. Same pattern as before: its own folder and its own function in the template.`,
     shots: [['02-durable-executions.png', 'Durable executions tab: execution duration about 61 s'], ['02-cloudwatch-logs.png', 'CloudWatch log events across the wait']],
     extra: () => `<h4>REPORT lines (billed duration) versus wall clock</h4>${code(txt('02-wait', 'report.txt'), 'report.txt')}${md(rd(`${stepDir('02-wait')}/wallclock-vs-billed.md`))}
 <div class="callout"><strong>Billed 179 ms of 61 357 ms wall clock (0.29 %).</strong> The 60 s wait added 0 ms of billed duration.</div>`,
@@ -258,8 +261,8 @@ ${code(formatJsonLogs(rd(`${stepDir('01-retry')}/logs.txt`), (l) => l.includes('
       'Evidence (a) to (d) below: three Bedrock request IDs, A logged once, B logged twice, same A output.',
       'Correction to the brief: the handler ran twice, not three times. One failed attempt means two invocations; three would need failStepBAttempts: 2.',
     ],
-    prompt: `Now I want to show that a durable function does not call the model again after a failure. Build a function with two steps that each ask Claude Haiku on Bedrock a short question. Feed the first answer into the second question. The second step should fail on its first attempt (let me switch that on in the request) and succeed on the retry.
-Log every real model call together with the Bedrock request ID, so I can show that the first call happens once and the second one twice.`,
+    prompt: `Now let us bring a model into it. Same pattern again, new folder: two steps that each ask Claude Haiku on Bedrock a short question, and the second one gets the first answer. When I ask for it in the request, the second step should fail on its first attempt and succeed on the retry.
+I want to prove that the first model call is replayed from the checkpoint and not made again, so log every real model call together with its Bedrock request ID.`,
     shots: [['03-durable-executions.png', 'Durable executions tab'], ['03-cloudwatch-logs.png', 'CloudWatch log events: step A once, step B twice']],
     extra: () => `<h4>Evidence (a) to (d)</h4><div class="evidence">${md(rd(`${stepDir('03-model-replay')}/evidence.md`).replace(/^# .*\n/, ''))}</div>`,
   },
@@ -274,7 +277,7 @@ Log every real model call together with the Bedrock request ID, so I can show th
       'If the step fails, the retry strategy (3 attempts, exponential backoff) re-runs the whole loop. If it succeeds, a replay never calls the model again.',
       'The answer is $66.48 per month, computed by the tool, not guessed by the model.',
     ],
-    prompt: `Give me a first agent: a small durable Lambda that uses the Strands SDK with Claude Haiku on Bedrock and one tool that calculates the monthly payment of a loan. I want to ask it something like what the monthly payment is for a 20,000 loan over 36 months at 5 percent, and get the agent's answer back.`,
+    prompt: `Next, an actual agent. Another new folder: use the Strands SDK with Claude Haiku and give the agent one tool that calculates the monthly payment of a loan. I will ask it something like what the monthly payment is for a 20,000 loan over 36 months at 5 percent, and I want its answer back. Keep it a durable function like the others.`,
     shots: [['04-durable-executions.png', 'Durable executions tab'], ['04-cloudwatch-logs.png', 'CloudWatch log events']],
     extra: (f) => `<p class="note">History: <code>${esc(f.history.join(' → '))}</code>. One step, one invocation: the agent loop is invisible to the history except for its final result.</p>`,
   },
@@ -290,8 +293,8 @@ Log every real model call together with the Bedrock request ID, so I can show th
       'Each branch catches errors and returns an "unavailable" text, so one failed specialist does not fail the whole parallel block.',
       'This run: the planner chose Price Research and Delivery & Logistics for a laptop purchase. The router decided; we did not.',
     ],
-    prompt: `My purchasing agent is one big prompt today. Please split it up. A coordinator durable function should first plan which specialists it needs (price research, financing, delivery, risk assessment, contract review), call only those in parallel, and then write one recommendation from their answers.
-Each specialist should be its own Lambda with its own IAM role that can only call its own Bedrock model. The coordinator gets only its own model plus permission to invoke those five functions, nothing else. If one specialist fails, carry on with the others. Reuse the prompts we already have in the prompts folder.`,
+    prompt: `Now the real thing. The purchasing agent we started with is one big prompt, so let us split it up. A coordinator durable function should first plan which specialists it needs (price research, financing, delivery, risk assessment, contract review), call only those in parallel, and then write one recommendation from their answers.
+Each specialist gets its own Lambda with its own IAM role that can only call its own Bedrock model. The coordinator only gets its own model plus permission to invoke those five functions, nothing else. If one specialist fails, carry on with the others. Reuse the prompts we already have in the prompts folder.`,
     shots: [['05-durable-executions.png', 'Durable executions tab'], ['05-cloudwatch-logs.png', 'Coordinator CloudWatch log events']],
     extra: (f) => `<h4>Permission boundary in the template (coordinator invoke permissions)</h4>${code(excerpt('template.yaml', '  Fn05Coordinator:', '  Fn05Price:').split('\n').filter((l) => /FunctionName|lambda:InvokeFunction|GetAtt|bedrock:|DurableConfig/.test(l)).join('\n'), 'template.yaml (Fn05Coordinator, abridged)')}
 <p class="note">History: <code>${esc(f.history.slice(0, 12).join(' → '))}${f.history.length > 12 ? ' → …' : ''}</code> (${f.history.length} events in total).</p>`,
@@ -307,7 +310,7 @@ Each specialist should be its own Lambda with its own IAM role that can only cal
       'The synthesis step turns five findings into one recommendation with next steps.',
       'Execution took about 69 s wall clock. The result is the recommendation text plus the routing (called/skipped).',
     ],
-    prompt: `Run the coordinator end to end with a realistic request: someone wants to buy a used 2020 Honda Civic for around 18,000 dollars and no approval step is needed. I want to see all five specialists being consulted. Add a request file and a small script to invoke it.`,
+    prompt: `Let us try it for real. Invoke the coordinator with: a used 2020 Honda Civic for around 18,000 dollars, no approval step. I want to see all five specialists being consulted. Add a request file and a small script so I can repeat the run.`,
     shots: [['06-durable-executions.png', 'Durable executions tab: the 06 run is the 2f16e5b3… row']],
     extra: () => '',
   },
@@ -321,7 +324,7 @@ Each specialist should be its own Lambda with its own IAM role that can only cal
       'In the trace map you see the coordinator and each specialist as Lambda nodes, with durations and the invoke links.',
       'What you get is basic: Lambda service and function segments and the invocation attempts. Step names, the plan and synthesize phases and retries are not named operations in this trace.',
     ],
-    prompt: `Switch on X-Ray for the coordinator and the specialists. Keep the existing functions untouched and add a second copy of each with active tracing, so I can compare the traces next to the untraced runs.`,
+    prompt: `Now to running this at scale, starting with X-Ray. Add a second copy of the coordinator and the five specialists with active tracing, and keep the untraced ones as they are so I can compare the traces with the plain runs.`,
     shots: [['07-durable-executions.png', 'Durable executions tab'], ['07-cloudwatch-logs.png', 'CloudWatch log events'], ['07-trace-detail.png', 'X-Ray / CloudWatch trace: segments graph, Durable Execution Attempt spans']],
     extra: (f) => `<p class="note">Trace header of the execution: <code>${esc(f.traceHeader)}</code>. ${esc(txt('07-xray', 'trace-ids.txt').split('\n')[0])}.</p>`,
   },
@@ -337,7 +340,7 @@ Each specialist should be its own Lambda with its own IAM role that can only cal
       'The coordinator code is the same file as step 05; the plugin is selected by the OTEL_PLUGIN environment variable.',
       'ExecutionOtelPlugin gives a workflow-centered view: one trace for the whole execution across invocations.',
     ],
-    prompt: `Add OpenTelemetry tracing to the durable coordinator. Use the plugin from the durable execution SDK and let me choose the mode with an environment variable; for this copy use the execution-centered view. Add the AWS OpenTelemetry Node layer to the function. Make it another copy of the coordinator and specialists, with X-Ray tracing off, so I can compare it with the X-Ray version.`,
+    prompt: `X-Ray only gives us basic information. Add another copy of the coordinator and the specialists that uses OpenTelemetry instead: the plugin from the durable execution SDK, chosen with an environment variable (the execution-centered view for this copy), plus the AWS OpenTelemetry Node layer, and with X-Ray tracing off.`,
     shots: [['08-durable-executions.png', 'Durable executions tab'], ['08-cloudwatch-logs.png', 'CloudWatch log events (OTel extension start-up lines)']],
     extra: (f) => `<p class="note">Trace header: <code>${esc(f.traceHeader)}</code>.</p>`,
   },
@@ -366,7 +369,7 @@ Each specialist should be its own Lambda with its own IAM role that can only cal
       'Compare the two trace screenshots: same work, different shape. Pick the one that matches the question you ask most often.',
       'Specialists are unchanged; they are the step 08 functions.',
     ],
-    prompt: `Make one more copy of the OpenTelemetry coordinator, but switch the plugin to the invocation-centered mode instead of the execution one. It should call the same specialists as before, so I can compare how the two modes shape the same work.`,
+    prompt: `The plugin also has an invocation-centered mode. Add one more coordinator that is the same as the last one but uses that mode. It should still call the same specialists, so I can compare how the two modes shape the same work.`,
     shots: [['10-durable-executions.png', 'Durable executions tab'], ['10-cloudwatch-logs.png', 'CloudWatch log events'], ['10-trace-detail.png', 'Trace of the mode 2 (invocation) coordinator']],
     extra: (f) => `<p class="note">Trace header: <code>${esc(f.traceHeader)}</code>.</p>`,
   },
@@ -381,7 +384,7 @@ Each specialist should be its own Lambda with its own IAM role that can only cal
       'The trace has 94 spans in the console view, with the six services in one trace. The slowest branch is the Risk specialist (Sonnet, 43 s Bedrock stream).',
       'Step 12 proves this with a query.',
     ],
-    prompt: `Do the same instrumentation for the specialists as well: give them the OpenTelemetry layer too, and add a coordinator that calls them. I want one trace that goes through the coordinator and all five specialists, so I can show the context being propagated across the Lambda invocations.`,
+    prompt: `In the trace the specialists are still black boxes. Instrument them with the OpenTelemetry layer too and add a coordinator that calls those copies, so one trace goes through the coordinator and all five specialists and shows the context being propagated across the Lambda invocations.`,
     shots: [['11-durable-executions.png', 'Durable executions tab'], ['11-cloudwatch-logs.png', 'CloudWatch log events'], ['11-trace-detail.png', 'One trace across coordinator and specialists: 94 spans'], ['07-11-trace-map-all.png', 'Trace map with all nodes']],
     extra: (f) => `<p class="note">Trace header: <code>${esc(f.traceHeader)}</code>.</p>`,
   },
@@ -478,8 +481,8 @@ function renderStep(s) {
   <div class="shots">${shots}</div>
   ${execDetail(s)}
   <h3>Prompt that would generate this</h3>
-  <p class="note">Written the way you would say it to a coding agent. The agent fills in the details, so the code in this repository is one possible result of it.</p>
-  <div class="prompt"><button class="copy" type="button">Copy</button><pre>${esc(s.prompt)}</pre></div>
+  <p class="note">Part of one continuous coding session: each prompt builds on what the earlier steps already created. Written the way you would say it to a coding agent, which fills in the details, so the code in this repository is one possible result.</p>
+  ${[].concat(s.prompt).map((t, k, all) => `<div class="prompt">${all.length > 1 ? `<div class="turn">Prompt ${k + 1} of ${all.length}</div>` : ''}<button class="copy" type="button">Copy</button><pre>${esc(t)}</pre></div>`).join('\n  ')}
 </section>`
 }
 
@@ -507,8 +510,8 @@ const step12Html = `
   </ul>
   ${step12()}
   <h3>Prompt that would generate this</h3>
-  <p class="note">Written the way you would say it to a coding agent. The agent fills in the details, so the code in this repository is one possible result of it.</p>
-  <div class="prompt"><button class="copy" type="button">Copy</button><pre>${esc(`I would like to compare the runs from steps 05 to 11 using the otel-playground profile in eu-central-1. From the Lambda logs: how much billed duration and memory did each variant use, what are the milestones of each workflow run, and how many invocations did each execution take. From the traces in Transaction Search: how many spans does each trace have, where does the time go, and does one trace really cross the coordinator and all specialists in step 11, compared with only the coordinator in step 10.
+  <p class="note">Part of one continuous coding session: each prompt builds on what the earlier steps already created. Written the way you would say it to a coding agent, which fills in the details, so the code in this repository is one possible result.</p>
+  <div class="prompt"><button class="copy" type="button">Copy</button><pre>${esc(`Finally, let us look at what we have. Using the otel-playground profile in eu-central-1, compare the runs from steps 05 to 11. From the Lambda logs: how much billed duration and memory did each variant use, what are the milestones of each workflow run, and how many invocations did each execution take. From the traces in Transaction Search: how many spans does each trace have, where does the time go, and does one trace really cross the coordinator and all specialists in step 11, compared with only the coordinator in step 10.
 Write the CloudWatch Logs Insights queries, run them, and save the queries and their results next to the step.`)}</pre></div>
 </section>`
 
@@ -550,7 +553,7 @@ code{font-family:ui-monospace,Menlo,monospace;font-size:.9em;word-break:break-al
 table{border-collapse:collapse;width:100%;margin:10px 0;font-size:14px}th,td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top}th{background:#f0f3f8}
 table.ids th{width:230px}.callout{background:#fff7e0;border:1px solid #f0d58a;border-radius:8px;padding:10px 14px;margin:12px 0}.note{color:var(--mut);font-size:14px}
 .shots{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:14px}figure{margin:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fff}figure img{width:100%;display:block}.execdetail{display:grid;gap:14px}figure.tall{max-height:980px;overflow:auto}figure.tall img{width:100%}figcaption{font-size:13px;color:var(--mut);padding:6px 10px}
-.prompt{position:relative;background:#eef4ff;border:1px solid #bcd0ff;border-radius:8px}.prompt pre{color:#10213f;font:13px/1.5 ui-monospace,Menlo,monospace}.copy{position:absolute;right:8px;top:8px;border:0;background:var(--acc);color:#fff;border-radius:6px;padding:4px 10px;cursor:pointer}
+.prompt .turn{font:600 11px ui-monospace,Menlo,monospace;letter-spacing:.06em;text-transform:uppercase;color:#4a63a3;padding:8px 12px 0}.prompt+.prompt{margin-top:10px}.prompt{position:relative;background:#eef4ff;border:1px solid #bcd0ff;border-radius:8px}.prompt pre{color:#10213f;font:13px/1.5 ui-monospace,Menlo,monospace}.copy{position:absolute;right:8px;top:8px;border:0;background:var(--acc);color:#fff;border-radius:6px;padding:4px 10px;cursor:pointer}
 .evidence{border:1px solid var(--line);border-radius:8px;padding:4px 16px;background:#fbfcfe}
 .cover{background:linear-gradient(135deg,#0b5fff,#6a3df0);color:#fff;border-radius:14px;padding:32px 36px}.cover h1{margin:0 0 8px;font-size:32px}.cover p{margin:4px 0;opacity:.95}
 </style></head><body>
