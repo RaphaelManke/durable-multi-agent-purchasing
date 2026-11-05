@@ -400,34 +400,100 @@ const stepOfFn = (log) => ({ '05-coordinator': '05/06', '07-xray-coordinator': '
 const traceStep = { '6ae5cbc4712cf6fd1703fd806783e1ad': '07', '6ae5cc3b44cc9da909fe2c2e7aebf8f3': '08/09', '6ae5cca544a55195411c3a0251cd3b9a': '10', '6ae5cd1c75705e4c04ad9fe673a2a55e': '11' }
 
 function step12() {
-  const q1 = qrows('q1-billed-duration-by-function')
-  const q3 = qrows('q3-invocations-per-execution')
-  const q4 = qrows('q4-spans-per-trace').sort((a, b) => traceStep[a.traceId].localeCompare(traceStep[b.traceId]))
-  const q5 = qrows('q5-spans-by-service-and-name').filter((r) => r['attributes.aws.local.service'])
-  const q6 = qrows('q6-slowest-spans-step11')
-  const svcByTrace = {}
-  for (const r of q5) (svcByTrace[r.traceId] ??= []).push(`${r['attributes.aws.local.service']} (${r.spans})`)
-  const section = (title, name, body) => `<h4>${esc(title)}</h4>${code(qtext(name), `src/steps/${Q}/queries/${name}.logsinsights`)}${body}<p class="note">Result file: <code>src/steps/${Q}/results/${name}.json</code></p>`
+  const num = (v) => Number(v)
+  const sec = (v, d = 1) => (num(v) / 1000).toFixed(d)
+  const order = ['6ae5cbc4712cf6fd1703fd806783e1ad', '6ae5cc3b44cc9da909fe2c2e7aebf8f3', '6ae5cca544a55195411c3a0251cd3b9a', '6ae5cd1c75705e4c04ad9fe673a2a55e']
+  const stepOf = (t) => traceStep[t]
+  const byTrace = (rows) => [...rows].sort((x, y) => order.indexOf(x.traceId) - order.indexOf(y.traceId))
+  const section = (title, name, body, ext = 'logsinsights') => `<h4>${esc(title)}</h4>${code(qtext(name), `src/steps/${Q}/queries/${name}.${ext}`)}${body}<p class="note">Result file: <code>src/steps/${Q}/results/${name}.json</code></p>`
+  // pivot: rows keyed by `key`, one column per trace
+  const pivot = (rows, key, val) => {
+    const m = new Map()
+    for (const r of rows) { const k = r[key]; if (!m.has(k)) m.set(k, {}); m.get(k)[r.traceId] = val(r) }
+    return m
+  }
+  const traceCols = (fn) => order.map((t) => ({ h: `Step ${stepOf(t)}`, f: (r) => fn(r, t) }))
+
+  const s1 = byTrace(qrows('s1-span-inventory'))
+  const s2 = qrows('s2-invocations-by-function')
+  const s3 = qrows('s3-span-names')
+  const s4 = byTrace(qrows('s4-bedrock-calls'))
+  const s5 = qrows('s5-durable-overhead')
+  const s6 = byTrace(qrows('s6-lambda-init'))
+  const s7 = qrows('s7-slowest-spans-step11')
+  const s8 = qrows('s8-parallel-specialists-step11')
+
+  // key by role (the function names differ per step: dfdemo-07-xray-price, dfdemo-11-otel-price, ...)
+  const roleOf = (fn) => fn.replace(/^dfdemo-\d+-(?:xray-|otel-mode2-|otel-all-|otel-)/, '')
+  const roleOrder = ['coordinator', 'price', 'financing', 'delivery', 'risk', 'contract']
+  const s2p = pivot(s2.map((r) => ({ ...r, role: roleOf(r.fn) })), 'role', (r) => `${r.invocations}`)
+  const s2rows = [...s2p.entries()].map(([fn, v]) => ({ fn, v })).sort((x, y) => roleOrder.indexOf(x.fn) - roleOrder.indexOf(y.fn))
+  const nameCounts = pivot(s3, 'spanName', (r) => r.spans)
+  const nameRows = [...nameCounts.entries()].map(([n, v]) => ({ n, v, total: Object.values(v).reduce((a, c) => a + num(c), 0) })).sort((x, y) => y.total - x.total || x.n.localeCompare(y.n))
+  const durPivot = pivot(s5, 'spanName', (r) => `${r.spans} × ${num(r.avgMs).toFixed(0)} ms`)
+
+  const t0 = Math.min(...s8.map((r) => num(r.startNs)))
+  const t1 = Math.max(...s8.map((r) => num(r.endNs)))
+  const gantt = s8.map((r) => {
+    const l = ((num(r.startNs) - t0) / (t1 - t0)) * 100
+    const w = Math.max(((num(r.endNs) - num(r.startNs)) / (t1 - t0)) * 100, 0.4)
+    return `<div class="grow"><span class="gl">${esc(r.fn.replace('dfdemo-11-otel-', ''))}</span><span class="gt"><i style="left:${l.toFixed(2)}%;width:${w.toFixed(2)}%"></i></span><span class="gv">${((num(r.endNs) - num(r.startNs)) / 1e9).toFixed(1)} s</span></div>`
+  }).join('')
+
   return `
-<p>Queries were run with the <code>otel-playground</code> profile in eu-central-1 against the log groups of the coordinators of steps 05, 07, 08, 10 and 11, and against <code>aws/spans</code> (Transaction Search). Runner: <code>src/steps/${Q}/run.sh</code>. Time window 2026-10-31 10:00 to 12:30 UTC.</p>
-${section('Q1. Billed duration per coordinator (Logs Insights)', 'q1-billed-duration-by-function', table(q1, [
+<p>All queries ran with the <code>otel-playground</code> profile in eu-central-1 against the log group <code>aws/spans</code> (CloudWatch Transaction Search), over the four traces of the tracing steps: step 07 (X-Ray), step 08 and 09 (OpenTelemetry), step 10 (OpenTelemetry, invocation mode) and step 11 (OpenTelemetry on every function). Time window 2026-10-31 10:00 to 12:30 UTC. Runner: <code>src/steps/${Q}/run.sh</code>.</p>
+<p class="note">Transaction Search can store two records for one span (an OTel span and its X-Ray segment copy), and <code>dedup</code> cannot come before <code>stats</code>. Every query therefore groups by <code>spanId</code> in a first <code>stats</code> and aggregates in a second one.</p>
+
+${section('S1. What does each tracing option record?', 's1-span-inventory', table(s1, [
+    { h: 'Step', f: (r) => stepOf(r.traceId) }, { h: 'Trace ID', k: 'traceId' }, { h: 'Distinct spans', k: 'spans' }, { h: 'Distinct span names', k: 'distinctNames' },
+    { h: 'Trace length (s)', f: (r) => ((num(r.lastEndNs) - num(r.firstStartNs)) / 1e9).toFixed(1) }]))}
+<p>The trace page in the console shows 47, 52, 52 and 94 spans for these traces; <code>aws/spans</code> holds 47, 40, 40 and 76 distinct span IDs. I did not find out where the difference for the OpenTelemetry traces comes from.</p>
+
+${section('S2. Context propagation: which functions end up in one trace?', 's2-invocations-by-function', table(s2rows, [
+    { h: 'Function (role)', f: (r) => r.fn }, ...traceCols((r, t) => r.v[t] ?? '-')]))}
+<p>Invocations per function in each trace (one <code>LambdaExecutionEnvironment</code> span per invocation). Steps 07 and 11 contain the coordinator and all five specialists in one trace. Steps 08 and 10 contain only the coordinator (a dash means: not in that trace): the specialists they call are not traced, so the trace stops at the invoke. The coordinator shows 6 invocations because the durable execution suspends and replays.</p>
+
+<h4>S3. Which operations get a span of their own?</h4>
+${code(qtext('s3-span-names'), `src/steps/${Q}/queries/s3-span-names.logsinsights`)}
+${table(nameRows.slice(0, 24), [{ h: 'Span name', f: (r) => r.n }, ...traceCols((r, t) => r.v[t] ?? '-')])}
+<p>Spans per name and trace (the 24 most frequent names; the average durations are in the result file). Only the OpenTelemetry traces carry the <code>BedrockRuntime.ConverseStream</code> spans and the <code>Lambda.CheckpointDurableExecution</code> calls. The X-Ray trace of step 07 has neither.</p>
+<p class="note">Result file: <code>src/steps/${Q}/results/s3-span-names.json</code></p>
+
+${section('S4. Model calls as spans: tokens and latency', 's4-bedrock-calls', table(s4, [
+    { h: 'Step', f: (r) => stepOf(r.traceId) }, { h: 'Model', k: 'model' }, { h: 'Calls', k: 'calls' }, { h: 'Input tokens', k: 'inputTokens' }, { h: 'Output tokens', k: 'outputTokens' },
+    { h: 'Avg latency (s)', f: (r) => sec(r.avgMs) }, { h: 'Max latency (s)', f: (r) => sec(r.maxMs) }]))}
+<p>The Bedrock spans carry the model, the input and output token counts and the finish reason (GenAI attributes). The step 07 trace has no Bedrock spans, so it does not appear here.</p>
+
+${section('S5. The cost of durability, seen in the spans', 's5-durable-overhead', table([...durPivot.entries()].map(([n, v]) => ({ n, v })), [
+    { h: 'Span name', f: (r) => r.n }, ...traceCols((r, t) => r.v[t] ?? '-')]))}
+<p>Count × average duration. A run makes 9 checkpoint calls of about 55 to 60 ms each, about 0.5 s of a run that lasts over a minute. Dwell time and the first execution attempt are a few tens of milliseconds. The checkpoint calls only appear in the OpenTelemetry traces.</p>
+
+${section('S6. Lambda start-up', 's6-lambda-init', table(s6, [
+    { h: 'Step', f: (r) => stepOf(r.traceId) }, { h: 'Init spans (cold starts)', k: 'inits' }, { h: 'Avg init (ms)', f: (r) => num(r.avgInitMs).toFixed(0) }, { h: 'Max init (ms)', f: (r) => num(r.maxInitMs).toFixed(0) }]))}
+<p>Steps 07 and 11 traced all six functions and show six cold starts. Steps 08 and 10 traced only the coordinator and show one. The OpenTelemetry layer adds to the init time: about 1.0 to 1.4 s against about 0.5 s with X-Ray only.</p>
+
+${section('S7. The longest spans of the step 11 trace', 's7-slowest-spans-step11', table(s7, [
+    { h: 'Span name', k: 'spanName' }, { h: 'Kind', k: 'spanKind' }, { h: 'Service', f: (r) => r.svc ?? '' }, { h: 'Model', f: (r) => r.model ?? '' }, { h: 'Duration (s)', f: (r) => sec(r.durationMs) }]))}
+<p>The Risk specialist (Sonnet 4.6) dominates: its function span and its Bedrock call both last about 43.5 s, which sets the length of the parallel block.</p>
+
+<h4>S8. Do the specialists run in parallel? (step 11)</h4>
+${code(qtext('s8-parallel-specialists-step11'), `src/steps/${Q}/queries/s8-parallel-specialists-step11.logsinsights`)}
+<div class="gantt">${gantt}<div class="gaxis"><span>0 s</span><span>${((t1 - t0) / 1e9).toFixed(0)} s</span></div></div>
+<p>Start and end of each specialist's function span, relative to the first start. All five start within 0.4 s of each other; the run lasts as long as the slowest one. The coordinator waits during that time and is not billed for it.</p>
+<p class="note">Result file: <code>src/steps/${Q}/results/s8-parallel-specialists-step11.json</code></p>
+
+<details class="complement"><summary>Complement: Lambda logs (Logs Insights)</summary>
+<p>Log queries over the coordinators' log groups for steps 05, 07, 08, 10 and 11. They answer questions the spans do not: billed duration and the workflow milestones the handler logged.</p>
+${section('L1. Billed duration per coordinator', 'l1-billed-duration-by-function', table(qrows('l1-billed-duration-by-function'), [
     { h: 'Step', f: (r) => stepOfFn(r['@log']) }, { h: 'Log group', f: (r) => r['@log'].split(':').pop() }, { h: 'Handler invocations', k: 'invocations' },
     { h: 'Billed ms (sum)', k: 'billedMs' }, { h: 'Avg duration ms', f: (r) => Number(r.avgDurationMs).toFixed(0) }, { h: 'Max memory MB', k: 'maxMemMB' }]))}
 <p>Each coordinator is invoked repeatedly because the execution suspends while specialists run, then replays. Steps 05 and 06 share a log group, so its row covers two executions.</p>
-${section('Q2. Workflow milestones logged by context.logger', 'q2-workflow-milestones', table(qrows('q2-workflow-milestones').map((r) => ({ ...r, who: r['@log'].split(':').pop().replace('/aws/lambda/', ''), exec: execShort(r.executionArn).split(' / ')[1].slice(0, 8) })), [
+${section('L2. Workflow milestones logged by context.logger', 'l2-workflow-milestones', table(qrows('l2-workflow-milestones').map((r) => ({ ...r, who: r['@log'].split(':').pop().replace('/aws/lambda/', ''), exec: execShort(r.executionArn).split(' / ')[1].slice(0, 8) })), [
     { h: 'Timestamp (UTC)', k: '@timestamp' }, { h: 'Function', k: 'who' }, { h: 'Execution ID (first 8)', k: 'exec' }, { h: 'Message', f: (r) => r.message }]))}
-${section('Q3. Handler invocations per durable execution', 'q3-invocations-per-execution', table(q3.map((r) => ({ ...r, fn: r.executionArn.split(':function:')[1].split(':')[0], id: r.executionArn.split('/').pop() })), [
+${section('L3. Handler invocations per durable execution', 'l3-invocations-per-execution', table(qrows('l3-invocations-per-execution').map((r) => ({ ...r, fn: r.executionArn.split(':function:')[1].split(':')[0], id: r.executionArn.split('/').pop() })), [
     { h: 'Function', k: 'fn' }, { h: 'Durable execution ID', k: 'id' }, { h: 'Log lines', k: 'logLines' }, { h: 'Invocations that logged', k: 'invocationsThatLogged' }, { h: 'First seen', k: 'firstSeen' }, { h: 'Last seen', k: 'lastSeen' }]))}
 <p>The logger is replay-aware, so replayed code stays silent. Every run logs from two invocations: the one that planned and started the specialists, and the one that resumed after them.</p>
-${section('Q4. Spans per trace (Transaction Search, aws/spans)', 'q4-spans-per-trace', table(q4, [
-    { h: 'Step', f: (r) => traceStep[r.traceId] }, { h: 'Trace ID', k: 'traceId' }, { h: 'Records', k: 'spans' }, { h: 'Distinct spans', k: 'distinctSpans' },
-    { h: 'Trace length (s)', f: (r) => ((Number(r.lastEndNs) - Number(r.firstStartNs)) / 1e9).toFixed(1) }]))}
-<p>Records exceed distinct spans because Transaction Search stores some spans more than once (for example an OTel span and its X-Ray segment copy). The console reports the distinct counts used in the screenshots (47, 52, 94 for steps 07, 08, 11 in the console view).</p>
-${section('Q5. Services per trace: context propagation', 'q5-spans-by-service-and-name', `<table><thead><tr><th>Step</th><th>Trace ID</th><th>Services (span records)</th></tr></thead><tbody>${q4.map((r) => `<tr><td>${traceStep[r.traceId]}</td><td><code>${r.traceId}</code></td><td>${esc((svcByTrace[r.traceId] ?? []).join(', '))}</td></tr>`).join('')}</tbody></table>`)}
-<p>Step 10 shows only the coordinator service: its specialists (the step 08 functions) are untraced, so they cannot join the trace. Steps 07 and 11 show the coordinator and all five specialists in one trace.</p>
-${section('Q6. Ten slowest spans of the step 11 trace', 'q6-slowest-spans-step11', table(q6, [
-    { h: 'Span name', k: 'name' }, { h: 'Kind', k: 'kind' }, { h: 'Service', f: (r) => r['attributes.aws.local.service'] ?? '' }, { h: 'Duration ms', f: (r) => Number(r.durationMs).toFixed(0) }]))}
-<p>The Risk specialist (Sonnet 4.6) dominates: its Bedrock ConverseStream call lasts about 43.5 s, which sets the length of the parallel block.</p>`
+</details>`
 }
 
 // ---------------------------------------------------------------- render
@@ -503,18 +569,20 @@ const stepHtml = steps.map((s) => {
 const step12Html = `
 <section class="step" id="step-12">
   <header><span class="num">12</span><div><div class="grp">Running it at scale!</div><h2>Run analysis</h2></div></header>
-  ${promptSection(`Finally, let us look at what we have. Using the otel-playground profile in eu-central-1, compare the runs from steps 05 to 11. From the Lambda logs: how much billed duration and memory did each variant use, what are the milestones of each workflow run, and how many invocations did each execution take. From the traces in Transaction Search: how many spans does each trace have, where does the time go, and does one trace really cross the coordinator and all specialists in step 11, compared with only the coordinator in step 10.
-Write the CloudWatch Logs Insights queries, run them, and save the queries and their results next to the step.`)}
+  ${promptSection(`Finally, let us look at what we have, mainly through the spans. Using the otel-playground profile in eu-central-1, query the aws/spans log group for the four traces of the tracing steps and compare them: how much does each option record, which functions end up in the same trace, which operations get their own span, what do the model calls cost in tokens and time, how much does durability add, and do the specialists in step 11 really run in parallel.
+Write the CloudWatch Logs Insights queries, run them, and save the queries and their results next to the step. A few Lambda log queries for billed duration are fine as an extra, but keep the focus on the spans.`)}
   <div class="grid2">
     <div><h3>Outline bullet</h3><p class="outline">Run analysis.</p></div>
-    <div><h3>Goal</h3><p>Answer questions about the runs of steps 05 to 11 with CloudWatch Logs Insights (application logs and Lambda platform reports) and with trace queries over the <code>aws/spans</code> log group (Transaction Search). No function; no new invocation.</p></div>
+    <div><h3>Goal</h3><p>Answer questions about the traced runs of steps 07 to 11 with queries over the <code>aws/spans</code> log group (Transaction Search): what each tracing option records, which functions share a trace, which operations have spans, what the model calls cost, how much time durability adds and whether the specialists run in parallel. A short complement uses Lambda logs. No function; no new invocation.</p></div>
   </div>
   <h3>What to say</h3>
   <ul class="say">
-    <li>Logs Insights reads the structured Lambda logs: billed duration per function, workflow milestones and invocations per execution.</li>
-    <li>Transaction Search stores spans in aws/spans, so the same query language works on traces: spans per trace, services per trace, slowest spans.</li>
-    <li>Q5 is the proof of context propagation: step 11 has all six services in one trace, step 10 only the coordinator.</li>
-    <li>Q6 shows where the time goes: the Risk specialist's Bedrock call.</li>
+    <li>Transaction Search stores every span in the log group aws/spans, so the same query language you know from logs works on traces.</li>
+    <li>S1 and S3: the X-Ray trace shows Lambda segments. The OpenTelemetry traces add the Bedrock calls and the durable checkpoint calls.</li>
+    <li>S2 is the proof of context propagation: step 11 has the coordinator and all five specialists in one trace, steps 08 and 10 only the coordinator.</li>
+    <li>S4: the model calls are spans with model, token counts and latency.</li>
+    <li>S5: durability costs about nine checkpoint calls of roughly 55 ms each, about half a second in a run that lasts over a minute.</li>
+    <li>S8: the five specialists start together and the Risk specialist sets the length of the run.</li>
   </ul>
   ${step12()}
 </section>`
@@ -551,7 +619,7 @@ h1.group{font-size:28px;margin:48px 0 8px;border-bottom:3px solid var(--acc);pad
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media(max-width:1000px){nav{display:none}main{margin:0;padding:16px}.grid2{grid-template-columns:1fr}}
 .outline{font-style:italic;border-left:4px solid var(--acc);padding-left:12px}
 .tk-kw{color:#ff7b9c}.tk-str{color:#a5d6a7}.tk-num{color:#f2cc8f}.tk-val{color:#f2cc8f}.tk-cm{color:#7d8da6;font-style:italic}.tk-fn{color:#82aaff}.tk-ty{color:#ffd580}.tk-prop{color:#c3d2ea}.tk-pun{color:#8a9bb5}.tk-key{color:#82aaff}.code .label .lang{float:right;color:#6f86a8;text-transform:uppercase;letter-spacing:.06em;font-size:11px}
-.say li{margin:4px 0}.code{margin:10px 0;border-radius:8px;overflow:hidden;background:var(--code)}.code .label{background:#1d2a40;color:#9fb3cf;font:12px ui-monospace,monospace;padding:5px 12px}
+.gantt{margin:10px 0 4px;border:1px solid var(--line);border-radius:8px;padding:12px;background:#fff}.grow{display:grid;grid-template-columns:90px 1fr 60px;gap:10px;align-items:center;margin:5px 0;font-size:13px}.gl{color:var(--mut)}.gt{position:relative;height:16px;background:#eef1f6;border-radius:4px}.gt i{position:absolute;top:0;bottom:0;background:#0b5fff;border-radius:4px}.gv{text-align:right;font-variant-numeric:tabular-nums}.gaxis{display:flex;justify-content:space-between;margin:6px 60px 0 100px;font-size:12px;color:var(--mut)}details.complement{margin:18px 0;border:1px solid var(--line);border-radius:8px;padding:8px 14px;background:#fafbfc}details.complement summary{cursor:pointer;font-weight:600}.say li{margin:4px 0}.code{margin:10px 0;border-radius:8px;overflow:hidden;background:var(--code)}.code .label{background:#1d2a40;color:#9fb3cf;font:12px ui-monospace,monospace;padding:5px 12px}
 pre{margin:0;padding:12px;overflow:auto;color:var(--codefg);font:12.5px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre-wrap;word-break:break-word}
 code{font-family:ui-monospace,Menlo,monospace;font-size:.9em;word-break:break-all}p code,td code,li code{background:#eef1f6;border-radius:4px;padding:1px 4px}
 table{border-collapse:collapse;width:100%;margin:10px 0;font-size:14px}th,td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top}th{background:#f0f3f8}

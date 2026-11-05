@@ -1,0 +1,6 @@
+# Log group: aws/spans (CloudWatch Transaction Search). Traces: step 07 6ae5cbc4..., step 08 6ae5cc3b..., step 10 6ae5cca5..., step 11 6ae5cd1c...
+# The twelve longest spans of the step 11 trace (every function traced).
+filter traceId = "6ae5cd1c75705e4c04ad9fe673a2a55e"
+| stats latest(name) as spanName, latest(kind) as spanKind, latest(attributes.aws.local.service) as svc, latest(attributes.gen_ai.request.model) as model, max(durationNano) / 1000000 as durationMs by spanId
+| sort durationMs desc
+| limit 12

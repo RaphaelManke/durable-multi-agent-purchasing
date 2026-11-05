@@ -1,0 +1,1058 @@
+{
+    "queryLanguage": "CWLI",
+    "results": [
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cbc4712cf6fd1703fd806783e1ad"
+            },
+            {
+                "field": "spanName",
+                "value": "Overhead/LambdaExecutionEnvironment"
+            },
+            {
+                "field": "spans",
+                "value": "11"
+            },
+            {
+                "field": "avgMs",
+                "value": "0.4389"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cbc4712cf6fd1703fd806783e1ad"
+            },
+            {
+                "field": "spanName",
+                "value": "dfdemo-07-xray-coordinator/LambdaService"
+            },
+            {
+                "field": "spans",
+                "value": "7"
+            },
+            {
+                "field": "avgMs",
+                "value": "5644.2858"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cbc4712cf6fd1703fd806783e1ad"
+            },
+            {
+                "field": "spanName",
+                "value": "dfdemo-07-xray-coordinator/LambdaExecutionEnvironment"
+            },
+            {
+                "field": "spans",
+                "value": "6"
+            },
+            {
+                "field": "avgMs",
+                "value": "6442.3631"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cbc4712cf6fd1703fd806783e1ad"
+            },
+            {
+                "field": "spanName",
+                "value": "Init/LambdaExecutionEnvironment"
+            },
+            {
+                "field": "spans",
+                "value": "6"
+            },
+            {
+                "field": "avgMs",
+                "value": "506.4995"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cbc4712cf6fd1703fd806783e1ad"
+            },
+            {
+                "field": "spanName",
+                "value": "dfdemo-07-xray-contract/LambdaService"
+            },
+            {
+                "field": "spans",
+                "value": "2"
+            },
+            {
+                "field": "avgMs",
+                "value": "10989.0001"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cbc4712cf6fd1703fd806783e1ad"
+            },
+            {
+                "field": "spanName",
+                "value": "dfdemo-07-xray-delivery/LambdaService"
+            },
+            {
+                "field": "spans",
+                "value": "2"
+            },
+            {
+                "field": "avgMs",
+                "value": "5793.5"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cbc4712cf6fd1703fd806783e1ad"
+            },
+            {
+                "field": "spanName",
+                "value": "dfdemo-07-xray-price/LambdaService"
+            },
+            {
+                "field": "spans",
+                "value": "2"
+            },
+            {
+                "field": "avgMs",
+                "value": "5914.5"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cbc4712cf6fd1703fd806783e1ad"
+            },
+            {
+                "field": "spanName",
+                "value": "dfdemo-07-xray-risk/LambdaService"
+            },
+            {
+                "field": "spans",
+                "value": "2"
+            },
+            {
+                "field": "avgMs",
+                "value": "18733.0001"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cbc4712cf6fd1703fd806783e1ad"
+            },
+            {
+                "field": "spanName",
+                "value": "dfdemo-07-xray-financing/LambdaService"
+            },
+            {
+                "field": "spans",
+                "value": "2"
+            },
+            {
+                "field": "avgMs",
+                "value": "15384.0001"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cbc4712cf6fd1703fd806783e1ad"
+            },
+            {
+                "field": "spanName",
+                "value": "dfdemo-07-xray-contract/LambdaExecutionEnvironment"
+            },
+            {
+                "field": "spans",
+                "value": "1"
+            },
+            {
+                "field": "avgMs",
+                "value": "21364.6541"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cbc4712cf6fd1703fd806783e1ad"
+            },
+            {
+                "field": "spanName",
+                "value": "Dwell Time"
+            },
+            {
+                "field": "spans",
+                "value": "1"
+            },
+            {
+                "field": "avgMs",
+                "value": "34.0001"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cbc4712cf6fd1703fd806783e1ad"
+            },
+            {
+                "field": "spanName",
+                "value": "dfdemo-07-xray-risk/LambdaExecutionEnvironment"
+            },
+            {
+                "field": "spans",
+                "value": "1"
+            },
+            {
+                "field": "avgMs",
+                "value": "36840.553"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cbc4712cf6fd1703fd806783e1ad"
+            },
+            {
+                "field": "spanName",
+                "value": "dfdemo-07-xray-price/LambdaExecutionEnvironment"
+            },
+            {
+                "field": "spans",
+                "value": "1"
+            },
+            {
+                "field": "avgMs",
+                "value": "11089.164"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cbc4712cf6fd1703fd806783e1ad"
+            },
+            {
+                "field": "spanName",
+                "value": "Durable Execution Attempt #1"
+            },
+            {
+                "field": "spans",
+                "value": "1"
+            },
+            {
+                "field": "avgMs",
+                "value": "63.0001"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cbc4712cf6fd1703fd806783e1ad"
+            },
+            {
+                "field": "spanName",
+                "value": "dfdemo-07-xray-financing/LambdaExecutionEnvironment"
+            },
+            {
+                "field": "spans",
+                "value": "1"
+            },
+            {
+                "field": "avgMs",
+                "value": "30078.3629"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cbc4712cf6fd1703fd806783e1ad"
+            },
+            {
+                "field": "spanName",
+                "value": "dfdemo-07-xray-delivery/LambdaExecutionEnvironment"
+            },
+            {
+                "field": "spans",
+                "value": "1"
+            },
+            {
+                "field": "avgMs",
+                "value": "11004.2191"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cc3b44cc9da909fe2c2e7aebf8f3"
+            },
+            {
+                "field": "spanName",
+                "value": "Lambda.CheckpointDurableExecution"
+            },
+            {
+                "field": "spans",
+                "value": "9"
+            },
+            {
+                "field": "avgMs",
+                "value": "56.9457"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cc3b44cc9da909fe2c2e7aebf8f3"
+            },
+            {
+                "field": "spanName",
+                "value": "dfdemo-08-otel-coordinator/LambdaService"
+            },
+            {
+                "field": "spans",
+                "value": "7"
+            },
+            {
+                "field": "avgMs",
+                "value": "5164"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cc3b44cc9da909fe2c2e7aebf8f3"
+            },
+            {
+                "field": "spanName",
+                "value": "dfdemo-08-otel-coordinator/LambdaExecutionEnvironment"
+            },
+            {
+                "field": "spans",
+                "value": "6"
+            },
+            {
+                "field": "avgMs",
+                "value": "5839.0019"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cc3b44cc9da909fe2c2e7aebf8f3"
+            },
+            {
+                "field": "spanName",
+                "value": "Overhead/LambdaExecutionEnvironment"
+            },
+            {
+                "field": "spans",
+                "value": "6"
+            },
+            {
+                "field": "avgMs",
+                "value": "26.9997"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cc3b44cc9da909fe2c2e7aebf8f3"
+            },
+            {
+                "field": "spanName",
+                "value": "dfdemo-08-otel-coordinator"
+            },
+            {
+                "field": "spans",
+                "value": "6"
+            },
+            {
+                "field": "avgMs",
+                "value": "5767.3513"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cc3b44cc9da909fe2c2e7aebf8f3"
+            },
+            {
+                "field": "spanName",
+                "value": "BedrockRuntime.ConverseStream"
+            },
+            {
+                "field": "spans",
+                "value": "3"
+            },
+            {
+                "field": "avgMs",
+                "value": "11380.8183"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cc3b44cc9da909fe2c2e7aebf8f3"
+            },
+            {
+                "field": "spanName",
+                "value": "Durable Execution Attempt #1"
+            },
+            {
+                "field": "spans",
+                "value": "1"
+            },
+            {
+                "field": "avgMs",
+                "value": "59.0001"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cc3b44cc9da909fe2c2e7aebf8f3"
+            },
+            {
+                "field": "spanName",
+                "value": "Dwell Time"
+            },
+            {
+                "field": "spans",
+                "value": "1"
+            },
+            {
+                "field": "avgMs",
+                "value": "33.9999"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cc3b44cc9da909fe2c2e7aebf8f3"
+            },
+            {
+                "field": "spanName",
+                "value": "Init/LambdaExecutionEnvironment"
+            },
+            {
+                "field": "spans",
+                "value": "1"
+            },
+            {
+                "field": "avgMs",
+                "value": "1000.6029"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cca544a55195411c3a0251cd3b9a"
+            },
+            {
+                "field": "spanName",
+                "value": "Lambda.CheckpointDurableExecution"
+            },
+            {
+                "field": "spans",
+                "value": "9"
+            },
+            {
+                "field": "avgMs",
+                "value": "59.5916"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cca544a55195411c3a0251cd3b9a"
+            },
+            {
+                "field": "spanName",
+                "value": "dfdemo-10-otel-mode2-coordinator/LambdaService"
+            },
+            {
+                "field": "spans",
+                "value": "7"
+            },
+            {
+                "field": "avgMs",
+                "value": "5634.5716"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cca544a55195411c3a0251cd3b9a"
+            },
+            {
+                "field": "spanName",
+                "value": "dfdemo-10-otel-mode2-coordinator"
+            },
+            {
+                "field": "spans",
+                "value": "6"
+            },
+            {
+                "field": "avgMs",
+                "value": "6255.2812"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cca544a55195411c3a0251cd3b9a"
+            },
+            {
+                "field": "spanName",
+                "value": "dfdemo-10-otel-mode2-coordinator/LambdaExecutionEnvironment"
+            },
+            {
+                "field": "spans",
+                "value": "6"
+            },
+            {
+                "field": "avgMs",
+                "value": "6326.8461"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cca544a55195411c3a0251cd3b9a"
+            },
+            {
+                "field": "spanName",
+                "value": "Overhead/LambdaExecutionEnvironment"
+            },
+            {
+                "field": "spans",
+                "value": "6"
+            },
+            {
+                "field": "avgMs",
+                "value": "29.0577"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cca544a55195411c3a0251cd3b9a"
+            },
+            {
+                "field": "spanName",
+                "value": "BedrockRuntime.ConverseStream"
+            },
+            {
+                "field": "spans",
+                "value": "3"
+            },
+            {
+                "field": "avgMs",
+                "value": "12335.6172"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cca544a55195411c3a0251cd3b9a"
+            },
+            {
+                "field": "spanName",
+                "value": "Init/LambdaExecutionEnvironment"
+            },
+            {
+                "field": "spans",
+                "value": "1"
+            },
+            {
+                "field": "avgMs",
+                "value": "1412.8548"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cca544a55195411c3a0251cd3b9a"
+            },
+            {
+                "field": "spanName",
+                "value": "Dwell Time"
+            },
+            {
+                "field": "spans",
+                "value": "1"
+            },
+            {
+                "field": "avgMs",
+                "value": "36.9999"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cca544a55195411c3a0251cd3b9a"
+            },
+            {
+                "field": "spanName",
+                "value": "Durable Execution Attempt #1"
+            },
+            {
+                "field": "spans",
+                "value": "1"
+            },
+            {
+                "field": "avgMs",
+                "value": "62.0001"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cd1c75705e4c04ad9fe673a2a55e"
+            },
+            {
+                "field": "spanName",
+                "value": "Overhead/LambdaExecutionEnvironment"
+            },
+            {
+                "field": "spans",
+                "value": "11"
+            },
+            {
+                "field": "avgMs",
+                "value": "27.0228"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cd1c75705e4c04ad9fe673a2a55e"
+            },
+            {
+                "field": "spanName",
+                "value": "Lambda.CheckpointDurableExecution"
+            },
+            {
+                "field": "spans",
+                "value": "9"
+            },
+            {
+                "field": "avgMs",
+                "value": "55.109"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cd1c75705e4c04ad9fe673a2a55e"
+            },
+            {
+                "field": "spanName",
+                "value": "BedrockRuntime.ConverseStream"
+            },
+            {
+                "field": "spans",
+                "value": "9"
+            },
+            {
+                "field": "avgMs",
+                "value": "15650.7168"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cd1c75705e4c04ad9fe673a2a55e"
+            },
+            {
+                "field": "spanName",
+                "value": "dfdemo-11-otel-all-coordinator/LambdaService"
+            },
+            {
+                "field": "spans",
+                "value": "7"
+            },
+            {
+                "field": "avgMs",
+                "value": "5000.8572"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cd1c75705e4c04ad9fe673a2a55e"
+            },
+            {
+                "field": "spanName",
+                "value": "dfdemo-11-otel-all-coordinator/LambdaExecutionEnvironment"
+            },
+            {
+                "field": "spans",
+                "value": "6"
+            },
+            {
+                "field": "avgMs",
+                "value": "5586.4076"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cd1c75705e4c04ad9fe673a2a55e"
+            },
+            {
+                "field": "spanName",
+                "value": "dfdemo-11-otel-all-coordinator"
+            },
+            {
+                "field": "spans",
+                "value": "6"
+            },
+            {
+                "field": "avgMs",
+                "value": "5517.5095"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cd1c75705e4c04ad9fe673a2a55e"
+            },
+            {
+                "field": "spanName",
+                "value": "Init/LambdaExecutionEnvironment"
+            },
+            {
+                "field": "spans",
+                "value": "6"
+            },
+            {
+                "field": "avgMs",
+                "value": "1229.7555"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cd1c75705e4c04ad9fe673a2a55e"
+            },
+            {
+                "field": "spanName",
+                "value": "dfdemo-11-otel-risk/LambdaService"
+            },
+            {
+                "field": "spans",
+                "value": "2"
+            },
+            {
+                "field": "avgMs",
+                "value": "22613.4999"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cd1c75705e4c04ad9fe673a2a55e"
+            },
+            {
+                "field": "spanName",
+                "value": "dfdemo-11-otel-contract/LambdaService"
+            },
+            {
+                "field": "spans",
+                "value": "2"
+            },
+            {
+                "field": "avgMs",
+                "value": "9479.5"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cd1c75705e4c04ad9fe673a2a55e"
+            },
+            {
+                "field": "spanName",
+                "value": "dfdemo-11-otel-delivery/LambdaService"
+            },
+            {
+                "field": "spans",
+                "value": "2"
+            },
+            {
+                "field": "avgMs",
+                "value": "7779.4999"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cd1c75705e4c04ad9fe673a2a55e"
+            },
+            {
+                "field": "spanName",
+                "value": "dfdemo-11-otel-price/LambdaService"
+            },
+            {
+                "field": "spans",
+                "value": "2"
+            },
+            {
+                "field": "avgMs",
+                "value": "7234"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cd1c75705e4c04ad9fe673a2a55e"
+            },
+            {
+                "field": "spanName",
+                "value": "dfdemo-11-otel-financing/LambdaService"
+            },
+            {
+                "field": "spans",
+                "value": "2"
+            },
+            {
+                "field": "avgMs",
+                "value": "11114.5"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cd1c75705e4c04ad9fe673a2a55e"
+            },
+            {
+                "field": "spanName",
+                "value": "dfdemo-11-otel-price"
+            },
+            {
+                "field": "spans",
+                "value": "1"
+            },
+            {
+                "field": "avgMs",
+                "value": "12841.342"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cd1c75705e4c04ad9fe673a2a55e"
+            },
+            {
+                "field": "spanName",
+                "value": "dfdemo-11-otel-price/LambdaExecutionEnvironment"
+            },
+            {
+                "field": "spans",
+                "value": "1"
+            },
+            {
+                "field": "avgMs",
+                "value": "12915.8213"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cd1c75705e4c04ad9fe673a2a55e"
+            },
+            {
+                "field": "spanName",
+                "value": "dfdemo-11-otel-contract"
+            },
+            {
+                "field": "spans",
+                "value": "1"
+            },
+            {
+                "field": "avgMs",
+                "value": "17267.6145"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cd1c75705e4c04ad9fe673a2a55e"
+            },
+            {
+                "field": "spanName",
+                "value": "dfdemo-11-otel-delivery"
+            },
+            {
+                "field": "spans",
+                "value": "1"
+            },
+            {
+                "field": "avgMs",
+                "value": "14172.2427"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cd1c75705e4c04ad9fe673a2a55e"
+            },
+            {
+                "field": "spanName",
+                "value": "Durable Execution Attempt #1"
+            },
+            {
+                "field": "spans",
+                "value": "1"
+            },
+            {
+                "field": "avgMs",
+                "value": "65.0002"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cd1c75705e4c04ad9fe673a2a55e"
+            },
+            {
+                "field": "spanName",
+                "value": "dfdemo-11-otel-financing/LambdaExecutionEnvironment"
+            },
+            {
+                "field": "spans",
+                "value": "1"
+            },
+            {
+                "field": "avgMs",
+                "value": "20783.094"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cd1c75705e4c04ad9fe673a2a55e"
+            },
+            {
+                "field": "spanName",
+                "value": "dfdemo-11-otel-risk/LambdaExecutionEnvironment"
+            },
+            {
+                "field": "spans",
+                "value": "1"
+            },
+            {
+                "field": "avgMs",
+                "value": "43739.1319"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cd1c75705e4c04ad9fe673a2a55e"
+            },
+            {
+                "field": "spanName",
+                "value": "dfdemo-11-otel-contract/LambdaExecutionEnvironment"
+            },
+            {
+                "field": "spans",
+                "value": "1"
+            },
+            {
+                "field": "avgMs",
+                "value": "17515.019"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cd1c75705e4c04ad9fe673a2a55e"
+            },
+            {
+                "field": "spanName",
+                "value": "dfdemo-11-otel-risk"
+            },
+            {
+                "field": "spans",
+                "value": "1"
+            },
+            {
+                "field": "avgMs",
+                "value": "43506.8155"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cd1c75705e4c04ad9fe673a2a55e"
+            },
+            {
+                "field": "spanName",
+                "value": "dfdemo-11-otel-financing"
+            },
+            {
+                "field": "spans",
+                "value": "1"
+            },
+            {
+                "field": "avgMs",
+                "value": "20518.7116"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cd1c75705e4c04ad9fe673a2a55e"
+            },
+            {
+                "field": "spanName",
+                "value": "Dwell Time"
+            },
+            {
+                "field": "spans",
+                "value": "1"
+            },
+            {
+                "field": "avgMs",
+                "value": "35.0001"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cd1c75705e4c04ad9fe673a2a55e"
+            },
+            {
+                "field": "spanName",
+                "value": "dfdemo-11-otel-delivery/LambdaExecutionEnvironment"
+            },
+            {
+                "field": "spans",
+                "value": "1"
+            },
+            {
+                "field": "avgMs",
+                "value": "14376.7229"
+            }
+        ]
+    ],
+    "statistics": {
+        "recordsMatched": 289.0,
+        "recordsScanned": 289.0,
+        "estimatedRecordsSkipped": 0.0,
+        "bytesScanned": 318239.0,
+        "estimatedBytesSkipped": 0.0,
+        "logGroupsScanned": 1.0
+    },
+    "status": "Complete"
+}

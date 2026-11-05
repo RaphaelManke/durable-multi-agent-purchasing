@@ -1,0 +1,266 @@
+{
+    "queryLanguage": "CWLI",
+    "results": [
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cbc4712cf6fd1703fd806783e1ad"
+            },
+            {
+                "field": "fn",
+                "value": "dfdemo-07-xray-coordinator"
+            },
+            {
+                "field": "invocations",
+                "value": "6"
+            },
+            {
+                "field": "totalMs",
+                "value": "38654.1783"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cbc4712cf6fd1703fd806783e1ad"
+            },
+            {
+                "field": "fn",
+                "value": "dfdemo-07-xray-risk"
+            },
+            {
+                "field": "invocations",
+                "value": "1"
+            },
+            {
+                "field": "totalMs",
+                "value": "36840.553"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cbc4712cf6fd1703fd806783e1ad"
+            },
+            {
+                "field": "fn",
+                "value": "dfdemo-07-xray-financing"
+            },
+            {
+                "field": "invocations",
+                "value": "1"
+            },
+            {
+                "field": "totalMs",
+                "value": "30078.3629"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cbc4712cf6fd1703fd806783e1ad"
+            },
+            {
+                "field": "fn",
+                "value": "dfdemo-07-xray-contract"
+            },
+            {
+                "field": "invocations",
+                "value": "1"
+            },
+            {
+                "field": "totalMs",
+                "value": "21364.6541"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cbc4712cf6fd1703fd806783e1ad"
+            },
+            {
+                "field": "fn",
+                "value": "dfdemo-07-xray-price"
+            },
+            {
+                "field": "invocations",
+                "value": "1"
+            },
+            {
+                "field": "totalMs",
+                "value": "11089.164"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cbc4712cf6fd1703fd806783e1ad"
+            },
+            {
+                "field": "fn",
+                "value": "dfdemo-07-xray-delivery"
+            },
+            {
+                "field": "invocations",
+                "value": "1"
+            },
+            {
+                "field": "totalMs",
+                "value": "11004.2191"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cc3b44cc9da909fe2c2e7aebf8f3"
+            },
+            {
+                "field": "fn",
+                "value": "dfdemo-08-otel-coordinator"
+            },
+            {
+                "field": "invocations",
+                "value": "6"
+            },
+            {
+                "field": "totalMs",
+                "value": "35034.0111"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cca544a55195411c3a0251cd3b9a"
+            },
+            {
+                "field": "fn",
+                "value": "dfdemo-10-otel-mode2-coordinator"
+            },
+            {
+                "field": "invocations",
+                "value": "6"
+            },
+            {
+                "field": "totalMs",
+                "value": "37961.0767"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cd1c75705e4c04ad9fe673a2a55e"
+            },
+            {
+                "field": "fn",
+                "value": "dfdemo-11-otel-risk"
+            },
+            {
+                "field": "invocations",
+                "value": "1"
+            },
+            {
+                "field": "totalMs",
+                "value": "43739.1319"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cd1c75705e4c04ad9fe673a2a55e"
+            },
+            {
+                "field": "fn",
+                "value": "dfdemo-11-otel-all-coordinator"
+            },
+            {
+                "field": "invocations",
+                "value": "6"
+            },
+            {
+                "field": "totalMs",
+                "value": "33518.4458"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cd1c75705e4c04ad9fe673a2a55e"
+            },
+            {
+                "field": "fn",
+                "value": "dfdemo-11-otel-financing"
+            },
+            {
+                "field": "invocations",
+                "value": "1"
+            },
+            {
+                "field": "totalMs",
+                "value": "20783.094"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cd1c75705e4c04ad9fe673a2a55e"
+            },
+            {
+                "field": "fn",
+                "value": "dfdemo-11-otel-contract"
+            },
+            {
+                "field": "invocations",
+                "value": "1"
+            },
+            {
+                "field": "totalMs",
+                "value": "17515.019"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cd1c75705e4c04ad9fe673a2a55e"
+            },
+            {
+                "field": "fn",
+                "value": "dfdemo-11-otel-delivery"
+            },
+            {
+                "field": "invocations",
+                "value": "1"
+            },
+            {
+                "field": "totalMs",
+                "value": "14376.7229"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cd1c75705e4c04ad9fe673a2a55e"
+            },
+            {
+                "field": "fn",
+                "value": "dfdemo-11-otel-price"
+            },
+            {
+                "field": "invocations",
+                "value": "1"
+            },
+            {
+                "field": "totalMs",
+                "value": "12915.8213"
+            }
+        ]
+    ],
+    "statistics": {
+        "recordsMatched": 68.0,
+        "recordsScanned": 289.0,
+        "estimatedRecordsSkipped": 0.0,
+        "bytesScanned": 318239.0,
+        "estimatedBytesSkipped": 0.0,
+        "logGroupsScanned": 1.0
+    },
+    "status": "Complete"
+}

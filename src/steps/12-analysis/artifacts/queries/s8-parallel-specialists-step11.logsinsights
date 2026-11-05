@@ -1,0 +1,5 @@
+# Log group: aws/spans (CloudWatch Transaction Search). Traces: step 07 6ae5cbc4..., step 08 6ae5cc3b..., step 10 6ae5cca5..., step 11 6ae5cd1c...
+# Do the specialists really run in parallel? One row per invocation in the step 11 trace: the function span (SERVER, named exactly like the function).
+filter traceId = "6ae5cd1c75705e4c04ad9fe673a2a55e" and kind = "SERVER" and name like /^dfdemo-11-otel-[a-z]+$/
+| stats latest(name) as fn, min(startTimeUnixNano) as startNs, max(endTimeUnixNano) as endNs by spanId
+| sort startNs asc

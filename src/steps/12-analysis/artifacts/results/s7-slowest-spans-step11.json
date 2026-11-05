@@ -1,0 +1,278 @@
+{
+    "queryLanguage": "CWLI",
+    "results": [
+        [
+            {
+                "field": "spanId",
+                "value": "7ba172f5b634fb3b"
+            },
+            {
+                "field": "spanName",
+                "value": "dfdemo-11-otel-risk/LambdaService"
+            },
+            {
+                "field": "spanKind",
+                "value": "SERVER"
+            },
+            {
+                "field": "svc",
+                "value": "dfdemo-11-otel-risk"
+            },
+            {
+                "field": "durationMs",
+                "value": "45226.9998"
+            }
+        ],
+        [
+            {
+                "field": "spanId",
+                "value": "fcf5e5f14179478d"
+            },
+            {
+                "field": "spanName",
+                "value": "dfdemo-11-otel-risk/LambdaExecutionEnvironment"
+            },
+            {
+                "field": "spanKind",
+                "value": "SERVER"
+            },
+            {
+                "field": "durationMs",
+                "value": "43739.1319"
+            }
+        ],
+        [
+            {
+                "field": "spanId",
+                "value": "4d7fdb995a6f106f"
+            },
+            {
+                "field": "spanName",
+                "value": "dfdemo-11-otel-risk"
+            },
+            {
+                "field": "spanKind",
+                "value": "SERVER"
+            },
+            {
+                "field": "svc",
+                "value": "dfdemo-11-otel-risk"
+            },
+            {
+                "field": "durationMs",
+                "value": "43506.8155"
+            }
+        ],
+        [
+            {
+                "field": "spanId",
+                "value": "b434f546b05612bc"
+            },
+            {
+                "field": "spanName",
+                "value": "BedrockRuntime.ConverseStream"
+            },
+            {
+                "field": "spanKind",
+                "value": "CLIENT"
+            },
+            {
+                "field": "svc",
+                "value": "UnknownService"
+            },
+            {
+                "field": "model",
+                "value": "global.anthropic.claude-sonnet-4-6"
+            },
+            {
+                "field": "durationMs",
+                "value": "43495.7921"
+            }
+        ],
+        [
+            {
+                "field": "spanId",
+                "value": "484b243dcfb257c1"
+            },
+            {
+                "field": "spanName",
+                "value": "dfdemo-11-otel-financing/LambdaService"
+            },
+            {
+                "field": "spanKind",
+                "value": "SERVER"
+            },
+            {
+                "field": "svc",
+                "value": "dfdemo-11-otel-financing"
+            },
+            {
+                "field": "durationMs",
+                "value": "22228.9999"
+            }
+        ],
+        [
+            {
+                "field": "spanId",
+                "value": "c74d13c797fc6c84"
+            },
+            {
+                "field": "spanName",
+                "value": "dfdemo-11-otel-all-coordinator/LambdaExecutionEnvironment"
+            },
+            {
+                "field": "spanKind",
+                "value": "SERVER"
+            },
+            {
+                "field": "durationMs",
+                "value": "21300.5768"
+            }
+        ],
+        [
+            {
+                "field": "spanId",
+                "value": "5ebb2af24e960ac5"
+            },
+            {
+                "field": "spanName",
+                "value": "dfdemo-11-otel-all-coordinator/LambdaService"
+            },
+            {
+                "field": "spanKind",
+                "value": "SERVER"
+            },
+            {
+                "field": "svc",
+                "value": "dfdemo-11-otel-all-coordinator"
+            },
+            {
+                "field": "durationMs",
+                "value": "21280"
+            }
+        ],
+        [
+            {
+                "field": "spanId",
+                "value": "73fcc9838e3b5894"
+            },
+            {
+                "field": "spanName",
+                "value": "dfdemo-11-otel-all-coordinator"
+            },
+            {
+                "field": "spanKind",
+                "value": "SERVER"
+            },
+            {
+                "field": "svc",
+                "value": "dfdemo-11-otel-all-coordinator"
+            },
+            {
+                "field": "durationMs",
+                "value": "21235.2338"
+            }
+        ],
+        [
+            {
+                "field": "spanId",
+                "value": "e4036c33ad13d38e"
+            },
+            {
+                "field": "spanName",
+                "value": "BedrockRuntime.ConverseStream"
+            },
+            {
+                "field": "spanKind",
+                "value": "CLIENT"
+            },
+            {
+                "field": "svc",
+                "value": "UnknownService"
+            },
+            {
+                "field": "model",
+                "value": "global.anthropic.claude-sonnet-4-6"
+            },
+            {
+                "field": "durationMs",
+                "value": "21190.5764"
+            }
+        ],
+        [
+            {
+                "field": "spanId",
+                "value": "5f39698f30cfc5f7"
+            },
+            {
+                "field": "spanName",
+                "value": "dfdemo-11-otel-financing/LambdaExecutionEnvironment"
+            },
+            {
+                "field": "spanKind",
+                "value": "SERVER"
+            },
+            {
+                "field": "durationMs",
+                "value": "20783.094"
+            }
+        ],
+        [
+            {
+                "field": "spanId",
+                "value": "1ff04af3127dbf2b"
+            },
+            {
+                "field": "spanName",
+                "value": "dfdemo-11-otel-financing"
+            },
+            {
+                "field": "spanKind",
+                "value": "SERVER"
+            },
+            {
+                "field": "svc",
+                "value": "dfdemo-11-otel-financing"
+            },
+            {
+                "field": "durationMs",
+                "value": "20518.7116"
+            }
+        ],
+        [
+            {
+                "field": "spanId",
+                "value": "54a8d4b2ad8b97d6"
+            },
+            {
+                "field": "spanName",
+                "value": "BedrockRuntime.ConverseStream"
+            },
+            {
+                "field": "spanKind",
+                "value": "CLIENT"
+            },
+            {
+                "field": "svc",
+                "value": "UnknownService"
+            },
+            {
+                "field": "model",
+                "value": "global.anthropic.claude-haiku-4-5-20251001-v1:0"
+            },
+            {
+                "field": "durationMs",
+                "value": "20507.6298"
+            }
+        ]
+    ],
+    "statistics": {
+        "recordsMatched": 105.0,
+        "recordsScanned": 108.0,
+        "estimatedRecordsSkipped": 181.0,
+        "bytesScanned": 124110.0,
+        "estimatedBytesSkipped": 194129.0,
+        "logGroupsScanned": 1.0
+    },
+    "status": "Complete"
+}

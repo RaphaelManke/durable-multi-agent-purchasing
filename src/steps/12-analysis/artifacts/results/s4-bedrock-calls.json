@@ -1,0 +1,134 @@
+{
+    "queryLanguage": "CWLI",
+    "results": [
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cc3b44cc9da909fe2c2e7aebf8f3"
+            },
+            {
+                "field": "model",
+                "value": "global.anthropic.claude-sonnet-4-6"
+            },
+            {
+                "field": "calls",
+                "value": "3"
+            },
+            {
+                "field": "inputTokens",
+                "value": "15227"
+            },
+            {
+                "field": "outputTokens",
+                "value": "2500"
+            },
+            {
+                "field": "avgMs",
+                "value": "11380.8183"
+            },
+            {
+                "field": "maxMs",
+                "value": "22408.8276"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cca544a55195411c3a0251cd3b9a"
+            },
+            {
+                "field": "model",
+                "value": "global.anthropic.claude-sonnet-4-6"
+            },
+            {
+                "field": "calls",
+                "value": "3"
+            },
+            {
+                "field": "inputTokens",
+                "value": "20047"
+            },
+            {
+                "field": "outputTokens",
+                "value": "2614"
+            },
+            {
+                "field": "avgMs",
+                "value": "12335.6172"
+            },
+            {
+                "field": "maxMs",
+                "value": "26471.3631"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cd1c75705e4c04ad9fe673a2a55e"
+            },
+            {
+                "field": "model",
+                "value": "global.anthropic.claude-haiku-4-5-20251001-v1:0"
+            },
+            {
+                "field": "calls",
+                "value": "5"
+            },
+            {
+                "field": "inputTokens",
+                "value": "3954"
+            },
+            {
+                "field": "outputTokens",
+                "value": "9714"
+            },
+            {
+                "field": "avgMs",
+                "value": "12949.6257"
+            },
+            {
+                "field": "maxMs",
+                "value": "20507.6298"
+            }
+        ],
+        [
+            {
+                "field": "traceId",
+                "value": "6ae5cd1c75705e4c04ad9fe673a2a55e"
+            },
+            {
+                "field": "model",
+                "value": "global.anthropic.claude-sonnet-4-6"
+            },
+            {
+                "field": "calls",
+                "value": "4"
+            },
+            {
+                "field": "inputTokens",
+                "value": "16936"
+            },
+            {
+                "field": "outputTokens",
+                "value": "5351"
+            },
+            {
+                "field": "avgMs",
+                "value": "19027.0807"
+            },
+            {
+                "field": "maxMs",
+                "value": "43495.7921"
+            }
+        ]
+    ],
+    "statistics": {
+        "recordsMatched": 15.0,
+        "recordsScanned": 289.0,
+        "estimatedRecordsSkipped": 0.0,
+        "bytesScanned": 318239.0,
+        "estimatedBytesSkipped": 0.0,
+        "logGroupsScanned": 1.0
+    },
+    "status": "Complete"
+}

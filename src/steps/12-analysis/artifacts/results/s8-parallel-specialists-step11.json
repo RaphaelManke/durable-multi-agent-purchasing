@@ -1,0 +1,104 @@
+{
+    "queryLanguage": "CWLI",
+    "results": [
+        [
+            {
+                "field": "spanId",
+                "value": "bac85dc301ac32f8"
+            },
+            {
+                "field": "fn",
+                "value": "dfdemo-11-otel-delivery"
+            },
+            {
+                "field": "startNs",
+                "value": "1793445163164999940"
+            },
+            {
+                "field": "endNs",
+                "value": "1793445177337242620"
+            }
+        ],
+        [
+            {
+                "field": "spanId",
+                "value": "9a22d327238717d2"
+            },
+            {
+                "field": "fn",
+                "value": "dfdemo-11-otel-contract"
+            },
+            {
+                "field": "startNs",
+                "value": "1793445163422000130"
+            },
+            {
+                "field": "endNs",
+                "value": "1793445180689614590"
+            }
+        ],
+        [
+            {
+                "field": "spanId",
+                "value": "1ff04af3127dbf2b"
+            },
+            {
+                "field": "fn",
+                "value": "dfdemo-11-otel-financing"
+            },
+            {
+                "field": "startNs",
+                "value": "1793445163432000000"
+            },
+            {
+                "field": "endNs",
+                "value": "1793445183950711550"
+            }
+        ],
+        [
+            {
+                "field": "spanId",
+                "value": "4d7fdb995a6f106f"
+            },
+            {
+                "field": "fn",
+                "value": "dfdemo-11-otel-risk"
+            },
+            {
+                "field": "startNs",
+                "value": "1793445163472999940"
+            },
+            {
+                "field": "endNs",
+                "value": "1793445206979815420"
+            }
+        ],
+        [
+            {
+                "field": "spanId",
+                "value": "04b15e289257f92b"
+            },
+            {
+                "field": "fn",
+                "value": "dfdemo-11-otel-price"
+            },
+            {
+                "field": "startNs",
+                "value": "1793445163534000130"
+            },
+            {
+                "field": "endNs",
+                "value": "1793445176375342080"
+            }
+        ]
+    ],
+    "statistics": {
+        "recordsMatched": 5.0,
+        "recordsScanned": 108.0,
+        "estimatedRecordsSkipped": 181.0,
+        "bytesScanned": 124110.0,
+        "estimatedBytesSkipped": 194129.0,
+        "logGroupsScanned": 1.0
+    },
+    "status": "Complete"
+}
