@@ -445,6 +445,14 @@ function execDetail(s) {
   <div class="execdetail">${ops}${io}${ev}</div>`
 }
 
+/** The prompt(s) of a step, shown at the top of the step: one block per turn of the coding session. */
+function promptSection(prompts) {
+  const turns = [].concat(prompts)
+  return `<h3>Prompt for this step</h3>
+  <p class="note">Part of one continuous coding session: each prompt builds on what the earlier steps already created. Written the way you would say it to a coding agent, which fills in the details, so the code in this repository is one possible result.</p>
+  ${turns.map((t, k, all) => `<div class="prompt">${all.length > 1 ? `<div class="turn">Prompt ${k + 1} of ${all.length}</div>` : ''}<button class="copy" type="button">Copy</button><pre>${esc(t)}</pre></div>`).join('\n  ')}`
+}
+
 function renderStep(s) {
   const f = s.noInvoke ? facts('08-otel') : facts(s.dir)
   const toc = `${s.n}`
@@ -452,6 +460,7 @@ function renderStep(s) {
   return `
 <section class="step" id="step-${toc}">
   <header><span class="num">${s.n}</span><div><div class="grp">${esc(s.group)}</div><h2>${esc(s.title)}</h2></div></header>
+  ${promptSection(s.prompt)}
   <div class="grid2">
     <div><h3>Outline bullet</h3><p class="outline">${esc(s.outline)}</p></div>
     <div><h3>Goal</h3><p>${esc(s.goal)}</p></div>
@@ -480,9 +489,6 @@ function renderStep(s) {
   <h3>Screenshots</h3>
   <div class="shots">${shots}</div>
   ${execDetail(s)}
-  <h3>Prompt that would generate this</h3>
-  <p class="note">Part of one continuous coding session: each prompt builds on what the earlier steps already created. Written the way you would say it to a coding agent, which fills in the details, so the code in this repository is one possible result.</p>
-  ${[].concat(s.prompt).map((t, k, all) => `<div class="prompt">${all.length > 1 ? `<div class="turn">Prompt ${k + 1} of ${all.length}</div>` : ''}<button class="copy" type="button">Copy</button><pre>${esc(t)}</pre></div>`).join('\n  ')}
 </section>`
 }
 
@@ -497,6 +503,8 @@ const stepHtml = steps.map((s) => {
 const step12Html = `
 <section class="step" id="step-12">
   <header><span class="num">12</span><div><div class="grp">Running it at scale!</div><h2>Run analysis</h2></div></header>
+  ${promptSection(`Finally, let us look at what we have. Using the otel-playground profile in eu-central-1, compare the runs from steps 05 to 11. From the Lambda logs: how much billed duration and memory did each variant use, what are the milestones of each workflow run, and how many invocations did each execution take. From the traces in Transaction Search: how many spans does each trace have, where does the time go, and does one trace really cross the coordinator and all specialists in step 11, compared with only the coordinator in step 10.
+Write the CloudWatch Logs Insights queries, run them, and save the queries and their results next to the step.`)}
   <div class="grid2">
     <div><h3>Outline bullet</h3><p class="outline">Run analysis.</p></div>
     <div><h3>Goal</h3><p>Answer questions about the runs of steps 05 to 11 with CloudWatch Logs Insights (application logs and Lambda platform reports) and with trace queries over the <code>aws/spans</code> log group (Transaction Search). No function; no new invocation.</p></div>
@@ -509,10 +517,6 @@ const step12Html = `
     <li>Q6 shows where the time goes: the Risk specialist's Bedrock call.</li>
   </ul>
   ${step12()}
-  <h3>Prompt that would generate this</h3>
-  <p class="note">Part of one continuous coding session: each prompt builds on what the earlier steps already created. Written the way you would say it to a coding agent, which fills in the details, so the code in this repository is one possible result.</p>
-  <div class="prompt"><button class="copy" type="button">Copy</button><pre>${esc(`Finally, let us look at what we have. Using the otel-playground profile in eu-central-1, compare the runs from steps 05 to 11. From the Lambda logs: how much billed duration and memory did each variant use, what are the milestones of each workflow run, and how many invocations did each execution take. From the traces in Transaction Search: how many spans does each trace have, where does the time go, and does one trace really cross the coordinator and all specialists in step 11, compared with only the coordinator in step 10.
-Write the CloudWatch Logs Insights queries, run them, and save the queries and their results next to the step.`)}</pre></div>
 </section>`
 
 const footnotes = `
