@@ -13,6 +13,7 @@ h1.group{font-size:28px;margin:48px 0 8px;border-bottom:3px solid var(--acc);pad
 .grp{color:var(--mut);font-size:13px;text-transform:uppercase;letter-spacing:.05em}h2{margin:0;font-size:22px}h3{margin:22px 0 6px;font-size:15px;text-transform:uppercase;letter-spacing:.04em;color:var(--mut)}h4,h5,h6{margin:18px 0 6px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media(max-width:1000px){nav{display:none}main{margin:0;padding:16px}.grid2{grid-template-columns:1fr}}
 .outline{font-style:italic;border-left:4px solid var(--acc);padding-left:12px}
+.tk-kw{color:#ff7b9c}.tk-str{color:#a5d6a7}.tk-num{color:#f2cc8f}.tk-val{color:#f2cc8f}.tk-cm{color:#7d8da6;font-style:italic}.tk-fn{color:#82aaff}.tk-ty{color:#ffd580}.tk-prop{color:#c3d2ea}.tk-pun{color:#8a9bb5}.tk-key{color:#82aaff}.code .label .lang{float:right;color:#6f86a8;text-transform:uppercase;letter-spacing:.06em;font-size:11px}
 .say li{margin:4px 0}.code{margin:10px 0;border-radius:8px;overflow:hidden;background:var(--code)}.code .label{background:#1d2a40;color:#9fb3cf;font:12px ui-monospace,monospace;padding:5px 12px}
 pre{margin:0;padding:12px;overflow:auto;color:var(--codefg);font:12.5px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre-wrap;word-break:break-word}
 code{font-family:ui-monospace,Menlo,monospace;font-size:.9em;word-break:break-all}p code,td code,li code{background:#eef1f6;border-radius:4px;padding:1px 4px}
@@ -39,33 +40,33 @@ table.ids th{width:230px}.callout{background:#fff7e0;border:1px solid #f0d58a;bo
   <h3>What to say</h3>
   <ul class="say"><li>This is a plain Lambda handler. The only change is the withDurableExecution wrapper and context.step around the work.</li><li>Each step is checkpointed when it succeeds. Step &quot;prepare&quot; runs once; its result is stored.</li><li>Step &quot;flaky&quot; throws on attempt 1. The SDK records StepFailed, ends the invocation and starts a new one after the retry delay (1 s here).</li><li>The new invocation replays the handler from the top. &quot;prepare&quot; returns its stored result without running its body; only &quot;flaky&quot; runs again, now with attempt 2.</li><li>Look at the logs: prepare_body_executed appears once, flaky_body_executed twice, handler_invoked twice.</li></ul>
   <h3>Code excerpt (final code)</h3>
-  <div class="code"><div class="label">src/steps/01-retry/handler.ts</div><pre><code>export const handler = withDurableExecution(async (
-  event: RetryEvent,
-  context: DurableContext
-): Promise&lt;Record&lt;string, unknown&gt;&gt; =&gt; {
-  console.log(JSON.stringify({ event: 'handler_invoked', requestId: context.lambdaContext.awsRequestId }))
+  <div class="code"><div class="label">src/steps/01-retry/handler.ts<span class="lang">TypeScript</span></div><pre><code class="lang-ts"><span class="tk-kw">export</span> <span class="tk-kw">const</span> handler <span class="tk-pun">=</span> <span class="tk-fn">withDurableExecution</span><span class="tk-pun">(</span><span class="tk-kw">async</span> <span class="tk-pun">(</span>
+  event<span class="tk-pun">:</span> <span class="tk-ty">RetryEvent</span><span class="tk-pun">,</span>
+  context<span class="tk-pun">:</span> <span class="tk-ty">DurableContext</span>
+<span class="tk-pun">)</span><span class="tk-pun">:</span> <span class="tk-ty">Promise</span><span class="tk-pun">&lt;</span><span class="tk-ty">Record</span><span class="tk-pun">&lt;</span><span class="tk-kw">string</span><span class="tk-pun">,</span> <span class="tk-kw">unknown</span><span class="tk-pun">&gt;</span><span class="tk-pun">&gt;</span> <span class="tk-pun">=&gt;</span> <span class="tk-pun">{</span>
+  console<span class="tk-pun">.</span><span class="tk-fn">log</span><span class="tk-pun">(</span>JSON<span class="tk-pun">.</span><span class="tk-fn">stringify</span><span class="tk-pun">(</span><span class="tk-pun">{</span> event<span class="tk-pun">:</span> <span class="tk-str">'handler_invoked'</span><span class="tk-pun">,</span> requestId<span class="tk-pun">:</span> context<span class="tk-pun">.</span><span class="tk-prop">lambdaContext</span><span class="tk-pun">.</span><span class="tk-prop">awsRequestId</span> <span class="tk-pun">}</span><span class="tk-pun">)</span><span class="tk-pun">)</span>
 
-  const greeting = await context.step('prepare', async () =&gt; {
-    console.log(JSON.stringify({ event: 'prepare_body_executed' }))
-    return `Hello, ${event.name ?? 'durable world'}`
-  })
+  <span class="tk-kw">const</span> greeting <span class="tk-pun">=</span> <span class="tk-kw">await</span> context<span class="tk-pun">.</span><span class="tk-fn">step</span><span class="tk-pun">(</span><span class="tk-str">'prepare'</span><span class="tk-pun">,</span> <span class="tk-kw">async</span> <span class="tk-pun">(</span><span class="tk-pun">)</span> <span class="tk-pun">=&gt;</span> <span class="tk-pun">{</span>
+    console<span class="tk-pun">.</span><span class="tk-fn">log</span><span class="tk-pun">(</span>JSON<span class="tk-pun">.</span><span class="tk-fn">stringify</span><span class="tk-pun">(</span><span class="tk-pun">{</span> event<span class="tk-pun">:</span> <span class="tk-str">'prepare_body_executed'</span> <span class="tk-pun">}</span><span class="tk-pun">)</span><span class="tk-pun">)</span>
+    <span class="tk-kw">return</span> <span class="tk-str">`Hello, ${</span>event<span class="tk-pun">.</span><span class="tk-prop">name</span> <span class="tk-pun">??</span> <span class="tk-str">'durable world'</span><span class="tk-str">}`</span>
+  <span class="tk-pun">}</span><span class="tk-pun">)</span>
 
-  const result = await context.step('flaky', async (stepCtx) =&gt; {
-    console.log(JSON.stringify({ event: 'flaky_body_executed', attempt: stepCtx.attempt }))
-    if (stepCtx.attempt &lt; 2) {
-      throw new Error('Simulated transient failure on attempt 1')
-    }
-    return { greeting, succeededOnAttempt: stepCtx.attempt }
-  }, {
-    retryStrategy: createRetryStrategy({
-      maxAttempts: 3,
-      initialDelay: { seconds: 1 },
-      maxDelay: { seconds: 5 },
-      backoffRate: 2.0,
-    }),
-  })
+  <span class="tk-kw">const</span> result <span class="tk-pun">=</span> <span class="tk-kw">await</span> context<span class="tk-pun">.</span><span class="tk-fn">step</span><span class="tk-pun">(</span><span class="tk-str">'flaky'</span><span class="tk-pun">,</span> <span class="tk-kw">async</span> <span class="tk-pun">(</span>stepCtx<span class="tk-pun">)</span> <span class="tk-pun">=&gt;</span> <span class="tk-pun">{</span>
+    console<span class="tk-pun">.</span><span class="tk-fn">log</span><span class="tk-pun">(</span>JSON<span class="tk-pun">.</span><span class="tk-fn">stringify</span><span class="tk-pun">(</span><span class="tk-pun">{</span> event<span class="tk-pun">:</span> <span class="tk-str">'flaky_body_executed'</span><span class="tk-pun">,</span> attempt<span class="tk-pun">:</span> stepCtx<span class="tk-pun">.</span><span class="tk-prop">attempt</span> <span class="tk-pun">}</span><span class="tk-pun">)</span><span class="tk-pun">)</span>
+    <span class="tk-kw">if</span> <span class="tk-pun">(</span>stepCtx<span class="tk-pun">.</span><span class="tk-prop">attempt</span> <span class="tk-pun">&lt;</span> <span class="tk-num">2</span><span class="tk-pun">)</span> <span class="tk-pun">{</span>
+      <span class="tk-kw">throw</span> <span class="tk-kw">new</span> <span class="tk-fn">Error</span><span class="tk-pun">(</span><span class="tk-str">'Simulated transient failure on attempt 1'</span><span class="tk-pun">)</span>
+    <span class="tk-pun">}</span>
+    <span class="tk-kw">return</span> <span class="tk-pun">{</span> greeting<span class="tk-pun">,</span> succeededOnAttempt<span class="tk-pun">:</span> stepCtx<span class="tk-pun">.</span><span class="tk-prop">attempt</span> <span class="tk-pun">}</span>
+  <span class="tk-pun">}</span><span class="tk-pun">,</span> <span class="tk-pun">{</span>
+    retryStrategy<span class="tk-pun">:</span> <span class="tk-fn">createRetryStrategy</span><span class="tk-pun">(</span><span class="tk-pun">{</span>
+      maxAttempts<span class="tk-pun">:</span> <span class="tk-num">3</span><span class="tk-pun">,</span>
+      initialDelay<span class="tk-pun">:</span> <span class="tk-pun">{</span> seconds<span class="tk-pun">:</span> <span class="tk-num">1</span> <span class="tk-pun">}</span><span class="tk-pun">,</span>
+      maxDelay<span class="tk-pun">:</span> <span class="tk-pun">{</span> seconds<span class="tk-pun">:</span> <span class="tk-num">5</span> <span class="tk-pun">}</span><span class="tk-pun">,</span>
+      backoffRate<span class="tk-pun">:</span> <span class="tk-num">2.0</span><span class="tk-pun">,</span>
+    <span class="tk-pun">}</span><span class="tk-pun">)</span><span class="tk-pun">,</span>
+  <span class="tk-pun">}</span><span class="tk-pun">)</span>
 
-  return { status: 'completed', ...result }</code></pre></div>
+  <span class="tk-kw">return</span> <span class="tk-pun">{</span> status<span class="tk-pun">:</span> <span class="tk-str">'completed'</span><span class="tk-pun">,</span> <span class="tk-pun">...</span>result <span class="tk-pun">}</span></code></pre></div>
   
   <h3>Invocation</h3>
   <table class="ids">
@@ -77,33 +78,80 @@ table.ids th{width:230px}.callout{background:#fff7e0;border:1px solid #f0d58a;bo
     <tr><th>Started / ended</th><td><code>2026-10-31T11:51:32.078000+01:00</code> / <code>2026-10-31T11:51:35.307000+01:00</code> (3.2 s wall clock)</td></tr>
   </table>
   <div class="grid2">
-    <div class="code"><div class="label">Request (src/steps/01-retry/request.json)</div><pre><code>{
-  &quot;name&quot;: &quot;durable world&quot;
-}</code></pre></div>
-    <div class="code"><div class="label">Response (artifacts/response.json)</div><pre><code>{
-  &quot;StatusCode&quot;: 202,
-  &quot;ExecutedVersion&quot;: null,
-  &quot;DurableExecutionArn&quot;: &quot;arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-01-retry:2/durable-execution/14b62773-262a-4419-b8fc-3e2952252c5c/433ebc7b-64ce-3bde-99b5-30221d8270ee&quot;,
-  &quot;Headers&quot;: {
-    &quot;x-amzn-RequestId&quot;: &quot;6f068699-2485-4c43-89b2-5abc52d7fcc0&quot;
-  },
-  &quot;Body&quot;: &quot;&quot;
-}</code></pre></div>
+    <div class="code"><div class="label">Request (src/steps/01-retry/request.json)<span class="lang">JSON</span></div><pre><code class="lang-json"><span class="tk-pun">{</span>
+  <span class="tk-key">&quot;name&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;durable world&quot;</span>
+<span class="tk-pun">}</span></code></pre></div>
+    <div class="code"><div class="label">Response (artifacts/response.json)<span class="lang">JSON</span></div><pre><code class="lang-json"><span class="tk-pun">{</span>
+  <span class="tk-key">&quot;StatusCode&quot;</span><span class="tk-pun">:</span> <span class="tk-num">202</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;ExecutedVersion&quot;</span><span class="tk-pun">:</span> <span class="tk-val">null</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;DurableExecutionArn&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-01-retry:2/durable-execution/14b62773-262a-4419-b8fc-3e2952252c5c/433ebc7b-64ce-3bde-99b5-30221d8270ee&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;Headers&quot;</span><span class="tk-pun">:</span> <span class="tk-pun">{</span>
+    <span class="tk-key">&quot;x-amzn-RequestId&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;6f068699-2485-4c43-89b2-5abc52d7fcc0&quot;</span>
+  <span class="tk-pun">}</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;Body&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;&quot;</span>
+<span class="tk-pun">}</span></code></pre></div>
   </div>
-  <div class="code"><div class="label">Execution result (get-durable-execution, long text shortened)</div><pre><code>{
-  &quot;status&quot;: &quot;completed&quot;,
-  &quot;greeting&quot;: &quot;Hello, durable world&quot;,
-  &quot;succeededOnAttempt&quot;: 2
-}</code></pre></div>
+  <div class="code"><div class="label">Execution result (get-durable-execution, long text shortened)<span class="lang">JSON</span></div><pre><code class="lang-json"><span class="tk-pun">{</span>
+  <span class="tk-key">&quot;status&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;completed&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;greeting&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;Hello, durable world&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;succeededOnAttempt&quot;</span><span class="tk-pun">:</span> <span class="tk-num">2</span>
+<span class="tk-pun">}</span></code></pre></div>
   <p class="note">History event sequence (history.json): <code>ExecutionStarted → StepStarted(prepare) → StepSucceeded(prepare) → StepStarted(flaky) → StepFailed(flaky) → InvocationCompleted → StepStarted(flaky) → StepSucceeded(flaky) → InvocationCompleted → ExecutionSucceeded</code>. <code>StepFailed(flaky)</code> then a second <code>StepStarted(flaky)</code>, but no second <code>StepStarted(prepare)</code>.</p>
-<div class="code"><div class="label">logs.txt (application events only)</div><pre><code>{&quot;timestamp&quot;:&quot;2026-10-31T10:51:32.556Z&quot;,&quot;level&quot;:&quot;INFO&quot;,&quot;requestId&quot;:&quot;994d90ac-b2fe-4425-81fc-7588e9aaaa45&quot;,&quot;message&quot;:&quot;{\&quot;event\&quot;:\&quot;handler_invoked\&quot;,\&quot;requestId\&quot;:\&quot;994d90ac-b2fe-4425-81fc-7588e9aaaa45\&quot;}&quot;}
-{&quot;timestamp&quot;:&quot;2026-10-31T10:51:32.590Z&quot;,&quot;level&quot;:&quot;INFO&quot;,&quot;requestId&quot;:&quot;994d90ac-b2fe-4425-81fc-7588e9aaaa45&quot;,&quot;message&quot;:&quot;{\&quot;event\&quot;:\&quot;prepare_body_executed\&quot;}&quot;}
-{&quot;timestamp&quot;:&quot;2026-10-31T10:51:34.177Z&quot;,&quot;level&quot;:&quot;INFO&quot;,&quot;requestId&quot;:&quot;994d90ac-b2fe-4425-81fc-7588e9aaaa45&quot;,&quot;message&quot;:&quot;{\&quot;event\&quot;:\&quot;flaky_body_executed\&quot;,\&quot;attempt\&quot;:1}&quot;}
-{&quot;timestamp&quot;:&quot;2026-10-31T10:51:35.254Z&quot;,&quot;level&quot;:&quot;INFO&quot;,&quot;requestId&quot;:&quot;f06fe744-b33f-4702-97eb-53a67eb0e579&quot;,&quot;message&quot;:&quot;{\&quot;event\&quot;:\&quot;handler_invoked\&quot;,\&quot;requestId\&quot;:\&quot;f06fe744-b33f-4702-97eb-53a67eb0e579\&quot;}&quot;}
-{&quot;timestamp&quot;:&quot;2026-10-31T10:51:35.255Z&quot;,&quot;level&quot;:&quot;INFO&quot;,&quot;requestId&quot;:&quot;f06fe744-b33f-4702-97eb-53a67eb0e579&quot;,&quot;message&quot;:&quot;{\&quot;event\&quot;:\&quot;flaky_body_executed\&quot;,\&quot;attempt\&quot;:2}&quot;}</code></pre></div>
+<div class="code"><div class="label">logs.txt (application events only, JSON formatted)<span class="lang">JSON</span></div><pre><code class="lang-json"><span class="tk-cm">// 2026-10-31T10:51:32.556Z</span>
+<span class="tk-pun">{</span>
+  <span class="tk-key">&quot;timestamp&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;2026-10-31T10:51:32.556Z&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;level&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;INFO&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;requestId&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;994d90ac-b2fe-4425-81fc-7588e9aaaa45&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;message&quot;</span><span class="tk-pun">:</span> <span class="tk-pun">{</span>
+    <span class="tk-key">&quot;event&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;handler_invoked&quot;</span><span class="tk-pun">,</span>
+    <span class="tk-key">&quot;requestId&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;994d90ac-b2fe-4425-81fc-7588e9aaaa45&quot;</span>
+  <span class="tk-pun">}</span>
+<span class="tk-pun">}</span>
+
+<span class="tk-cm">// 2026-10-31T10:51:32.590Z</span>
+<span class="tk-pun">{</span>
+  <span class="tk-key">&quot;timestamp&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;2026-10-31T10:51:32.590Z&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;level&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;INFO&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;requestId&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;994d90ac-b2fe-4425-81fc-7588e9aaaa45&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;message&quot;</span><span class="tk-pun">:</span> <span class="tk-pun">{</span>
+    <span class="tk-key">&quot;event&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;prepare_body_executed&quot;</span>
+  <span class="tk-pun">}</span>
+<span class="tk-pun">}</span>
+
+<span class="tk-cm">// 2026-10-31T10:51:34.177Z</span>
+<span class="tk-pun">{</span>
+  <span class="tk-key">&quot;timestamp&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;2026-10-31T10:51:34.177Z&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;level&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;INFO&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;requestId&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;994d90ac-b2fe-4425-81fc-7588e9aaaa45&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;message&quot;</span><span class="tk-pun">:</span> <span class="tk-pun">{</span>
+    <span class="tk-key">&quot;event&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;flaky_body_executed&quot;</span><span class="tk-pun">,</span>
+    <span class="tk-key">&quot;attempt&quot;</span><span class="tk-pun">:</span> <span class="tk-num">1</span>
+  <span class="tk-pun">}</span>
+<span class="tk-pun">}</span>
+
+<span class="tk-cm">// 2026-10-31T10:51:35.254Z</span>
+<span class="tk-pun">{</span>
+  <span class="tk-key">&quot;timestamp&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;2026-10-31T10:51:35.254Z&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;level&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;INFO&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;requestId&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;f06fe744-b33f-4702-97eb-53a67eb0e579&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;message&quot;</span><span class="tk-pun">:</span> <span class="tk-pun">{</span>
+    <span class="tk-key">&quot;event&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;handler_invoked&quot;</span><span class="tk-pun">,</span>
+    <span class="tk-key">&quot;requestId&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;f06fe744-b33f-4702-97eb-53a67eb0e579&quot;</span>
+  <span class="tk-pun">}</span>
+<span class="tk-pun">}</span>
+
+<span class="tk-cm">// 2026-10-31T10:51:35.255Z</span>
+<span class="tk-pun">{</span>
+  <span class="tk-key">&quot;timestamp&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;2026-10-31T10:51:35.255Z&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;level&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;INFO&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;requestId&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;f06fe744-b33f-4702-97eb-53a67eb0e579&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;message&quot;</span><span class="tk-pun">:</span> <span class="tk-pun">{</span>
+    <span class="tk-key">&quot;event&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;flaky_body_executed&quot;</span><span class="tk-pun">,</span>
+    <span class="tk-key">&quot;attempt&quot;</span><span class="tk-pun">:</span> <span class="tk-num">2</span>
+  <span class="tk-pun">}</span>
+<span class="tk-pun">}</span></code></pre></div>
   <h3>Screenshots</h3>
-  <div class="shots"><figure><a href="img/01-lambda-function.png"><img loading="lazy" src="img/01-lambda-function.png" alt="Lambda function page: type Durable"></a><figcaption>Lambda function page: type Durable</figcaption></figure>
-<figure><a href="img/01-durable-executions.png"><img loading="lazy" src="img/01-durable-executions.png" alt="Durable executions tab with the recorded run"></a><figcaption>Durable executions tab with the recorded run</figcaption></figure>
+  <div class="shots"><figure><a href="img/01-durable-executions.png"><img loading="lazy" src="img/01-durable-executions.png" alt="Durable executions tab with the recorded run"></a><figcaption>Durable executions tab with the recorded run</figcaption></figure>
 <figure><a href="img/01-cloudwatch-logs.png"><img loading="lazy" src="img/01-cloudwatch-logs.png" alt="CloudWatch log events: handler_invoked twice, flaky body twice"></a><figcaption>CloudWatch log events: handler_invoked twice, flaky body twice</figcaption></figure></div>
   <h3>Durable execution drill-down (console)</h3>
   <div class="execdetail"><figure><a href="img/01-exec-operations.png"><img loading="lazy" src="img/01-exec-operations.png" alt="Durable operations of the execution: every nested operation expanded (parallel branches, chained invokes), with a timeline per operation"></a><figcaption>Durable operations of the execution: every nested operation expanded (parallel branches, chained invokes), with a timeline per operation</figcaption></figure><figure><a href="img/01-exec-io.png"><img loading="lazy" src="img/01-exec-io.png" alt="Input/Output tab of the durable execution"></a><figcaption>Input/Output tab of the durable execution</figcaption></figure><figure class="tall"><a href="img/01-exec-events-p1.png"><img loading="lazy" src="img/01-exec-events-p1.png" alt="Durable execution detail, event history page 1"></a><figcaption>Durable execution detail page: durable operations (nested ones expanded) and the event history with every event expanded. Scroll inside the frame or click to open the full image.</figcaption></figure></div>
@@ -127,15 +175,15 @@ Add a header comment that explains checkpoint and replay. Also add it as a SAM f
   <h3>What to say</h3>
   <ul class="say"><li>Same handler as before, plus one line: context.wait with 60 seconds.</li><li>When the wait starts, the invocation ends. Nothing runs and nothing is billed until the timer fires and a new invocation replays the handler.</li><li>Wall clock for the execution: 61.357 s. Billed: three invocations, 71 + 67 + 41 = 179 ms.</li><li>Takeaway: you do not pay for the wait time. This is why durable functions suit waits of minutes, hours or days.</li></ul>
   <h3>Code excerpt (final code)</h3>
-  <div class="code"><div class="label">src/steps/02-wait/handler.ts</div><pre><code>  // The function is not running while it waits.
-  await context.wait('cooldown', { seconds: waitSeconds })
+  <div class="code"><div class="label">src/steps/02-wait/handler.ts<span class="lang">TypeScript</span></div><pre><code class="lang-ts">  <span class="tk-cm">// The function is not running while it waits.</span>
+  <span class="tk-kw">await</span> context<span class="tk-pun">.</span><span class="tk-fn">wait</span><span class="tk-pun">(</span><span class="tk-str">'cooldown'</span><span class="tk-pun">,</span> <span class="tk-pun">{</span> seconds<span class="tk-pun">:</span> waitSeconds <span class="tk-pun">}</span><span class="tk-pun">)</span>
 
-  const finished = await context.step('finish', async () =&gt; {
-    console.log(JSON.stringify({ event: 'finish_body_executed' }))
-    return 'done'
-  })
+  <span class="tk-kw">const</span> finished <span class="tk-pun">=</span> <span class="tk-kw">await</span> context<span class="tk-pun">.</span><span class="tk-fn">step</span><span class="tk-pun">(</span><span class="tk-str">'finish'</span><span class="tk-pun">,</span> <span class="tk-kw">async</span> <span class="tk-pun">(</span><span class="tk-pun">)</span> <span class="tk-pun">=&gt;</span> <span class="tk-pun">{</span>
+    console<span class="tk-pun">.</span><span class="tk-fn">log</span><span class="tk-pun">(</span>JSON<span class="tk-pun">.</span><span class="tk-fn">stringify</span><span class="tk-pun">(</span><span class="tk-pun">{</span> event<span class="tk-pun">:</span> <span class="tk-str">'finish_body_executed'</span> <span class="tk-pun">}</span><span class="tk-pun">)</span><span class="tk-pun">)</span>
+    <span class="tk-kw">return</span> <span class="tk-str">'done'</span>
+  <span class="tk-pun">}</span><span class="tk-pun">)</span>
 
-  return { status: 'completed', greeting, flaky, waitSeconds, finished }</code></pre></div>
+  <span class="tk-kw">return</span> <span class="tk-pun">{</span> status<span class="tk-pun">:</span> <span class="tk-str">'completed'</span><span class="tk-pun">,</span> greeting<span class="tk-pun">,</span> flaky<span class="tk-pun">,</span> waitSeconds<span class="tk-pun">,</span> finished <span class="tk-pun">}</span></code></pre></div>
   
   <h3>Invocation</h3>
   <table class="ids">
@@ -147,37 +195,36 @@ Add a header comment that explains checkpoint and replay. Also add it as a SAM f
     <tr><th>Started / ended</th><td><code>2026-10-31T11:58:44.934000+01:00</code> / <code>2026-10-31T11:59:46.291000+01:00</code> (61.4 s wall clock)</td></tr>
   </table>
   <div class="grid2">
-    <div class="code"><div class="label">Request (src/steps/02-wait/request.json)</div><pre><code>{
-  &quot;name&quot;: &quot;durable world&quot;,
-  &quot;waitSeconds&quot;: 60
-}</code></pre></div>
-    <div class="code"><div class="label">Response (artifacts/response.json)</div><pre><code>{
-  &quot;StatusCode&quot;: 202,
-  &quot;ExecutedVersion&quot;: null,
-  &quot;DurableExecutionArn&quot;: &quot;arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-02-wait:2/durable-execution/cebba598-2afa-4225-804a-ed24d64c411e/8ee1eb82-7baf-371e-8fcb-6519ae5fc9ef&quot;,
-  &quot;Headers&quot;: {
-    &quot;x-amzn-RequestId&quot;: &quot;71c4aa01-3686-48cf-b0a6-7015cf187bb8&quot;
-  },
-  &quot;Body&quot;: &quot;&quot;
-}</code></pre></div>
+    <div class="code"><div class="label">Request (src/steps/02-wait/request.json)<span class="lang">JSON</span></div><pre><code class="lang-json"><span class="tk-pun">{</span>
+  <span class="tk-key">&quot;name&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;durable world&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;waitSeconds&quot;</span><span class="tk-pun">:</span> <span class="tk-num">60</span>
+<span class="tk-pun">}</span></code></pre></div>
+    <div class="code"><div class="label">Response (artifacts/response.json)<span class="lang">JSON</span></div><pre><code class="lang-json"><span class="tk-pun">{</span>
+  <span class="tk-key">&quot;StatusCode&quot;</span><span class="tk-pun">:</span> <span class="tk-num">202</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;ExecutedVersion&quot;</span><span class="tk-pun">:</span> <span class="tk-val">null</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;DurableExecutionArn&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-02-wait:2/durable-execution/cebba598-2afa-4225-804a-ed24d64c411e/8ee1eb82-7baf-371e-8fcb-6519ae5fc9ef&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;Headers&quot;</span><span class="tk-pun">:</span> <span class="tk-pun">{</span>
+    <span class="tk-key">&quot;x-amzn-RequestId&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;71c4aa01-3686-48cf-b0a6-7015cf187bb8&quot;</span>
+  <span class="tk-pun">}</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;Body&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;&quot;</span>
+<span class="tk-pun">}</span></code></pre></div>
   </div>
-  <div class="code"><div class="label">Execution result (get-durable-execution, long text shortened)</div><pre><code>{
-  &quot;status&quot;: &quot;completed&quot;,
-  &quot;greeting&quot;: &quot;Hello, durable world&quot;,
-  &quot;flaky&quot;: {
-    &quot;succeededOnAttempt&quot;: 2
-  },
-  &quot;waitSeconds&quot;: 60,
-  &quot;finished&quot;: &quot;done&quot;
-}</code></pre></div>
+  <div class="code"><div class="label">Execution result (get-durable-execution, long text shortened)<span class="lang">JSON</span></div><pre><code class="lang-json"><span class="tk-pun">{</span>
+  <span class="tk-key">&quot;status&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;completed&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;greeting&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;Hello, durable world&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;flaky&quot;</span><span class="tk-pun">:</span> <span class="tk-pun">{</span>
+    <span class="tk-key">&quot;succeededOnAttempt&quot;</span><span class="tk-pun">:</span> <span class="tk-num">2</span>
+  <span class="tk-pun">}</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;waitSeconds&quot;</span><span class="tk-pun">:</span> <span class="tk-num">60</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;finished&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;done&quot;</span>
+<span class="tk-pun">}</span></code></pre></div>
   <h4>REPORT lines (billed duration) versus wall clock</h4><div class="code"><div class="label">report.txt</div><pre><code>REPORT RequestId: af35107c-e7bf-4dc9-8b8d-c00204868179	Duration: 70.412 ms	Billed Duration: 71 ms	Memory Size: 256 MB	Max Memory Used: 107 MB	Status: success
 REPORT RequestId: 9bb40dcf-a2e4-4f12-a69e-d38139b170a6	Duration: 66.03 ms	Billed Duration: 67 ms	Memory Size: 256 MB	Max Memory Used: 107 MB	Status: success
 REPORT RequestId: f359fcbd-b6ce-484b-b318-fc6c3ca948e4	Duration: 40.377 ms	Billed Duration: 41 ms	Memory Size: 256 MB	Max Memory Used: 107 MB	Status: success</code></pre></div><h4>Wall-clock time versus billed duration (step 02, execution cebba598-2afa-4225-804a-ed24d64c411e)</h4>
 <ul><li>Wall clock: ExecutionStarted 2026-10-31T11:58:44.934+01:00 to ExecutionSucceeded 11:59:46.291+01:00 = 61.357 s (includes the 60 s <code>cooldown</code> wait).</li><li>Billed: three handler invocations, 71 ms + 67 ms + 41 ms = 179 ms (see report.txt).</li><li>Between the second InvocationCompleted (11:58:46.200) and the next invocation (11:59:46.264) no function was running, so the 60 s wait added 0 ms of billed duration.</li><li>Durations come from the platform.report log records (the function uses JSON log format, so there is no plain-text &quot;REPORT RequestId&quot; line; report.txt renders the same fields in REPORT form).</li></ul>
 <div class="callout"><strong>Billed 179 ms of 61 357 ms wall clock (0.29 %).</strong> The 60 s wait added 0 ms of billed duration.</div>
   <h3>Screenshots</h3>
-  <div class="shots"><figure><a href="img/02-lambda-function.png"><img loading="lazy" src="img/02-lambda-function.png" alt="Lambda function page"></a><figcaption>Lambda function page</figcaption></figure>
-<figure><a href="img/02-durable-executions.png"><img loading="lazy" src="img/02-durable-executions.png" alt="Durable executions tab: execution duration about 61 s"></a><figcaption>Durable executions tab: execution duration about 61 s</figcaption></figure>
+  <div class="shots"><figure><a href="img/02-durable-executions.png"><img loading="lazy" src="img/02-durable-executions.png" alt="Durable executions tab: execution duration about 61 s"></a><figcaption>Durable executions tab: execution duration about 61 s</figcaption></figure>
 <figure><a href="img/02-cloudwatch-logs.png"><img loading="lazy" src="img/02-cloudwatch-logs.png" alt="CloudWatch log events across the wait"></a><figcaption>CloudWatch log events across the wait</figcaption></figure></div>
   <h3>Durable execution drill-down (console)</h3>
   <div class="execdetail"><figure><a href="img/02-exec-operations.png"><img loading="lazy" src="img/02-exec-operations.png" alt="Durable operations of the execution: every nested operation expanded (parallel branches, chained invokes), with a timeline per operation"></a><figcaption>Durable operations of the execution: every nested operation expanded (parallel branches, chained invokes), with a timeline per operation</figcaption></figure><figure><a href="img/02-exec-io.png"><img loading="lazy" src="img/02-exec-io.png" alt="Input/Output tab of the durable execution"></a><figcaption>Input/Output tab of the durable execution</figcaption></figure><figure class="tall"><a href="img/02-exec-events-p1.png"><img loading="lazy" src="img/02-exec-events-p1.png" alt="Durable execution detail, event history page 1"></a><figcaption>Durable execution detail page: durable operations (nested ones expanded) and the event history with every event expanded. Scroll inside the frame or click to open the full image.</figcaption></figure></div>
@@ -200,27 +247,27 @@ Provide a script that captures the Lambda REPORT duration and billed duration fo
   <h3>What to say</h3>
   <ul class="say"><li>Step A asks the model for a one-sentence answer. The answer is checkpointed.</li><li>Step B asks the model to shorten A's answer, then throws SimulatedStepFailure on attempt 1. The failure is raised after the model returned, so the retry visibly repeats the model call.</li><li>On the retry the handler replays from the top. Step A returns the stored text with no Bedrock call. Only B calls the model again.</li><li>Evidence (a) to (d) below: three Bedrock request IDs, A logged once, B logged twice, same A output.</li><li>Correction to the brief: the handler ran twice, not three times. One failed attempt means two invocations; three would need failStepBAttempts: 2.</li></ul>
   <h3>Code excerpt (final code)</h3>
-  <div class="code"><div class="label">src/steps/03-model-replay/handler.ts</div><pre><code>  const a = await context.step('model-a', async () =&gt; {
-    const { text, bedrockRequestId } = await converse(prompt)
-    console.log(JSON.stringify({ event: 'step_a_bedrock_call', bedrockRequestId }))
-    return text
-  })
+  <div class="code"><div class="label">src/steps/03-model-replay/handler.ts<span class="lang">TypeScript</span></div><pre><code class="lang-ts">  <span class="tk-kw">const</span> a <span class="tk-pun">=</span> <span class="tk-kw">await</span> context<span class="tk-pun">.</span><span class="tk-fn">step</span><span class="tk-pun">(</span><span class="tk-str">'model-a'</span><span class="tk-pun">,</span> <span class="tk-kw">async</span> <span class="tk-pun">(</span><span class="tk-pun">)</span> <span class="tk-pun">=&gt;</span> <span class="tk-pun">{</span>
+    <span class="tk-kw">const</span> <span class="tk-pun">{</span> text<span class="tk-pun">,</span> bedrockRequestId <span class="tk-pun">}</span> <span class="tk-pun">=</span> <span class="tk-kw">await</span> <span class="tk-fn">converse</span><span class="tk-pun">(</span>prompt<span class="tk-pun">)</span>
+    console<span class="tk-pun">.</span><span class="tk-fn">log</span><span class="tk-pun">(</span>JSON<span class="tk-pun">.</span><span class="tk-fn">stringify</span><span class="tk-pun">(</span><span class="tk-pun">{</span> event<span class="tk-pun">:</span> <span class="tk-str">'step_a_bedrock_call'</span><span class="tk-pun">,</span> bedrockRequestId <span class="tk-pun">}</span><span class="tk-pun">)</span><span class="tk-pun">)</span>
+    <span class="tk-kw">return</span> text
+  <span class="tk-pun">}</span><span class="tk-pun">)</span>
 
-  const b = await context.step('model-b', async (stepCtx) =&gt; {
-    const { text, bedrockRequestId } = await converse(`Shorten this to five words: ${a}`)
-    console.log(JSON.stringify({ event: 'step_b_bedrock_call', attempt: stepCtx.attempt, bedrockRequestId }))
-    if (stepCtx.attempt &lt;= failStepBAttempts) {
-      throw new SimulatedStepFailure(`Simulated failure of step B on attempt ${stepCtx.attempt}`)
-    }
-    return text
-  }, {
-    retryStrategy: (error, attemptCount) =&gt;
-      error.name === 'SimulatedStepFailure' &amp;&amp; attemptCount &lt;= failStepBAttempts
-        ? { shouldRetry: true, delay: { seconds: 2 } }
-        : { shouldRetry: false },
-  })
+  <span class="tk-kw">const</span> b <span class="tk-pun">=</span> <span class="tk-kw">await</span> context<span class="tk-pun">.</span><span class="tk-fn">step</span><span class="tk-pun">(</span><span class="tk-str">'model-b'</span><span class="tk-pun">,</span> <span class="tk-kw">async</span> <span class="tk-pun">(</span>stepCtx<span class="tk-pun">)</span> <span class="tk-pun">=&gt;</span> <span class="tk-pun">{</span>
+    <span class="tk-kw">const</span> <span class="tk-pun">{</span> text<span class="tk-pun">,</span> bedrockRequestId <span class="tk-pun">}</span> <span class="tk-pun">=</span> <span class="tk-kw">await</span> <span class="tk-fn">converse</span><span class="tk-pun">(</span><span class="tk-str">`Shorten this to five words: ${</span>a<span class="tk-str">}`</span><span class="tk-pun">)</span>
+    console<span class="tk-pun">.</span><span class="tk-fn">log</span><span class="tk-pun">(</span>JSON<span class="tk-pun">.</span><span class="tk-fn">stringify</span><span class="tk-pun">(</span><span class="tk-pun">{</span> event<span class="tk-pun">:</span> <span class="tk-str">'step_b_bedrock_call'</span><span class="tk-pun">,</span> attempt<span class="tk-pun">:</span> stepCtx<span class="tk-pun">.</span><span class="tk-prop">attempt</span><span class="tk-pun">,</span> bedrockRequestId <span class="tk-pun">}</span><span class="tk-pun">)</span><span class="tk-pun">)</span>
+    <span class="tk-kw">if</span> <span class="tk-pun">(</span>stepCtx<span class="tk-pun">.</span><span class="tk-prop">attempt</span> <span class="tk-pun">&lt;=</span> failStepBAttempts<span class="tk-pun">)</span> <span class="tk-pun">{</span>
+      <span class="tk-kw">throw</span> <span class="tk-kw">new</span> <span class="tk-fn">SimulatedStepFailure</span><span class="tk-pun">(</span><span class="tk-str">`Simulated failure of step B on attempt ${</span>stepCtx<span class="tk-pun">.</span><span class="tk-prop">attempt</span><span class="tk-str">}`</span><span class="tk-pun">)</span>
+    <span class="tk-pun">}</span>
+    <span class="tk-kw">return</span> text
+  <span class="tk-pun">}</span><span class="tk-pun">,</span> <span class="tk-pun">{</span>
+    retryStrategy<span class="tk-pun">:</span> <span class="tk-pun">(</span>error<span class="tk-pun">,</span> attemptCount<span class="tk-pun">)</span> <span class="tk-pun">=&gt;</span>
+      error<span class="tk-pun">.</span><span class="tk-prop">name</span> <span class="tk-pun">===</span> <span class="tk-str">'SimulatedStepFailure'</span> <span class="tk-pun">&amp;&amp;</span> attemptCount <span class="tk-pun">&lt;=</span> failStepBAttempts
+        <span class="tk-pun">?</span> <span class="tk-pun">{</span> shouldRetry<span class="tk-pun">:</span> <span class="tk-val">true</span><span class="tk-pun">,</span> delay<span class="tk-pun">:</span> <span class="tk-pun">{</span> seconds<span class="tk-pun">:</span> <span class="tk-num">2</span> <span class="tk-pun">}</span> <span class="tk-pun">}</span>
+        <span class="tk-pun">:</span> <span class="tk-pun">{</span> shouldRetry<span class="tk-pun">:</span> <span class="tk-val">false</span> <span class="tk-pun">}</span><span class="tk-pun">,</span>
+  <span class="tk-pun">}</span><span class="tk-pun">)</span>
 
-  return { status: 'completed', modelId: MODEL_ID, stepA: a, stepB: b, failStepBAttempts }</code></pre></div>
+  <span class="tk-kw">return</span> <span class="tk-pun">{</span> status<span class="tk-pun">:</span> <span class="tk-str">'completed'</span><span class="tk-pun">,</span> modelId<span class="tk-pun">:</span> MODEL_ID<span class="tk-pun">,</span> stepA<span class="tk-pun">:</span> a<span class="tk-pun">,</span> stepB<span class="tk-pun">:</span> b<span class="tk-pun">,</span> failStepBAttempts <span class="tk-pun">}</span></code></pre></div>
   
   <h3>Invocation</h3>
   <table class="ids">
@@ -232,27 +279,27 @@ Provide a script that captures the Lambda REPORT duration and billed duration fo
     <tr><th>Started / ended</th><td><code>2026-10-31T12:00:14.344000+01:00</code> / <code>2026-10-31T12:00:19.385000+01:00</code> (5.0 s wall clock)</td></tr>
   </table>
   <div class="grid2">
-    <div class="code"><div class="label">Request (src/steps/03-model-replay/request.json)</div><pre><code>{
-  &quot;prompt&quot;: &quot;In one sentence, explain what a checkpoint is in a durable workflow.&quot;,
-  &quot;failStepBAttempts&quot;: 1
-}</code></pre></div>
-    <div class="code"><div class="label">Response (artifacts/response.json)</div><pre><code>{
-  &quot;StatusCode&quot;: 202,
-  &quot;ExecutedVersion&quot;: null,
-  &quot;DurableExecutionArn&quot;: &quot;arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-03-model-replay:2/durable-execution/2a254ee5-8352-423d-b2c4-2d6aee575b47/fa4cab4c-0aed-3898-bf48-1df156818abc&quot;,
-  &quot;Headers&quot;: {
-    &quot;x-amzn-RequestId&quot;: &quot;2090852f-69ce-4103-9c11-c5121b16e8c2&quot;
-  },
-  &quot;Body&quot;: &quot;&quot;
-}</code></pre></div>
+    <div class="code"><div class="label">Request (src/steps/03-model-replay/request.json)<span class="lang">JSON</span></div><pre><code class="lang-json"><span class="tk-pun">{</span>
+  <span class="tk-key">&quot;prompt&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;In one sentence, explain what a checkpoint is in a durable workflow.&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;failStepBAttempts&quot;</span><span class="tk-pun">:</span> <span class="tk-num">1</span>
+<span class="tk-pun">}</span></code></pre></div>
+    <div class="code"><div class="label">Response (artifacts/response.json)<span class="lang">JSON</span></div><pre><code class="lang-json"><span class="tk-pun">{</span>
+  <span class="tk-key">&quot;StatusCode&quot;</span><span class="tk-pun">:</span> <span class="tk-num">202</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;ExecutedVersion&quot;</span><span class="tk-pun">:</span> <span class="tk-val">null</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;DurableExecutionArn&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-03-model-replay:2/durable-execution/2a254ee5-8352-423d-b2c4-2d6aee575b47/fa4cab4c-0aed-3898-bf48-1df156818abc&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;Headers&quot;</span><span class="tk-pun">:</span> <span class="tk-pun">{</span>
+    <span class="tk-key">&quot;x-amzn-RequestId&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;2090852f-69ce-4103-9c11-c5121b16e8c2&quot;</span>
+  <span class="tk-pun">}</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;Body&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;&quot;</span>
+<span class="tk-pun">}</span></code></pre></div>
   </div>
-  <div class="code"><div class="label">Execution result (get-durable-execution, long text shortened)</div><pre><code>{
-  &quot;status&quot;: &quot;completed&quot;,
-  &quot;modelId&quot;: &quot;global.anthropic.claude-haiku-4-5-20251001-v1:0&quot;,
-  &quot;stepA&quot;: &quot;A checkpoint is a saved state of a workflow that allows it to resume from that point if interrupted, rather than restarting from the beginning.&quot;,
-  &quot;stepB&quot;: &quot;Checkpoint: resume workflow from interruption.&quot;,
-  &quot;failStepBAttempts&quot;: 1
-}</code></pre></div>
+  <div class="code"><div class="label">Execution result (get-durable-execution, long text shortened)<span class="lang">JSON</span></div><pre><code class="lang-json"><span class="tk-pun">{</span>
+  <span class="tk-key">&quot;status&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;completed&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;modelId&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;global.anthropic.claude-haiku-4-5-20251001-v1:0&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;stepA&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;A checkpoint is a saved state of a workflow that allows it to resume from that point if interrupted, rather than restarting from the beginning.&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;stepB&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;Checkpoint: resume workflow from interruption.&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;failStepBAttempts&quot;</span><span class="tk-pun">:</span> <span class="tk-num">1</span>
+<span class="tk-pun">}</span></code></pre></div>
   <h4>Evidence (a) to (d)</h4><div class="evidence"><p>Execution: id <code>fa4cab4c-0aed-3898-bf48-1df156818abc</code> (durable execution name <code>2a254ee5-8352-423d-b2c4-2d6aee575b47</code>), status SUCCEEDED. ARN: <code>arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-03-model-replay:2/durable-execution/2a254ee5-8352-423d-b2c4-2d6aee575b47/fa4cab4c-0aed-3898-bf48-1df156818abc</code> Lambda request id (async invoke, x-amzn-RequestId): <code>2090852f-69ce-4103-9c11-c5121b16e8c2</code>. Request: <code>failStepBAttempts: 1</code>.</p>
 <p>SDK note: the attempt number IS exposed (<code>stepCtx.attempt</code>), so no error-type-plus-flag workaround was needed for the attempt counter. The retry strategy still filters on the error name <code>SimulatedStepFailure</code>; the failure is thrown after the Bedrock call returns.</p>
 <h5>(a) Durable history (history.json)</h5>
@@ -264,8 +311,7 @@ Provide a script that captures the Lambda REPORT duration and billed duration fo
 <h5>(d) A's output identical across invocations</h5>
 <ul><li>history.json truncates step results (<code>&quot;Result&quot;:{&quot;Truncated&quot;:true}</code>), so the text is not in the history.</li><li>A's body ran once (b), and its checkpointed text is what invocation 2 used to build B's prompt. The final result in execution.json carries <code>stepA</code>: &quot;A checkpoint is a saved state of a workflow that allows it to resume from that point if interrupted, rather than restarting from the beginning.&quot;</li><li>Limit: the handler does not log A's text in each invocation, so identity across invocations is shown by A running once and being returned from the checkpoint, not by comparing two printed strings.</li></ul></div>
   <h3>Screenshots</h3>
-  <div class="shots"><figure><a href="img/03-lambda-function.png"><img loading="lazy" src="img/03-lambda-function.png" alt="Lambda function page"></a><figcaption>Lambda function page</figcaption></figure>
-<figure><a href="img/03-durable-executions.png"><img loading="lazy" src="img/03-durable-executions.png" alt="Durable executions tab"></a><figcaption>Durable executions tab</figcaption></figure>
+  <div class="shots"><figure><a href="img/03-durable-executions.png"><img loading="lazy" src="img/03-durable-executions.png" alt="Durable executions tab"></a><figcaption>Durable executions tab</figcaption></figure>
 <figure><a href="img/03-cloudwatch-logs.png"><img loading="lazy" src="img/03-cloudwatch-logs.png" alt="CloudWatch log events: step A once, step B twice"></a><figcaption>CloudWatch log events: step A once, step B twice</figcaption></figure></div>
   <h3>Durable execution drill-down (console)</h3>
   <div class="execdetail"><figure><a href="img/03-exec-operations.png"><img loading="lazy" src="img/03-exec-operations.png" alt="Durable operations of the execution: every nested operation expanded (parallel branches, chained invokes), with a timeline per operation"></a><figcaption>Durable operations of the execution: every nested operation expanded (parallel branches, chained invokes), with a timeline per operation</figcaption></figure><figure><a href="img/03-exec-io.png"><img loading="lazy" src="img/03-exec-io.png" alt="Input/Output tab of the durable execution"></a><figcaption>Input/Output tab of the durable execution</figcaption></figure><figure class="tall"><a href="img/03-exec-events-p1.png"><img loading="lazy" src="img/03-exec-events-p1.png" alt="Durable execution detail, event history page 1"></a><figcaption>Durable execution detail page: durable operations (nested ones expanded) and the event history with every event expanded. Scroll inside the frame or click to open the full image.</figcaption></figure></div>
@@ -289,44 +335,44 @@ SAM: 512 MB, 60 s, bedrock:InvokeModel permissions for the specialist (Haiku) mo
   <h3>What to say</h3>
   <ul class="say"><li>A Strands agent is a model, a system prompt and tools. Here the tool computes a loan payment.</li><li>The agent runs inside context.step(&quot;agent&quot;). Model calls and tool calls happen inside the step; only the final answer is checkpointed.</li><li>If the step fails, the retry strategy (3 attempts, exponential backoff) re-runs the whole loop. If it succeeds, a replay never calls the model again.</li><li>The answer is $66.48 per month, computed by the tool, not guessed by the model.</li></ul>
   <h3>Code excerpt (final code)</h3>
-  <div class="code"><div class="label">src/steps/04-agent/handler.ts</div><pre><code>const monthlyPayment = tool({
-  name: 'monthly_payment',
-  description: 'Calculate the monthly payment of a loan with a fixed annual interest rate.',
-  inputSchema: z.object({
-    principal: z.number().describe('Loan amount'),
-    annualRatePercent: z.number().describe('Annual interest rate in percent'),
-    months: z.number().describe('Loan term in months'),
-  }),
-  callback: async ({ principal, annualRatePercent, months }) =&gt; {
-    const r = annualRatePercent / 100 / 12
-    const payment = r === 0 ? principal / months : (principal * r) / (1 - Math.pow(1 + r, -months))
-    return `Monthly payment: ${payment.toFixed(2)}`
-  },
-})
+  <div class="code"><div class="label">src/steps/04-agent/handler.ts<span class="lang">TypeScript</span></div><pre><code class="lang-ts"><span class="tk-kw">const</span> monthlyPayment <span class="tk-pun">=</span> <span class="tk-fn">tool</span><span class="tk-pun">(</span><span class="tk-pun">{</span>
+  name<span class="tk-pun">:</span> <span class="tk-str">'monthly_payment'</span><span class="tk-pun">,</span>
+  description<span class="tk-pun">:</span> <span class="tk-str">'Calculate the monthly payment of a loan with a fixed annual interest rate.'</span><span class="tk-pun">,</span>
+  inputSchema<span class="tk-pun">:</span> z<span class="tk-pun">.</span><span class="tk-kw">object</span><span class="tk-pun">(</span><span class="tk-pun">{</span>
+    principal<span class="tk-pun">:</span> z<span class="tk-pun">.</span><span class="tk-kw">number</span><span class="tk-pun">(</span><span class="tk-pun">)</span><span class="tk-pun">.</span><span class="tk-fn">describe</span><span class="tk-pun">(</span><span class="tk-str">'Loan amount'</span><span class="tk-pun">)</span><span class="tk-pun">,</span>
+    annualRatePercent<span class="tk-pun">:</span> z<span class="tk-pun">.</span><span class="tk-kw">number</span><span class="tk-pun">(</span><span class="tk-pun">)</span><span class="tk-pun">.</span><span class="tk-fn">describe</span><span class="tk-pun">(</span><span class="tk-str">'Annual interest rate in percent'</span><span class="tk-pun">)</span><span class="tk-pun">,</span>
+    months<span class="tk-pun">:</span> z<span class="tk-pun">.</span><span class="tk-kw">number</span><span class="tk-pun">(</span><span class="tk-pun">)</span><span class="tk-pun">.</span><span class="tk-fn">describe</span><span class="tk-pun">(</span><span class="tk-str">'Loan term in months'</span><span class="tk-pun">)</span><span class="tk-pun">,</span>
+  <span class="tk-pun">}</span><span class="tk-pun">)</span><span class="tk-pun">,</span>
+  callback<span class="tk-pun">:</span> <span class="tk-kw">async</span> <span class="tk-pun">(</span><span class="tk-pun">{</span> principal<span class="tk-pun">,</span> annualRatePercent<span class="tk-pun">,</span> months <span class="tk-pun">}</span><span class="tk-pun">)</span> <span class="tk-pun">=&gt;</span> <span class="tk-pun">{</span>
+    <span class="tk-kw">const</span> r <span class="tk-pun">=</span> annualRatePercent <span class="tk-pun">/</span> <span class="tk-num">100</span> <span class="tk-pun">/</span> <span class="tk-num">12</span>
+    <span class="tk-kw">const</span> payment <span class="tk-pun">=</span> r <span class="tk-pun">===</span> <span class="tk-num">0</span> <span class="tk-pun">?</span> principal <span class="tk-pun">/</span> months <span class="tk-pun">:</span> <span class="tk-pun">(</span>principal <span class="tk-pun">*</span> r<span class="tk-pun">)</span> <span class="tk-pun">/</span> <span class="tk-pun">(</span><span class="tk-num">1</span> <span class="tk-pun">-</span> <span class="tk-ty">Math</span><span class="tk-pun">.</span><span class="tk-fn">pow</span><span class="tk-pun">(</span><span class="tk-num">1</span> <span class="tk-pun">+</span> r<span class="tk-pun">,</span> <span class="tk-pun">-</span>months<span class="tk-pun">)</span><span class="tk-pun">)</span>
+    <span class="tk-kw">return</span> <span class="tk-str">`Monthly payment: ${</span>payment<span class="tk-pun">.</span><span class="tk-fn">toFixed</span><span class="tk-pun">(</span><span class="tk-num">2</span><span class="tk-pun">)</span><span class="tk-str">}`</span>
+  <span class="tk-pun">}</span><span class="tk-pun">,</span>
+<span class="tk-pun">}</span><span class="tk-pun">)</span>
 
-const bedrockRetry = createRetryStrategy({
-  maxAttempts: 3,
-  initialDelay: { seconds: 2 },
-  maxDelay: { seconds: 30 },
-  backoffRate: 2.0,
-})
+<span class="tk-kw">const</span> bedrockRetry <span class="tk-pun">=</span> <span class="tk-fn">createRetryStrategy</span><span class="tk-pun">(</span><span class="tk-pun">{</span>
+  maxAttempts<span class="tk-pun">:</span> <span class="tk-num">3</span><span class="tk-pun">,</span>
+  initialDelay<span class="tk-pun">:</span> <span class="tk-pun">{</span> seconds<span class="tk-pun">:</span> <span class="tk-num">2</span> <span class="tk-pun">}</span><span class="tk-pun">,</span>
+  maxDelay<span class="tk-pun">:</span> <span class="tk-pun">{</span> seconds<span class="tk-pun">:</span> <span class="tk-num">30</span> <span class="tk-pun">}</span><span class="tk-pun">,</span>
+  backoffRate<span class="tk-pun">:</span> <span class="tk-num">2.0</span><span class="tk-pun">,</span>
+<span class="tk-pun">}</span><span class="tk-pun">)</span>
 
-export const handler = withDurableExecution(async (
-  event: AgentEvent,
-  context: DurableContext
-): Promise&lt;Record&lt;string, unknown&gt;&gt; =&gt; {
-  const answer = await context.step('agent', async () =&gt; {
-    const agent = new Agent({
-      model,
-      systemPrompt: 'You are a concise purchasing assistant. Use the monthly_payment tool for any loan calculation.',
-      tools: [monthlyPayment],
-      printer: false,
-    })
-    const result = await agent.invoke(event.request)
-    return result.toString()
-  }, { retryStrategy: bedrockRetry })
+<span class="tk-kw">export</span> <span class="tk-kw">const</span> handler <span class="tk-pun">=</span> <span class="tk-fn">withDurableExecution</span><span class="tk-pun">(</span><span class="tk-kw">async</span> <span class="tk-pun">(</span>
+  event<span class="tk-pun">:</span> <span class="tk-ty">AgentEvent</span><span class="tk-pun">,</span>
+  context<span class="tk-pun">:</span> <span class="tk-ty">DurableContext</span>
+<span class="tk-pun">)</span><span class="tk-pun">:</span> <span class="tk-ty">Promise</span><span class="tk-pun">&lt;</span><span class="tk-ty">Record</span><span class="tk-pun">&lt;</span><span class="tk-kw">string</span><span class="tk-pun">,</span> <span class="tk-kw">unknown</span><span class="tk-pun">&gt;</span><span class="tk-pun">&gt;</span> <span class="tk-pun">=&gt;</span> <span class="tk-pun">{</span>
+  <span class="tk-kw">const</span> answer <span class="tk-pun">=</span> <span class="tk-kw">await</span> context<span class="tk-pun">.</span><span class="tk-fn">step</span><span class="tk-pun">(</span><span class="tk-str">'agent'</span><span class="tk-pun">,</span> <span class="tk-kw">async</span> <span class="tk-pun">(</span><span class="tk-pun">)</span> <span class="tk-pun">=&gt;</span> <span class="tk-pun">{</span>
+    <span class="tk-kw">const</span> agent <span class="tk-pun">=</span> <span class="tk-kw">new</span> <span class="tk-fn">Agent</span><span class="tk-pun">(</span><span class="tk-pun">{</span>
+      model<span class="tk-pun">,</span>
+      systemPrompt<span class="tk-pun">:</span> <span class="tk-str">'You are a concise purchasing assistant. Use the monthly_payment tool for any loan calculation.'</span><span class="tk-pun">,</span>
+      tools<span class="tk-pun">:</span> <span class="tk-pun">[</span>monthlyPayment<span class="tk-pun">]</span><span class="tk-pun">,</span>
+      printer<span class="tk-pun">:</span> <span class="tk-val">false</span><span class="tk-pun">,</span>
+    <span class="tk-pun">}</span><span class="tk-pun">)</span>
+    <span class="tk-kw">const</span> result <span class="tk-pun">=</span> <span class="tk-kw">await</span> agent<span class="tk-pun">.</span><span class="tk-fn">invoke</span><span class="tk-pun">(</span>event<span class="tk-pun">.</span><span class="tk-prop">request</span><span class="tk-pun">)</span>
+    <span class="tk-kw">return</span> result<span class="tk-pun">.</span><span class="tk-fn">toString</span><span class="tk-pun">(</span><span class="tk-pun">)</span>
+  <span class="tk-pun">}</span><span class="tk-pun">,</span> <span class="tk-pun">{</span> retryStrategy<span class="tk-pun">:</span> bedrockRetry <span class="tk-pun">}</span><span class="tk-pun">)</span>
 
-  return { status: 'completed', answer }</code></pre></div>
+  <span class="tk-kw">return</span> <span class="tk-pun">{</span> status<span class="tk-pun">:</span> <span class="tk-str">'completed'</span><span class="tk-pun">,</span> answer <span class="tk-pun">}</span></code></pre></div>
   
   <h3>Invocation</h3>
   <table class="ids">
@@ -338,27 +384,26 @@ export const handler = withDurableExecution(async (
     <tr><th>Started / ended</th><td><code>2026-10-31T12:01:56.798000+01:00</code> / <code>2026-10-31T12:01:59.094000+01:00</code> (2.3 s wall clock)</td></tr>
   </table>
   <div class="grid2">
-    <div class="code"><div class="label">Request (src/steps/04-agent/request.json)</div><pre><code>{
-  &quot;request&quot;: &quot;I want to finance a $1,500 laptop over 24 months at 6% annual interest. What is my monthly payment?&quot;
-}</code></pre></div>
-    <div class="code"><div class="label">Response (artifacts/response.json)</div><pre><code>{
-  &quot;StatusCode&quot;: 202,
-  &quot;ExecutedVersion&quot;: null,
-  &quot;DurableExecutionArn&quot;: &quot;arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-04-agent:2/durable-execution/1c04a5df-2ca1-4432-81d3-753a65453630/8bd7d5a2-6b60-3e59-b7b0-fe7b8001e75c&quot;,
-  &quot;Headers&quot;: {
-    &quot;x-amzn-RequestId&quot;: &quot;5c75720f-65e8-454a-9a92-3d13bee3fc7c&quot;
-  },
-  &quot;Body&quot;: &quot;&quot;
-}</code></pre></div>
+    <div class="code"><div class="label">Request (src/steps/04-agent/request.json)<span class="lang">JSON</span></div><pre><code class="lang-json"><span class="tk-pun">{</span>
+  <span class="tk-key">&quot;request&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;I want to finance a $1,500 laptop over 24 months at 6% annual interest. What is my monthly payment?&quot;</span>
+<span class="tk-pun">}</span></code></pre></div>
+    <div class="code"><div class="label">Response (artifacts/response.json)<span class="lang">JSON</span></div><pre><code class="lang-json"><span class="tk-pun">{</span>
+  <span class="tk-key">&quot;StatusCode&quot;</span><span class="tk-pun">:</span> <span class="tk-num">202</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;ExecutedVersion&quot;</span><span class="tk-pun">:</span> <span class="tk-val">null</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;DurableExecutionArn&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-04-agent:2/durable-execution/1c04a5df-2ca1-4432-81d3-753a65453630/8bd7d5a2-6b60-3e59-b7b0-fe7b8001e75c&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;Headers&quot;</span><span class="tk-pun">:</span> <span class="tk-pun">{</span>
+    <span class="tk-key">&quot;x-amzn-RequestId&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;5c75720f-65e8-454a-9a92-3d13bee3fc7c&quot;</span>
+  <span class="tk-pun">}</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;Body&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;&quot;</span>
+<span class="tk-pun">}</span></code></pre></div>
   </div>
-  <div class="code"><div class="label">Execution result (get-durable-execution, long text shortened)</div><pre><code>{
-  &quot;status&quot;: &quot;completed&quot;,
-  &quot;answer&quot;: &quot;Your monthly payment would be **$66.48** for a $1,500 laptop financed over 24 months at 6% annual interest.&quot;
-}</code></pre></div>
+  <div class="code"><div class="label">Execution result (get-durable-execution, long text shortened)<span class="lang">JSON</span></div><pre><code class="lang-json"><span class="tk-pun">{</span>
+  <span class="tk-key">&quot;status&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;completed&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;answer&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;Your monthly payment would be **$66.48** for a $1,500 laptop financed over 24 months at 6% annual interest.&quot;</span>
+<span class="tk-pun">}</span></code></pre></div>
   <p class="note">History: <code>ExecutionStarted → StepStarted(agent) → StepSucceeded(agent) → InvocationCompleted → ExecutionSucceeded</code>. One step, one invocation: the agent loop is invisible to the history except for its final result.</p>
   <h3>Screenshots</h3>
-  <div class="shots"><figure><a href="img/04-lambda-function.png"><img loading="lazy" src="img/04-lambda-function.png" alt="Lambda function page"></a><figcaption>Lambda function page</figcaption></figure>
-<figure><a href="img/04-durable-executions.png"><img loading="lazy" src="img/04-durable-executions.png" alt="Durable executions tab"></a><figcaption>Durable executions tab</figcaption></figure>
+  <div class="shots"><figure><a href="img/04-durable-executions.png"><img loading="lazy" src="img/04-durable-executions.png" alt="Durable executions tab"></a><figcaption>Durable executions tab</figcaption></figure>
 <figure><a href="img/04-cloudwatch-logs.png"><img loading="lazy" src="img/04-cloudwatch-logs.png" alt="CloudWatch log events"></a><figcaption>CloudWatch log events</figcaption></figure></div>
   <h3>Durable execution drill-down (console)</h3>
   <div class="execdetail"><figure><a href="img/04-exec-operations.png"><img loading="lazy" src="img/04-exec-operations.png" alt="Durable operations of the execution: every nested operation expanded (parallel branches, chained invokes), with a timeline per operation"></a><figcaption>Durable operations of the execution: every nested operation expanded (parallel branches, chained invokes), with a timeline per operation</figcaption></figure><figure><a href="img/04-exec-io.png"><img loading="lazy" src="img/04-exec-io.png" alt="Input/Output tab of the durable execution"></a><figcaption>Input/Output tab of the durable execution</figcaption></figure><figure class="tall"><a href="img/04-exec-events-p1.png"><img loading="lazy" src="img/04-exec-events-p1.png" alt="Durable execution detail, event history page 1"></a><figcaption>Durable execution detail page: durable operations (nested ones expanded) and the event history with every event expanded. Scroll inside the frame or click to open the full image.</figcaption></figure></div>
@@ -380,38 +425,38 @@ Explain in a header comment that the whole agent loop is one checkpointed unit. 
   <h3>What to say</h3>
   <ul class="say"><li>The coordinator has three durable phases: plan (an agent picks the specialists), parallel invoke, synthesize.</li><li>Each specialist is a separate Lambda. The coordinator role may invoke exactly those five functions and call its Bedrock model. Each specialist role may call only its own Bedrock model.</li><li>context.invoke checkpoints the result and suspends the coordinator while the specialist runs, so you do not pay for the coordinator while it waits.</li><li>Each branch catches errors and returns an &quot;unavailable&quot; text, so one failed specialist does not fail the whole parallel block.</li><li>This run: the planner chose Price Research and Delivery &amp; Logistics for a laptop purchase. The router decided; we did not.</li></ul>
   <h3>Code excerpt (final code)</h3>
-  <div class="code"><div class="label">src/steps/05-split/coordinator.ts</div><pre><code>  const results = await context.parallel&lt;{ name: string; response: string }&gt;('specialists',
-    plan.specialists.map((spec) =&gt; ({
-      name: spec.name,
-      func: async (ctx) =&gt; {
-        try {
-          const specialist = SPECIALISTS[spec.name]
-          if (!specialist) {
-            throw new Error(`Unknown specialist: ${spec.name}`)
-          }
-          const result = await ctx.invoke&lt;{ prompt: string }, { response: string }&gt;(
-            spec.name,
-            specialist.functionName,
-            { prompt: spec.prompt }
-          )
-          return { name: spec.name, response: result.response }
-        } catch (err) {
-          // Graceful degradation: return failure message so the synthesis
-          // agent can note the gap instead of the entire parallel block failing.
-          const display = SPECIALISTS[spec.name]?.display ?? spec.name
-          return { name: spec.name, response: `[${display} unavailable: ${err instanceof Error ? err.message : 'unknown error'}]` }
-        }
-      },
-    }))
-  )
+  <div class="code"><div class="label">src/steps/05-split/coordinator.ts<span class="lang">TypeScript</span></div><pre><code class="lang-ts">  <span class="tk-kw">const</span> results <span class="tk-pun">=</span> <span class="tk-kw">await</span> context<span class="tk-pun">.</span><span class="tk-prop">parallel</span><span class="tk-pun">&lt;</span><span class="tk-pun">{</span> name<span class="tk-pun">:</span> <span class="tk-kw">string</span><span class="tk-pun">;</span> response<span class="tk-pun">:</span> <span class="tk-kw">string</span> <span class="tk-pun">}</span><span class="tk-pun">&gt;</span><span class="tk-pun">(</span><span class="tk-str">'specialists'</span><span class="tk-pun">,</span>
+    plan<span class="tk-pun">.</span><span class="tk-prop">specialists</span><span class="tk-pun">.</span><span class="tk-fn">map</span><span class="tk-pun">(</span><span class="tk-pun">(</span>spec<span class="tk-pun">)</span> <span class="tk-pun">=&gt;</span> <span class="tk-pun">(</span><span class="tk-pun">{</span>
+      name<span class="tk-pun">:</span> spec<span class="tk-pun">.</span><span class="tk-prop">name</span><span class="tk-pun">,</span>
+      func<span class="tk-pun">:</span> <span class="tk-kw">async</span> <span class="tk-pun">(</span>ctx<span class="tk-pun">)</span> <span class="tk-pun">=&gt;</span> <span class="tk-pun">{</span>
+        <span class="tk-kw">try</span> <span class="tk-pun">{</span>
+          <span class="tk-kw">const</span> specialist <span class="tk-pun">=</span> SPECIALISTS<span class="tk-pun">[</span>spec<span class="tk-pun">.</span><span class="tk-prop">name</span><span class="tk-pun">]</span>
+          <span class="tk-kw">if</span> <span class="tk-pun">(</span><span class="tk-pun">!</span>specialist<span class="tk-pun">)</span> <span class="tk-pun">{</span>
+            <span class="tk-kw">throw</span> <span class="tk-kw">new</span> <span class="tk-fn">Error</span><span class="tk-pun">(</span><span class="tk-str">`Unknown specialist: ${</span>spec<span class="tk-pun">.</span><span class="tk-prop">name</span><span class="tk-str">}`</span><span class="tk-pun">)</span>
+          <span class="tk-pun">}</span>
+          <span class="tk-kw">const</span> result <span class="tk-pun">=</span> <span class="tk-kw">await</span> ctx<span class="tk-pun">.</span><span class="tk-prop">invoke</span><span class="tk-pun">&lt;</span><span class="tk-pun">{</span> prompt<span class="tk-pun">:</span> <span class="tk-kw">string</span> <span class="tk-pun">}</span><span class="tk-pun">,</span> <span class="tk-pun">{</span> response<span class="tk-pun">:</span> <span class="tk-kw">string</span> <span class="tk-pun">}</span><span class="tk-pun">&gt;</span><span class="tk-pun">(</span>
+            spec<span class="tk-pun">.</span><span class="tk-prop">name</span><span class="tk-pun">,</span>
+            specialist<span class="tk-pun">.</span><span class="tk-prop">functionName</span><span class="tk-pun">,</span>
+            <span class="tk-pun">{</span> prompt<span class="tk-pun">:</span> spec<span class="tk-pun">.</span><span class="tk-prop">prompt</span> <span class="tk-pun">}</span>
+          <span class="tk-pun">)</span>
+          <span class="tk-kw">return</span> <span class="tk-pun">{</span> name<span class="tk-pun">:</span> spec<span class="tk-pun">.</span><span class="tk-prop">name</span><span class="tk-pun">,</span> response<span class="tk-pun">:</span> result<span class="tk-pun">.</span><span class="tk-prop">response</span> <span class="tk-pun">}</span>
+        <span class="tk-pun">}</span> <span class="tk-kw">catch</span> <span class="tk-pun">(</span>err<span class="tk-pun">)</span> <span class="tk-pun">{</span>
+          <span class="tk-cm">// Graceful degradation: return failure message so the synthesis</span>
+          <span class="tk-cm">// agent can note the gap instead of the entire parallel block failing.</span>
+          <span class="tk-kw">const</span> display <span class="tk-pun">=</span> SPECIALISTS<span class="tk-pun">[</span>spec<span class="tk-pun">.</span><span class="tk-prop">name</span><span class="tk-pun">]</span><span class="tk-pun">?.</span>display <span class="tk-pun">??</span> spec<span class="tk-pun">.</span><span class="tk-prop">name</span>
+          <span class="tk-kw">return</span> <span class="tk-pun">{</span> name<span class="tk-pun">:</span> spec<span class="tk-pun">.</span><span class="tk-prop">name</span><span class="tk-pun">,</span> response<span class="tk-pun">:</span> <span class="tk-str">`[${</span>display<span class="tk-str">} unavailable: ${</span>err <span class="tk-kw">instanceof</span> <span class="tk-ty">Error</span> <span class="tk-pun">?</span> err<span class="tk-pun">.</span><span class="tk-prop">message</span> <span class="tk-pun">:</span> <span class="tk-str">'unknown error'</span><span class="tk-str">}]`</span> <span class="tk-pun">}</span>
+        <span class="tk-pun">}</span>
+      <span class="tk-pun">}</span><span class="tk-pun">,</span>
+    <span class="tk-pun">}</span><span class="tk-pun">)</span><span class="tk-pun">)</span>
+  <span class="tk-pun">)</span>
 
-  // Build specialistResults from checkpointed return values — safe on replay.
-  const specialistResults: Record&lt;string, string&gt; = {}
-  for (const item of results.succeeded()) {
-    specialistResults[item.result.name] = item.result.response
-  }
+  <span class="tk-cm">// Build specialistResults from checkpointed return values — safe on replay.</span>
+  <span class="tk-kw">const</span> specialistResults<span class="tk-pun">:</span> <span class="tk-ty">Record</span><span class="tk-pun">&lt;</span><span class="tk-kw">string</span><span class="tk-pun">,</span> <span class="tk-kw">string</span><span class="tk-pun">&gt;</span> <span class="tk-pun">=</span> <span class="tk-pun">{</span><span class="tk-pun">}</span>
+  <span class="tk-kw">for</span> <span class="tk-pun">(</span><span class="tk-kw">const</span> item <span class="tk-kw">of</span> results<span class="tk-pun">.</span><span class="tk-fn">succeeded</span><span class="tk-pun">(</span><span class="tk-pun">)</span><span class="tk-pun">)</span> <span class="tk-pun">{</span>
+    specialistResults<span class="tk-pun">[</span>item<span class="tk-pun">.</span><span class="tk-prop">result</span><span class="tk-pun">.</span><span class="tk-prop">name</span><span class="tk-pun">]</span> <span class="tk-pun">=</span> item<span class="tk-pun">.</span><span class="tk-prop">result</span><span class="tk-pun">.</span><span class="tk-prop">response</span>
+  <span class="tk-pun">}</span>
 
-  context.logger.info('specialists_completed', { count: plan.specialists.length })</code></pre></div>
+  context<span class="tk-pun">.</span><span class="tk-prop">logger</span><span class="tk-pun">.</span><span class="tk-fn">info</span><span class="tk-pun">(</span><span class="tk-str">'specialists_completed'</span><span class="tk-pun">,</span> <span class="tk-pun">{</span> count<span class="tk-pun">:</span> plan<span class="tk-pun">.</span><span class="tk-prop">specialists</span><span class="tk-pun">.</span><span class="tk-prop">length</span> <span class="tk-pun">}</span><span class="tk-pun">)</span></code></pre></div>
   
   <h3>Invocation</h3>
   <table class="ids">
@@ -423,35 +468,35 @@ Explain in a header comment that the whole agent loop is one checkpointed unit. 
     <tr><th>Started / ended</th><td><code>2026-10-31T12:02:39.026000+01:00</code> / <code>2026-10-31T12:03:15.571000+01:00</code> (36.5 s wall clock)</td></tr>
   </table>
   <div class="grid2">
-    <div class="code"><div class="label">Request (src/steps/05-split/request.json)</div><pre><code>{
-  &quot;request&quot;: &quot;I want to buy a 15-inch laptop for software development, budget around $1,500&quot;,
-  &quot;requireApproval&quot;: false
-}</code></pre></div>
-    <div class="code"><div class="label">Response (artifacts/response.json)</div><pre><code>{
-  &quot;StatusCode&quot;: 202,
-  &quot;ExecutedVersion&quot;: null,
-  &quot;DurableExecutionArn&quot;: &quot;arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-05-coordinator:2/durable-execution/753847a5-69d4-4b57-a464-f0b6da883777/3372c20d-790d-3125-83f0-d6419592a234&quot;,
-  &quot;Headers&quot;: {
-    &quot;x-amzn-RequestId&quot;: &quot;449c0e35-564e-44cb-b36c-617bc32f3b61&quot;
-  },
-  &quot;Body&quot;: &quot;&quot;
-}</code></pre></div>
+    <div class="code"><div class="label">Request (src/steps/05-split/request.json)<span class="lang">JSON</span></div><pre><code class="lang-json"><span class="tk-pun">{</span>
+  <span class="tk-key">&quot;request&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;I want to buy a 15-inch laptop for software development, budget around $1,500&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;requireApproval&quot;</span><span class="tk-pun">:</span> <span class="tk-val">false</span>
+<span class="tk-pun">}</span></code></pre></div>
+    <div class="code"><div class="label">Response (artifacts/response.json)<span class="lang">JSON</span></div><pre><code class="lang-json"><span class="tk-pun">{</span>
+  <span class="tk-key">&quot;StatusCode&quot;</span><span class="tk-pun">:</span> <span class="tk-num">202</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;ExecutedVersion&quot;</span><span class="tk-pun">:</span> <span class="tk-val">null</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;DurableExecutionArn&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-05-coordinator:2/durable-execution/753847a5-69d4-4b57-a464-f0b6da883777/3372c20d-790d-3125-83f0-d6419592a234&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;Headers&quot;</span><span class="tk-pun">:</span> <span class="tk-pun">{</span>
+    <span class="tk-key">&quot;x-amzn-RequestId&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;449c0e35-564e-44cb-b36c-617bc32f3b61&quot;</span>
+  <span class="tk-pun">}</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;Body&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;&quot;</span>
+<span class="tk-pun">}</span></code></pre></div>
   </div>
-  <div class="code"><div class="label">Execution result (get-durable-execution, long text shortened)</div><pre><code>{
-  &quot;status&quot;: &quot;completed&quot;,
-  &quot;recommendation&quot;: &quot;## Summary\n\nThe buyer is looking to purchase a 15-inch laptop for software development with a budget of approximately $1,500. Two specialists were consulted: a pricing analyst and a delivery/logistics specialist. The pricing analysis was incomplete due to insufficient specification details provided upfront, meaning the buyer does not yet have a validated sense of fair market value for their specific configuration. The logistics analysis was thorough and actionable. Before proceeding to purchase, [... truncated in report, 4552 chars total]&quot;,
-  &quot;routing&quot;: {
-    &quot;called&quot;: [
-      &quot;Price Research&quot;,
-      &quot;Delivery &amp; Logistics&quot;
-    ],
-    &quot;skipped&quot;: [
-      &quot;Financing&quot;,
-      &quot;Risk Assessment&quot;,
-      &quot;Contract Review&quot;
-    ]
-  }
-}</code></pre></div>
+  <div class="code"><div class="label">Execution result (get-durable-execution, long text shortened)<span class="lang">JSON</span></div><pre><code class="lang-json"><span class="tk-pun">{</span>
+  <span class="tk-key">&quot;status&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;completed&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;recommendation&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;## Summary\n\nThe buyer is looking to purchase a 15-inch laptop for software development with a budget of approximately $1,500. Two specialists were consulted: a pricing analyst and a delivery/logistics specialist. The pricing analysis was incomplete due to insufficient specification details provided upfront, meaning the buyer does not yet have a validated sense of fair market value for their specific configuration. The logistics analysis was thorough and actionable. Before proceeding to purchase, [... truncated in report, 4552 chars total]&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;routing&quot;</span><span class="tk-pun">:</span> <span class="tk-pun">{</span>
+    <span class="tk-key">&quot;called&quot;</span><span class="tk-pun">:</span> <span class="tk-pun">[</span>
+      <span class="tk-str">&quot;Price Research&quot;</span><span class="tk-pun">,</span>
+      <span class="tk-str">&quot;Delivery &amp; Logistics&quot;</span>
+    <span class="tk-pun">]</span><span class="tk-pun">,</span>
+    <span class="tk-key">&quot;skipped&quot;</span><span class="tk-pun">:</span> <span class="tk-pun">[</span>
+      <span class="tk-str">&quot;Financing&quot;</span><span class="tk-pun">,</span>
+      <span class="tk-str">&quot;Risk Assessment&quot;</span><span class="tk-pun">,</span>
+      <span class="tk-str">&quot;Contract Review&quot;</span>
+    <span class="tk-pun">]</span>
+  <span class="tk-pun">}</span>
+<span class="tk-pun">}</span></code></pre></div>
   <h4>Permission boundary in the template (coordinator invoke permissions)</h4><div class="code"><div class="label">template.yaml (Fn05Coordinator, abridged)</div><pre><code>      FunctionName: dfdemo-05-coordinator
                 - bedrock:InvokeModel
                 - bedrock:InvokeModelWithResponseStream
@@ -466,8 +511,7 @@ Explain in a header comment that the whole agent loop is one checkpointed unit. 
       DurableConfig:</code></pre></div>
 <p class="note">History: <code>ExecutionStarted → StepStarted(plan) → StepSucceeded(plan) → ContextStarted(specialists) → ContextStarted(price-research) → ContextStarted(delivery) → ChainedInvokeStarted(price-research) → ChainedInvokeStarted(delivery) → InvocationCompleted → ChainedInvokeSucceeded(price-research) → ContextSucceeded(price-research) → InvocationCompleted → …</code> (19 events in total).</p>
   <h3>Screenshots</h3>
-  <div class="shots"><figure><a href="img/05-lambda-function.png"><img loading="lazy" src="img/05-lambda-function.png" alt="Coordinator Lambda function page"></a><figcaption>Coordinator Lambda function page</figcaption></figure>
-<figure><a href="img/05-durable-executions.png"><img loading="lazy" src="img/05-durable-executions.png" alt="Durable executions tab"></a><figcaption>Durable executions tab</figcaption></figure>
+  <div class="shots"><figure><a href="img/05-durable-executions.png"><img loading="lazy" src="img/05-durable-executions.png" alt="Durable executions tab"></a><figcaption>Durable executions tab</figcaption></figure>
 <figure><a href="img/05-cloudwatch-logs.png"><img loading="lazy" src="img/05-cloudwatch-logs.png" alt="Coordinator CloudWatch log events"></a><figcaption>Coordinator CloudWatch log events</figcaption></figure></div>
   <h3>Durable execution drill-down (console)</h3>
   <div class="execdetail"><figure><a href="img/05-exec-operations.png"><img loading="lazy" src="img/05-exec-operations.png" alt="Durable operations of the execution: every nested operation expanded (parallel branches, chained invokes), with a timeline per operation"></a><figcaption>Durable operations of the execution: every nested operation expanded (parallel branches, chained invokes), with a timeline per operation</figcaption></figure><figure><a href="img/05-exec-io.png"><img loading="lazy" src="img/05-exec-io.png" alt="Input/Output tab of the durable execution"></a><figcaption>Input/Output tab of the durable execution</figcaption></figure><figure class="tall"><a href="img/05-exec-events-p1.png"><img loading="lazy" src="img/05-exec-events-p1.png" alt="Durable execution detail, event history page 1"></a><figcaption>Durable execution detail page: durable operations (nested ones expanded) and the event history with every event expanded. Scroll inside the frame or click to open the full image.</figcaption></figure></div>
@@ -493,25 +537,25 @@ SAM: generate template.yaml with scripts/gen-template.ts: dfdemo-05-coordinator 
   <h3>What to say</h3>
   <ul class="say"><li>Same function as step 05. Only the input changes: a used car this time, so the planner picks all five specialists.</li><li>The five specialists run in parallel; the coordinator is suspended while they work.</li><li>The synthesis step turns five findings into one recommendation with next steps.</li><li>Execution took about 69 s wall clock. The result is the recommendation text plus the routing (called/skipped).</li></ul>
   <h3>Code excerpt (final code)</h3>
-  <div class="code"><div class="label">src/steps/05-split/coordinator.ts</div><pre><code>  const response = await context.step('synthesize', async () =&gt; {
-    const findings = plan.specialists
-      .map((spec) =&gt; {
-        const display = SPECIALISTS[spec.name]?.display ?? spec.name
-        const result = specialistResults[spec.name] ?? '(no response)'
-        return `## ${display}\n${result}`
-      })
-      .join('\n\n')
+  <div class="code"><div class="label">src/steps/05-split/coordinator.ts<span class="lang">TypeScript</span></div><pre><code class="lang-ts">  <span class="tk-kw">const</span> response <span class="tk-pun">=</span> <span class="tk-kw">await</span> context<span class="tk-pun">.</span><span class="tk-fn">step</span><span class="tk-pun">(</span><span class="tk-str">'synthesize'</span><span class="tk-pun">,</span> <span class="tk-kw">async</span> <span class="tk-pun">(</span><span class="tk-pun">)</span> <span class="tk-pun">=&gt;</span> <span class="tk-pun">{</span>
+    <span class="tk-kw">const</span> findings <span class="tk-pun">=</span> plan<span class="tk-pun">.</span><span class="tk-prop">specialists</span>
+      <span class="tk-pun">.</span><span class="tk-fn">map</span><span class="tk-pun">(</span><span class="tk-pun">(</span>spec<span class="tk-pun">)</span> <span class="tk-pun">=&gt;</span> <span class="tk-pun">{</span>
+        <span class="tk-kw">const</span> display <span class="tk-pun">=</span> SPECIALISTS<span class="tk-pun">[</span>spec<span class="tk-pun">.</span><span class="tk-prop">name</span><span class="tk-pun">]</span><span class="tk-pun">?.</span>display <span class="tk-pun">??</span> spec<span class="tk-pun">.</span><span class="tk-prop">name</span>
+        <span class="tk-kw">const</span> result <span class="tk-pun">=</span> specialistResults<span class="tk-pun">[</span>spec<span class="tk-pun">.</span><span class="tk-prop">name</span><span class="tk-pun">]</span> <span class="tk-pun">??</span> <span class="tk-str">'(no response)'</span>
+        <span class="tk-kw">return</span> <span class="tk-str">`## ${</span>display<span class="tk-str">}\n${</span>result<span class="tk-str">}`</span>
+      <span class="tk-pun">}</span><span class="tk-pun">)</span>
+      <span class="tk-pun">.</span><span class="tk-fn">join</span><span class="tk-pun">(</span><span class="tk-str">'\n\n'</span><span class="tk-pun">)</span>
 
-    const synthesisInput = `Purchase request: ${event.request}\n\nSpecialist findings:\n\n${findings}`
+    <span class="tk-kw">const</span> synthesisInput <span class="tk-pun">=</span> <span class="tk-str">`Purchase request: ${</span>event<span class="tk-pun">.</span><span class="tk-prop">request</span><span class="tk-str">}\n\nSpecialist findings:\n\n${</span>findings<span class="tk-str">}`</span>
 
-    const agent = new Agent({ model, systemPrompt: synthesisPrompt, printer: false })
-    const result = await agent.invoke(synthesisInput)
-    const text = result.toString()
-    if (!text || text === '[object Object]') {
-      throw new Error('Synthesis agent returned empty response')
-    }
-    return text
-  }, { retryStrategy: bedrockRetry })</code></pre></div>
+    <span class="tk-kw">const</span> agent <span class="tk-pun">=</span> <span class="tk-kw">new</span> <span class="tk-fn">Agent</span><span class="tk-pun">(</span><span class="tk-pun">{</span> model<span class="tk-pun">,</span> systemPrompt<span class="tk-pun">:</span> synthesisPrompt<span class="tk-pun">,</span> printer<span class="tk-pun">:</span> <span class="tk-val">false</span> <span class="tk-pun">}</span><span class="tk-pun">)</span>
+    <span class="tk-kw">const</span> result <span class="tk-pun">=</span> <span class="tk-kw">await</span> agent<span class="tk-pun">.</span><span class="tk-fn">invoke</span><span class="tk-pun">(</span>synthesisInput<span class="tk-pun">)</span>
+    <span class="tk-kw">const</span> text <span class="tk-pun">=</span> result<span class="tk-pun">.</span><span class="tk-fn">toString</span><span class="tk-pun">(</span><span class="tk-pun">)</span>
+    <span class="tk-kw">if</span> <span class="tk-pun">(</span><span class="tk-pun">!</span>text <span class="tk-pun">||</span> text <span class="tk-pun">===</span> <span class="tk-str">'[object Object]'</span><span class="tk-pun">)</span> <span class="tk-pun">{</span>
+      <span class="tk-kw">throw</span> <span class="tk-kw">new</span> <span class="tk-fn">Error</span><span class="tk-pun">(</span><span class="tk-str">'Synthesis agent returned empty response'</span><span class="tk-pun">)</span>
+    <span class="tk-pun">}</span>
+    <span class="tk-kw">return</span> text
+  <span class="tk-pun">}</span><span class="tk-pun">,</span> <span class="tk-pun">{</span> retryStrategy<span class="tk-pun">:</span> bedrockRetry <span class="tk-pun">}</span><span class="tk-pun">)</span></code></pre></div>
   
   <h3>Invocation</h3>
   <table class="ids">
@@ -523,38 +567,37 @@ SAM: generate template.yaml with scripts/gen-template.ts: dfdemo-05-coordinator 
     <tr><th>Started / ended</th><td><code>2026-10-31T12:04:11.293000+01:00</code> / <code>2026-10-31T12:05:20.364000+01:00</code> (69.1 s wall clock)</td></tr>
   </table>
   <div class="grid2">
-    <div class="code"><div class="label">Request (src/steps/06-full/request.json)</div><pre><code>{
-  &quot;request&quot;: &quot;I want to buy a used 2020 Honda Civic for around $18,000&quot;,
-  &quot;requireApproval&quot;: false
-}</code></pre></div>
-    <div class="code"><div class="label">Response (artifacts/response.json)</div><pre><code>{
-  &quot;StatusCode&quot;: 202,
-  &quot;ExecutedVersion&quot;: null,
-  &quot;DurableExecutionArn&quot;: &quot;arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-05-coordinator:2/durable-execution/554a031d-4ad0-4c9b-b8af-b18b1889e3bd/2f16e5b3-e54b-3d5d-b2af-ba29321fd768&quot;,
-  &quot;Headers&quot;: {
-    &quot;x-amzn-RequestId&quot;: &quot;a2b4625b-2244-4b32-b94d-efe8b6700c67&quot;
-  },
-  &quot;Body&quot;: &quot;&quot;
-}</code></pre></div>
+    <div class="code"><div class="label">Request (src/steps/06-full/request.json)<span class="lang">JSON</span></div><pre><code class="lang-json"><span class="tk-pun">{</span>
+  <span class="tk-key">&quot;request&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;I want to buy a used 2020 Honda Civic for around $18,000&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;requireApproval&quot;</span><span class="tk-pun">:</span> <span class="tk-val">false</span>
+<span class="tk-pun">}</span></code></pre></div>
+    <div class="code"><div class="label">Response (artifacts/response.json)<span class="lang">JSON</span></div><pre><code class="lang-json"><span class="tk-pun">{</span>
+  <span class="tk-key">&quot;StatusCode&quot;</span><span class="tk-pun">:</span> <span class="tk-num">202</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;ExecutedVersion&quot;</span><span class="tk-pun">:</span> <span class="tk-val">null</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;DurableExecutionArn&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-05-coordinator:2/durable-execution/554a031d-4ad0-4c9b-b8af-b18b1889e3bd/2f16e5b3-e54b-3d5d-b2af-ba29321fd768&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;Headers&quot;</span><span class="tk-pun">:</span> <span class="tk-pun">{</span>
+    <span class="tk-key">&quot;x-amzn-RequestId&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;a2b4625b-2244-4b32-b94d-efe8b6700c67&quot;</span>
+  <span class="tk-pun">}</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;Body&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;&quot;</span>
+<span class="tk-pun">}</span></code></pre></div>
   </div>
-  <div class="code"><div class="label">Execution result (get-durable-execution, long text shortened)</div><pre><code>{
-  &quot;status&quot;: &quot;completed&quot;,
-  &quot;recommendation&quot;: &quot;## Summary\n\nThe buyer is looking to purchase a used 2020 Honda Civic for approximately $18,000. This is a reasonable target — the Civic is a well-regarded, high-volume vehicle with strong reliability fundamentals — but four specialists have collectively identified meaningful risks and process steps that must be addressed before committing. The purchase itself is straightforward in structure (one-time transaction, no ongoing obligations beyond ownership), but the risks cluster around three areas: [... truncated in report, 6876 chars total]&quot;,
-  &quot;routing&quot;: {
-    &quot;called&quot;: [
-      &quot;Price Research&quot;,
-      &quot;Financing&quot;,
-      &quot;Delivery &amp; Logistics&quot;,
-      &quot;Contract Review&quot;,
-      &quot;Risk Assessment&quot;
-    ],
-    &quot;skipped&quot;: []
-  }
-}</code></pre></div>
+  <div class="code"><div class="label">Execution result (get-durable-execution, long text shortened)<span class="lang">JSON</span></div><pre><code class="lang-json"><span class="tk-pun">{</span>
+  <span class="tk-key">&quot;status&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;completed&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;recommendation&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;## Summary\n\nThe buyer is looking to purchase a used 2020 Honda Civic for approximately $18,000. This is a reasonable target — the Civic is a well-regarded, high-volume vehicle with strong reliability fundamentals — but four specialists have collectively identified meaningful risks and process steps that must be addressed before committing. The purchase itself is straightforward in structure (one-time transaction, no ongoing obligations beyond ownership), but the risks cluster around three areas: [... truncated in report, 6876 chars total]&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;routing&quot;</span><span class="tk-pun">:</span> <span class="tk-pun">{</span>
+    <span class="tk-key">&quot;called&quot;</span><span class="tk-pun">:</span> <span class="tk-pun">[</span>
+      <span class="tk-str">&quot;Price Research&quot;</span><span class="tk-pun">,</span>
+      <span class="tk-str">&quot;Financing&quot;</span><span class="tk-pun">,</span>
+      <span class="tk-str">&quot;Delivery &amp; Logistics&quot;</span><span class="tk-pun">,</span>
+      <span class="tk-str">&quot;Contract Review&quot;</span><span class="tk-pun">,</span>
+      <span class="tk-str">&quot;Risk Assessment&quot;</span>
+    <span class="tk-pun">]</span><span class="tk-pun">,</span>
+    <span class="tk-key">&quot;skipped&quot;</span><span class="tk-pun">:</span> <span class="tk-pun">[</span><span class="tk-pun">]</span>
+  <span class="tk-pun">}</span>
+<span class="tk-pun">}</span></code></pre></div>
   
   <h3>Screenshots</h3>
-  <div class="shots"><figure><a href="img/06-lambda-function.png"><img loading="lazy" src="img/06-lambda-function.png" alt="Same Lambda function as step 05"></a><figcaption>Same Lambda function as step 05</figcaption></figure>
-<figure><a href="img/06-durable-executions.png"><img loading="lazy" src="img/06-durable-executions.png" alt="Durable executions tab: the 06 run is the 2f16e5b3… row"></a><figcaption>Durable executions tab: the 06 run is the 2f16e5b3… row</figcaption></figure></div>
+  <div class="shots"><figure><a href="img/06-durable-executions.png"><img loading="lazy" src="img/06-durable-executions.png" alt="Durable executions tab: the 06 run is the 2f16e5b3… row"></a><figcaption>Durable executions tab: the 06 run is the 2f16e5b3… row</figcaption></figure></div>
   <h3>Durable execution drill-down (console)</h3>
   <div class="execdetail"><figure><a href="img/06-exec-operations.png"><img loading="lazy" src="img/06-exec-operations.png" alt="Durable operations of the execution: every nested operation expanded (parallel branches, chained invokes), with a timeline per operation"></a><figcaption>Durable operations of the execution: every nested operation expanded (parallel branches, chained invokes), with a timeline per operation</figcaption></figure><figure><a href="img/06-exec-io.png"><img loading="lazy" src="img/06-exec-io.png" alt="Input/Output tab of the durable execution"></a><figcaption>Input/Output tab of the durable execution</figcaption></figure><figure class="tall"><a href="img/06-exec-events-p1.png"><img loading="lazy" src="img/06-exec-events-p1.png" alt="Durable execution detail, event history page 1"></a><figcaption>Durable execution detail page, events page 1 of 2: durable operations (nested ones expanded) and the event history with every event expanded. Scroll inside the frame or click to open the full image.</figcaption></figure><figure class="tall"><a href="img/06-exec-events-p2.png"><img loading="lazy" src="img/06-exec-events-p2.png" alt="Durable execution detail, event history page 2"></a><figcaption>Durable execution detail page, events page 2 of 2: durable operations (nested ones expanded) and the event history with every event expanded. Scroll inside the frame or click to open the full image.</figcaption></figure></div>
   <h3>Prompt that would generate this</h3>
@@ -588,38 +631,37 @@ No new handler code is needed: the full agent is the step 05 coordinator with fi
     <tr><th>Started / ended</th><td><code>2026-10-31T12:06:44.791000+01:00</code> / <code>2026-10-31T12:08:01.716000+01:00</code> (76.9 s wall clock)</td></tr>
   </table>
   <div class="grid2">
-    <div class="code"><div class="label">Request (src/steps/07-xray/request.json)</div><pre><code>{
-  &quot;request&quot;: &quot;I want to buy a used 2020 Honda Civic for around $18,000&quot;,
-  &quot;requireApproval&quot;: false
-}</code></pre></div>
-    <div class="code"><div class="label">Response (artifacts/response.json)</div><pre><code>{
-  &quot;StatusCode&quot;: 202,
-  &quot;ExecutedVersion&quot;: null,
-  &quot;DurableExecutionArn&quot;: &quot;arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-07-xray-coordinator:2/durable-execution/1d506a32-806a-43be-9c14-213d6813aa15/e4ffa2e0-958e-3d26-b2a0-68290637b62b&quot;,
-  &quot;Headers&quot;: {
-    &quot;x-amzn-RequestId&quot;: &quot;7a08d328-f24f-4029-a989-a76a2ffb989f&quot;
-  },
-  &quot;Body&quot;: &quot;&quot;
-}</code></pre></div>
+    <div class="code"><div class="label">Request (src/steps/07-xray/request.json)<span class="lang">JSON</span></div><pre><code class="lang-json"><span class="tk-pun">{</span>
+  <span class="tk-key">&quot;request&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;I want to buy a used 2020 Honda Civic for around $18,000&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;requireApproval&quot;</span><span class="tk-pun">:</span> <span class="tk-val">false</span>
+<span class="tk-pun">}</span></code></pre></div>
+    <div class="code"><div class="label">Response (artifacts/response.json)<span class="lang">JSON</span></div><pre><code class="lang-json"><span class="tk-pun">{</span>
+  <span class="tk-key">&quot;StatusCode&quot;</span><span class="tk-pun">:</span> <span class="tk-num">202</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;ExecutedVersion&quot;</span><span class="tk-pun">:</span> <span class="tk-val">null</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;DurableExecutionArn&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-07-xray-coordinator:2/durable-execution/1d506a32-806a-43be-9c14-213d6813aa15/e4ffa2e0-958e-3d26-b2a0-68290637b62b&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;Headers&quot;</span><span class="tk-pun">:</span> <span class="tk-pun">{</span>
+    <span class="tk-key">&quot;x-amzn-RequestId&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;7a08d328-f24f-4029-a989-a76a2ffb989f&quot;</span>
+  <span class="tk-pun">}</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;Body&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;&quot;</span>
+<span class="tk-pun">}</span></code></pre></div>
   </div>
-  <div class="code"><div class="label">Execution result (get-durable-execution, long text shortened)</div><pre><code>{
-  &quot;status&quot;: &quot;completed&quot;,
-  &quot;recommendation&quot;: &quot;## Purchasing Recommendation: Used 2020 Honda Civic (~$18,000)\n\n---\n\n### Summary\n\nYou are looking to purchase a used 2020 Honda Civic at approximately $18,000. Four specialists reviewed this purchase across pricing, financing, logistics, contract terms, and risk. The overall picture is favorable: the Civic is a strong platform with low inherent depreciation risk, and $18,000 is a fair mid-range price — provided the mileage, trim, and condition actually justify it. The primary risks are not with  [... truncated in report, 8100 chars total]&quot;,
-  &quot;routing&quot;: {
-    &quot;called&quot;: [
-      &quot;Price Research&quot;,
-      &quot;Financing&quot;,
-      &quot;Delivery &amp; Logistics&quot;,
-      &quot;Contract Review&quot;,
-      &quot;Risk Assessment&quot;
-    ],
-    &quot;skipped&quot;: []
-  }
-}</code></pre></div>
+  <div class="code"><div class="label">Execution result (get-durable-execution, long text shortened)<span class="lang">JSON</span></div><pre><code class="lang-json"><span class="tk-pun">{</span>
+  <span class="tk-key">&quot;status&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;completed&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;recommendation&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;## Purchasing Recommendation: Used 2020 Honda Civic (~$18,000)\n\n---\n\n### Summary\n\nYou are looking to purchase a used 2020 Honda Civic at approximately $18,000. Four specialists reviewed this purchase across pricing, financing, logistics, contract terms, and risk. The overall picture is favorable: the Civic is a strong platform with low inherent depreciation risk, and $18,000 is a fair mid-range price — provided the mileage, trim, and condition actually justify it. The primary risks are not with  [... truncated in report, 8100 chars total]&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;routing&quot;</span><span class="tk-pun">:</span> <span class="tk-pun">{</span>
+    <span class="tk-key">&quot;called&quot;</span><span class="tk-pun">:</span> <span class="tk-pun">[</span>
+      <span class="tk-str">&quot;Price Research&quot;</span><span class="tk-pun">,</span>
+      <span class="tk-str">&quot;Financing&quot;</span><span class="tk-pun">,</span>
+      <span class="tk-str">&quot;Delivery &amp; Logistics&quot;</span><span class="tk-pun">,</span>
+      <span class="tk-str">&quot;Contract Review&quot;</span><span class="tk-pun">,</span>
+      <span class="tk-str">&quot;Risk Assessment&quot;</span>
+    <span class="tk-pun">]</span><span class="tk-pun">,</span>
+    <span class="tk-key">&quot;skipped&quot;</span><span class="tk-pun">:</span> <span class="tk-pun">[</span><span class="tk-pun">]</span>
+  <span class="tk-pun">}</span>
+<span class="tk-pun">}</span></code></pre></div>
   <p class="note">Trace header of the execution: <code>Root=1-6ae5cbc4-712cf6fd1703fd806783e1ad;Parent=2a45f11bd995a3ca;Sampled=1</code>. invoke time UTC: 2026-10-31T11:06:44Z.</p>
   <h3>Screenshots</h3>
-  <div class="shots"><figure><a href="img/07-lambda-function.png"><img loading="lazy" src="img/07-lambda-function.png" alt="Lambda function page with active tracing"></a><figcaption>Lambda function page with active tracing</figcaption></figure>
-<figure><a href="img/07-durable-executions.png"><img loading="lazy" src="img/07-durable-executions.png" alt="Durable executions tab"></a><figcaption>Durable executions tab</figcaption></figure>
+  <div class="shots"><figure><a href="img/07-durable-executions.png"><img loading="lazy" src="img/07-durable-executions.png" alt="Durable executions tab"></a><figcaption>Durable executions tab</figcaption></figure>
 <figure><a href="img/07-cloudwatch-logs.png"><img loading="lazy" src="img/07-cloudwatch-logs.png" alt="CloudWatch log events"></a><figcaption>CloudWatch log events</figcaption></figure>
 <figure><a href="img/07-trace-detail.png"><img loading="lazy" src="img/07-trace-detail.png" alt="X-Ray / CloudWatch trace: segments graph, Durable Execution Attempt spans"></a><figcaption>X-Ray / CloudWatch trace: segments graph, Durable Execution Attempt spans</figcaption></figure></div>
   <h3>Durable execution drill-down (console)</h3>
@@ -638,13 +680,13 @@ No new handler code is needed: the full agent is the step 05 coordinator with fi
   <h3>What to say</h3>
   <ul class="say"><li>Two additions: the OTel layer plus wrapper script, and the durable OTel plugin passed to withDurableExecution.</li><li>The plugin turns durable operations into spans: execution, steps, invokes, retries, waits. The layer exports them.</li><li>The coordinator code is the same file as step 05; the plugin is selected by the OTEL_PLUGIN environment variable.</li><li>ExecutionOtelPlugin gives a workflow-centered view: one trace for the whole execution across invocations.</li></ul>
   <h3>Code excerpt (final code)</h3>
-  <div class="code"><div class="label">src/lib/otel.ts</div><pre><code>export function loadOtelPlugins(): DurableInstrumentationPluginFactory[] {
-  const mode = process.env.OTEL_PLUGIN
-  if (!mode) return []
-  if (mode === 'execution') return [createExecutionOtelPluginFactory()]
-  if (mode === 'invocation') return [createInvocationOtelPluginFactory()]
-  throw new Error(`Unknown OTEL_PLUGIN value: &quot;${mode}&quot;`)
-}</code></pre></div>
+  <div class="code"><div class="label">src/lib/otel.ts<span class="lang">TypeScript</span></div><pre><code class="lang-ts"><span class="tk-kw">export</span> <span class="tk-kw">function</span> <span class="tk-fn">loadOtelPlugins</span><span class="tk-pun">(</span><span class="tk-pun">)</span><span class="tk-pun">:</span> <span class="tk-ty">DurableInstrumentationPluginFactory</span><span class="tk-pun">[</span><span class="tk-pun">]</span> <span class="tk-pun">{</span>
+  <span class="tk-kw">const</span> mode <span class="tk-pun">=</span> process<span class="tk-pun">.</span><span class="tk-prop">env</span><span class="tk-pun">.</span><span class="tk-prop">OTEL_PLUGIN</span>
+  <span class="tk-kw">if</span> <span class="tk-pun">(</span><span class="tk-pun">!</span>mode<span class="tk-pun">)</span> <span class="tk-kw">return</span> <span class="tk-pun">[</span><span class="tk-pun">]</span>
+  <span class="tk-kw">if</span> <span class="tk-pun">(</span>mode <span class="tk-pun">===</span> <span class="tk-str">'execution'</span><span class="tk-pun">)</span> <span class="tk-kw">return</span> <span class="tk-pun">[</span><span class="tk-fn">createExecutionOtelPluginFactory</span><span class="tk-pun">(</span><span class="tk-pun">)</span><span class="tk-pun">]</span>
+  <span class="tk-kw">if</span> <span class="tk-pun">(</span>mode <span class="tk-pun">===</span> <span class="tk-str">'invocation'</span><span class="tk-pun">)</span> <span class="tk-kw">return</span> <span class="tk-pun">[</span><span class="tk-fn">createInvocationOtelPluginFactory</span><span class="tk-pun">(</span><span class="tk-pun">)</span><span class="tk-pun">]</span>
+  <span class="tk-kw">throw</span> <span class="tk-kw">new</span> <span class="tk-fn">Error</span><span class="tk-pun">(</span><span class="tk-str">`Unknown OTEL_PLUGIN value: &quot;${</span>mode<span class="tk-str">}&quot;`</span><span class="tk-pun">)</span>
+<span class="tk-pun">}</span></code></pre></div>
   <div class="code"><div class="label">template.yaml (Fn08OtelCoordinator, abridged)</div><pre><code>  Fn08OtelCoordinator:
       FunctionName: dfdemo-08-otel-coordinator
       Tracing: Active
@@ -663,38 +705,37 @@ No new handler code is needed: the full agent is the step 05 coordinator with fi
     <tr><th>Started / ended</th><td><code>2026-10-31T12:08:43.718000+01:00</code> / <code>2026-10-31T12:09:52.841000+01:00</code> (69.1 s wall clock)</td></tr>
   </table>
   <div class="grid2">
-    <div class="code"><div class="label">Request (src/steps/08-otel/request.json)</div><pre><code>{
-  &quot;request&quot;: &quot;I want to buy a used 2020 Honda Civic for around $18,000&quot;,
-  &quot;requireApproval&quot;: false
-}</code></pre></div>
-    <div class="code"><div class="label">Response (artifacts/response.json)</div><pre><code>{
-  &quot;StatusCode&quot;: 202,
-  &quot;ExecutedVersion&quot;: null,
-  &quot;DurableExecutionArn&quot;: &quot;arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-08-otel-coordinator:2/durable-execution/5bd43b10-8346-4222-aa12-017dd496f49a/edb32974-ffc3-3431-a72c-9cc3b706a724&quot;,
-  &quot;Headers&quot;: {
-    &quot;x-amzn-RequestId&quot;: &quot;28821a75-558d-4865-b7d5-6b62d6bf3cac&quot;
-  },
-  &quot;Body&quot;: &quot;&quot;
-}</code></pre></div>
+    <div class="code"><div class="label">Request (src/steps/08-otel/request.json)<span class="lang">JSON</span></div><pre><code class="lang-json"><span class="tk-pun">{</span>
+  <span class="tk-key">&quot;request&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;I want to buy a used 2020 Honda Civic for around $18,000&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;requireApproval&quot;</span><span class="tk-pun">:</span> <span class="tk-val">false</span>
+<span class="tk-pun">}</span></code></pre></div>
+    <div class="code"><div class="label">Response (artifacts/response.json)<span class="lang">JSON</span></div><pre><code class="lang-json"><span class="tk-pun">{</span>
+  <span class="tk-key">&quot;StatusCode&quot;</span><span class="tk-pun">:</span> <span class="tk-num">202</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;ExecutedVersion&quot;</span><span class="tk-pun">:</span> <span class="tk-val">null</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;DurableExecutionArn&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-08-otel-coordinator:2/durable-execution/5bd43b10-8346-4222-aa12-017dd496f49a/edb32974-ffc3-3431-a72c-9cc3b706a724&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;Headers&quot;</span><span class="tk-pun">:</span> <span class="tk-pun">{</span>
+    <span class="tk-key">&quot;x-amzn-RequestId&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;28821a75-558d-4865-b7d5-6b62d6bf3cac&quot;</span>
+  <span class="tk-pun">}</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;Body&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;&quot;</span>
+<span class="tk-pun">}</span></code></pre></div>
   </div>
-  <div class="code"><div class="label">Execution result (get-durable-execution, long text shortened)</div><pre><code>{
-  &quot;status&quot;: &quot;completed&quot;,
-  &quot;recommendation&quot;: &quot;## Summary\n\nYou are looking to purchase a used 2020 Honda Civic for approximately $18,000. This is a well-regarded vehicle with a strong reliability track record, and your budget falls squarely within fair market value for a mid-range example. The purchase carries a **low-to-medium overall risk profile** — the platform itself is sound, but the key variable is the specific vehicle's history and mechanical condition. The transaction itself carries additional contractual and financing risks that ar [... truncated in report, 6688 chars total]&quot;,
-  &quot;routing&quot;: {
-    &quot;called&quot;: [
-      &quot;Price Research&quot;,
-      &quot;Financing&quot;,
-      &quot;Delivery &amp; Logistics&quot;,
-      &quot;Contract Review&quot;,
-      &quot;Risk Assessment&quot;
-    ],
-    &quot;skipped&quot;: []
-  }
-}</code></pre></div>
+  <div class="code"><div class="label">Execution result (get-durable-execution, long text shortened)<span class="lang">JSON</span></div><pre><code class="lang-json"><span class="tk-pun">{</span>
+  <span class="tk-key">&quot;status&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;completed&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;recommendation&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;## Summary\n\nYou are looking to purchase a used 2020 Honda Civic for approximately $18,000. This is a well-regarded vehicle with a strong reliability track record, and your budget falls squarely within fair market value for a mid-range example. The purchase carries a **low-to-medium overall risk profile** — the platform itself is sound, but the key variable is the specific vehicle's history and mechanical condition. The transaction itself carries additional contractual and financing risks that ar [... truncated in report, 6688 chars total]&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;routing&quot;</span><span class="tk-pun">:</span> <span class="tk-pun">{</span>
+    <span class="tk-key">&quot;called&quot;</span><span class="tk-pun">:</span> <span class="tk-pun">[</span>
+      <span class="tk-str">&quot;Price Research&quot;</span><span class="tk-pun">,</span>
+      <span class="tk-str">&quot;Financing&quot;</span><span class="tk-pun">,</span>
+      <span class="tk-str">&quot;Delivery &amp; Logistics&quot;</span><span class="tk-pun">,</span>
+      <span class="tk-str">&quot;Contract Review&quot;</span><span class="tk-pun">,</span>
+      <span class="tk-str">&quot;Risk Assessment&quot;</span>
+    <span class="tk-pun">]</span><span class="tk-pun">,</span>
+    <span class="tk-key">&quot;skipped&quot;</span><span class="tk-pun">:</span> <span class="tk-pun">[</span><span class="tk-pun">]</span>
+  <span class="tk-pun">}</span>
+<span class="tk-pun">}</span></code></pre></div>
   <p class="note">Trace header: <code>Root=1-6ae5cc3b-44cc9da909fe2c2e7aebf8f3;Parent=4e20ac787809628c;Sampled=1</code>.</p>
   <h3>Screenshots</h3>
-  <div class="shots"><figure><a href="img/08-lambda-function.png"><img loading="lazy" src="img/08-lambda-function.png" alt="Lambda function page with the OTel layer"></a><figcaption>Lambda function page with the OTel layer</figcaption></figure>
-<figure><a href="img/08-durable-executions.png"><img loading="lazy" src="img/08-durable-executions.png" alt="Durable executions tab"></a><figcaption>Durable executions tab</figcaption></figure>
+  <div class="shots"><figure><a href="img/08-durable-executions.png"><img loading="lazy" src="img/08-durable-executions.png" alt="Durable executions tab"></a><figcaption>Durable executions tab</figcaption></figure>
 <figure><a href="img/08-cloudwatch-logs.png"><img loading="lazy" src="img/08-cloudwatch-logs.png" alt="CloudWatch log events (OTel extension start-up lines)"></a><figcaption>CloudWatch log events (OTel extension start-up lines)</figcaption></figure></div>
   <h3>Durable execution drill-down (console)</h3>
   <div class="execdetail"><figure><a href="img/08-exec-operations.png"><img loading="lazy" src="img/08-exec-operations.png" alt="Durable operations of the execution: every nested operation expanded (parallel branches, chained invokes), with a timeline per operation"></a><figcaption>Durable operations of the execution: every nested operation expanded (parallel branches, chained invokes), with a timeline per operation</figcaption></figure><figure><a href="img/08-exec-io.png"><img loading="lazy" src="img/08-exec-io.png" alt="Input/Output tab of the durable execution"></a><figcaption>Input/Output tab of the durable execution</figcaption></figure><figure class="tall"><a href="img/08-exec-events-p1.png"><img loading="lazy" src="img/08-exec-events-p1.png" alt="Durable execution detail, event history page 1"></a><figcaption>Durable execution detail page, events page 1 of 2: durable operations (nested ones expanded) and the event history with every event expanded. Scroll inside the frame or click to open the full image.</figcaption></figure><figure class="tall"><a href="img/08-exec-events-p2.png"><img loading="lazy" src="img/08-exec-events-p2.png" alt="Durable execution detail, event history page 2"></a><figcaption>Durable execution detail page, events page 2 of 2: durable operations (nested ones expanded) and the event history with every event expanded. Scroll inside the frame or click to open the full image.</figcaption></figure></div>
@@ -731,34 +772,34 @@ in CloudWatch (Application Signals / Transaction Search, trace map and segments)
     <tr><th>Started / ended</th><td><code>2026-10-31T12:08:43.718000+01:00</code> / <code>2026-10-31T12:09:52.841000+01:00</code> (69.1 s wall clock)</td></tr>
   </table>
   <div class="grid2">
-    <div class="code"><div class="label">Request (src/steps/08-otel/request.json)</div><pre><code>{
-  &quot;request&quot;: &quot;I want to buy a used 2020 Honda Civic for around $18,000&quot;,
-  &quot;requireApproval&quot;: false
-}</code></pre></div>
-    <div class="code"><div class="label">Response (artifacts/response.json)</div><pre><code>{
-  &quot;StatusCode&quot;: 202,
-  &quot;ExecutedVersion&quot;: null,
-  &quot;DurableExecutionArn&quot;: &quot;arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-08-otel-coordinator:2/durable-execution/5bd43b10-8346-4222-aa12-017dd496f49a/edb32974-ffc3-3431-a72c-9cc3b706a724&quot;,
-  &quot;Headers&quot;: {
-    &quot;x-amzn-RequestId&quot;: &quot;28821a75-558d-4865-b7d5-6b62d6bf3cac&quot;
-  },
-  &quot;Body&quot;: &quot;&quot;
-}</code></pre></div>
+    <div class="code"><div class="label">Request (src/steps/08-otel/request.json)<span class="lang">JSON</span></div><pre><code class="lang-json"><span class="tk-pun">{</span>
+  <span class="tk-key">&quot;request&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;I want to buy a used 2020 Honda Civic for around $18,000&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;requireApproval&quot;</span><span class="tk-pun">:</span> <span class="tk-val">false</span>
+<span class="tk-pun">}</span></code></pre></div>
+    <div class="code"><div class="label">Response (artifacts/response.json)<span class="lang">JSON</span></div><pre><code class="lang-json"><span class="tk-pun">{</span>
+  <span class="tk-key">&quot;StatusCode&quot;</span><span class="tk-pun">:</span> <span class="tk-num">202</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;ExecutedVersion&quot;</span><span class="tk-pun">:</span> <span class="tk-val">null</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;DurableExecutionArn&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-08-otel-coordinator:2/durable-execution/5bd43b10-8346-4222-aa12-017dd496f49a/edb32974-ffc3-3431-a72c-9cc3b706a724&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;Headers&quot;</span><span class="tk-pun">:</span> <span class="tk-pun">{</span>
+    <span class="tk-key">&quot;x-amzn-RequestId&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;28821a75-558d-4865-b7d5-6b62d6bf3cac&quot;</span>
+  <span class="tk-pun">}</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;Body&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;&quot;</span>
+<span class="tk-pun">}</span></code></pre></div>
   </div>
-  <div class="code"><div class="label">Execution result (get-durable-execution, long text shortened)</div><pre><code>{
-  &quot;status&quot;: &quot;completed&quot;,
-  &quot;recommendation&quot;: &quot;## Summary\n\nYou are looking to purchase a used 2020 Honda Civic for approximately $18,000. This is a well-regarded vehicle with a strong reliability track record, and your budget falls squarely within fair market value for a mid-range example. The purchase carries a **low-to-medium overall risk profile** — the platform itself is sound, but the key variable is the specific vehicle's history and mechanical condition. The transaction itself carries additional contractual and financing risks that ar [... truncated in report, 6688 chars total]&quot;,
-  &quot;routing&quot;: {
-    &quot;called&quot;: [
-      &quot;Price Research&quot;,
-      &quot;Financing&quot;,
-      &quot;Delivery &amp; Logistics&quot;,
-      &quot;Contract Review&quot;,
-      &quot;Risk Assessment&quot;
-    ],
-    &quot;skipped&quot;: []
-  }
-}</code></pre></div>
+  <div class="code"><div class="label">Execution result (get-durable-execution, long text shortened)<span class="lang">JSON</span></div><pre><code class="lang-json"><span class="tk-pun">{</span>
+  <span class="tk-key">&quot;status&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;completed&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;recommendation&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;## Summary\n\nYou are looking to purchase a used 2020 Honda Civic for approximately $18,000. This is a well-regarded vehicle with a strong reliability track record, and your budget falls squarely within fair market value for a mid-range example. The purchase carries a **low-to-medium overall risk profile** — the platform itself is sound, but the key variable is the specific vehicle's history and mechanical condition. The transaction itself carries additional contractual and financing risks that ar [... truncated in report, 6688 chars total]&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;routing&quot;</span><span class="tk-pun">:</span> <span class="tk-pun">{</span>
+    <span class="tk-key">&quot;called&quot;</span><span class="tk-pun">:</span> <span class="tk-pun">[</span>
+      <span class="tk-str">&quot;Price Research&quot;</span><span class="tk-pun">,</span>
+      <span class="tk-str">&quot;Financing&quot;</span><span class="tk-pun">,</span>
+      <span class="tk-str">&quot;Delivery &amp; Logistics&quot;</span><span class="tk-pun">,</span>
+      <span class="tk-str">&quot;Contract Review&quot;</span><span class="tk-pun">,</span>
+      <span class="tk-str">&quot;Risk Assessment&quot;</span>
+    <span class="tk-pun">]</span><span class="tk-pun">,</span>
+    <span class="tk-key">&quot;skipped&quot;</span><span class="tk-pun">:</span> <span class="tk-pun">[</span><span class="tk-pun">]</span>
+  <span class="tk-pun">}</span>
+<span class="tk-pun">}</span></code></pre></div>
   
   <h3>Screenshots</h3>
   <div class="shots"><figure><a href="img/08-trace-detail.png"><img loading="lazy" src="img/08-trace-detail.png" alt="Trace of the step 08 run in CloudWatch: 52 spans, Bedrock node"></a><figcaption>Trace of the step 08 run in CloudWatch: 52 spans, Bedrock node</figcaption></figure>
@@ -801,38 +842,37 @@ in CloudWatch (Application Signals / Transaction Search, trace map and segments)
     <tr><th>Started / ended</th><td><code>2026-10-31T12:10:29.218000+01:00</code> / <code>2026-10-31T12:11:51.944000+01:00</code> (82.7 s wall clock)</td></tr>
   </table>
   <div class="grid2">
-    <div class="code"><div class="label">Request (src/steps/10-mode/request.json)</div><pre><code>{
-  &quot;request&quot;: &quot;I want to buy a used 2020 Honda Civic for around $18,000&quot;,
-  &quot;requireApproval&quot;: false
-}</code></pre></div>
-    <div class="code"><div class="label">Response (artifacts/response.json)</div><pre><code>{
-  &quot;StatusCode&quot;: 202,
-  &quot;ExecutedVersion&quot;: null,
-  &quot;DurableExecutionArn&quot;: &quot;arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-10-otel-mode2-coordinator:2/durable-execution/da0c4393-ebfc-438b-83ed-c16d23aa94ef/d3009dd3-053e-32bf-ab94-407c9d9aafb9&quot;,
-  &quot;Headers&quot;: {
-    &quot;x-amzn-RequestId&quot;: &quot;938033e3-6ad2-4395-95e9-3b7c4fa5673e&quot;
-  },
-  &quot;Body&quot;: &quot;&quot;
-}</code></pre></div>
+    <div class="code"><div class="label">Request (src/steps/10-mode/request.json)<span class="lang">JSON</span></div><pre><code class="lang-json"><span class="tk-pun">{</span>
+  <span class="tk-key">&quot;request&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;I want to buy a used 2020 Honda Civic for around $18,000&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;requireApproval&quot;</span><span class="tk-pun">:</span> <span class="tk-val">false</span>
+<span class="tk-pun">}</span></code></pre></div>
+    <div class="code"><div class="label">Response (artifacts/response.json)<span class="lang">JSON</span></div><pre><code class="lang-json"><span class="tk-pun">{</span>
+  <span class="tk-key">&quot;StatusCode&quot;</span><span class="tk-pun">:</span> <span class="tk-num">202</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;ExecutedVersion&quot;</span><span class="tk-pun">:</span> <span class="tk-val">null</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;DurableExecutionArn&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-10-otel-mode2-coordinator:2/durable-execution/da0c4393-ebfc-438b-83ed-c16d23aa94ef/d3009dd3-053e-32bf-ab94-407c9d9aafb9&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;Headers&quot;</span><span class="tk-pun">:</span> <span class="tk-pun">{</span>
+    <span class="tk-key">&quot;x-amzn-RequestId&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;938033e3-6ad2-4395-95e9-3b7c4fa5673e&quot;</span>
+  <span class="tk-pun">}</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;Body&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;&quot;</span>
+<span class="tk-pun">}</span></code></pre></div>
   </div>
-  <div class="code"><div class="label">Execution result (get-durable-execution, long text shortened)</div><pre><code>{
-  &quot;status&quot;: &quot;completed&quot;,
-  &quot;recommendation&quot;: &quot;## Purchasing Recommendation: Used 2020 Honda Civic (~$18,000\n\n---\n\n### Summary\n\nYou are looking to purchase a used 2020 Honda Civic at a budget of approximately $18,000. This places you squarely in the mid-range tier of the current used Civic market, where you can realistically expect a Sport or EX trim with moderate mileage (45,000–65,000 miles) in good condition. The 2020 Civic is a strong choice — it is well-regarded for reliability, holds its value relative to segment peers, and carries mea [... truncated in report, 7970 chars total]&quot;,
-  &quot;routing&quot;: {
-    &quot;called&quot;: [
-      &quot;Price Research&quot;,
-      &quot;Financing&quot;,
-      &quot;Delivery &amp; Logistics&quot;,
-      &quot;Contract Review&quot;,
-      &quot;Risk Assessment&quot;
-    ],
-    &quot;skipped&quot;: []
-  }
-}</code></pre></div>
+  <div class="code"><div class="label">Execution result (get-durable-execution, long text shortened)<span class="lang">JSON</span></div><pre><code class="lang-json"><span class="tk-pun">{</span>
+  <span class="tk-key">&quot;status&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;completed&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;recommendation&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;## Purchasing Recommendation: Used 2020 Honda Civic (~$18,000\n\n---\n\n### Summary\n\nYou are looking to purchase a used 2020 Honda Civic at a budget of approximately $18,000. This places you squarely in the mid-range tier of the current used Civic market, where you can realistically expect a Sport or EX trim with moderate mileage (45,000–65,000 miles) in good condition. The 2020 Civic is a strong choice — it is well-regarded for reliability, holds its value relative to segment peers, and carries mea [... truncated in report, 7970 chars total]&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;routing&quot;</span><span class="tk-pun">:</span> <span class="tk-pun">{</span>
+    <span class="tk-key">&quot;called&quot;</span><span class="tk-pun">:</span> <span class="tk-pun">[</span>
+      <span class="tk-str">&quot;Price Research&quot;</span><span class="tk-pun">,</span>
+      <span class="tk-str">&quot;Financing&quot;</span><span class="tk-pun">,</span>
+      <span class="tk-str">&quot;Delivery &amp; Logistics&quot;</span><span class="tk-pun">,</span>
+      <span class="tk-str">&quot;Contract Review&quot;</span><span class="tk-pun">,</span>
+      <span class="tk-str">&quot;Risk Assessment&quot;</span>
+    <span class="tk-pun">]</span><span class="tk-pun">,</span>
+    <span class="tk-key">&quot;skipped&quot;</span><span class="tk-pun">:</span> <span class="tk-pun">[</span><span class="tk-pun">]</span>
+  <span class="tk-pun">}</span>
+<span class="tk-pun">}</span></code></pre></div>
   <p class="note">Trace header: <code>Root=1-6ae5cca5-44a55195411c3a0251cd3b9a;Parent=3403dcaa0b34de1f;Sampled=1</code>.</p>
   <h3>Screenshots</h3>
-  <div class="shots"><figure><a href="img/10-lambda-function.png"><img loading="lazy" src="img/10-lambda-function.png" alt="Lambda function page"></a><figcaption>Lambda function page</figcaption></figure>
-<figure><a href="img/10-durable-executions.png"><img loading="lazy" src="img/10-durable-executions.png" alt="Durable executions tab"></a><figcaption>Durable executions tab</figcaption></figure>
+  <div class="shots"><figure><a href="img/10-durable-executions.png"><img loading="lazy" src="img/10-durable-executions.png" alt="Durable executions tab"></a><figcaption>Durable executions tab</figcaption></figure>
 <figure><a href="img/10-cloudwatch-logs.png"><img loading="lazy" src="img/10-cloudwatch-logs.png" alt="CloudWatch log events"></a><figcaption>CloudWatch log events</figcaption></figure>
 <figure><a href="img/10-trace-detail.png"><img loading="lazy" src="img/10-trace-detail.png" alt="Trace of the mode 2 (invocation) coordinator"></a><figcaption>Trace of the mode 2 (invocation) coordinator</figcaption></figure></div>
   <h3>Durable execution drill-down (console)</h3>
@@ -870,38 +910,37 @@ in CloudWatch (Application Signals / Transaction Search, trace map and segments)
     <tr><th>Started / ended</th><td><code>2026-10-31T12:12:28.587000+01:00</code> / <code>2026-10-31T12:13:48.528000+01:00</code> (79.9 s wall clock)</td></tr>
   </table>
   <div class="grid2">
-    <div class="code"><div class="label">Request (src/steps/11-all/request.json)</div><pre><code>{
-  &quot;request&quot;: &quot;I want to buy a used 2020 Honda Civic for around $18,000&quot;,
-  &quot;requireApproval&quot;: false
-}</code></pre></div>
-    <div class="code"><div class="label">Response (artifacts/response.json)</div><pre><code>{
-  &quot;StatusCode&quot;: 202,
-  &quot;ExecutedVersion&quot;: null,
-  &quot;DurableExecutionArn&quot;: &quot;arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-11-otel-all-coordinator:2/durable-execution/1ac685cd-f9cd-4ed4-a2bf-ba3de46512f0/7e6e9ccf-899e-32e0-b4c2-9543c535d012&quot;,
-  &quot;Headers&quot;: {
-    &quot;x-amzn-RequestId&quot;: &quot;3d8c12b0-b204-4b87-915a-29cc5ec50e42&quot;
-  },
-  &quot;Body&quot;: &quot;&quot;
-}</code></pre></div>
+    <div class="code"><div class="label">Request (src/steps/11-all/request.json)<span class="lang">JSON</span></div><pre><code class="lang-json"><span class="tk-pun">{</span>
+  <span class="tk-key">&quot;request&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;I want to buy a used 2020 Honda Civic for around $18,000&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;requireApproval&quot;</span><span class="tk-pun">:</span> <span class="tk-val">false</span>
+<span class="tk-pun">}</span></code></pre></div>
+    <div class="code"><div class="label">Response (artifacts/response.json)<span class="lang">JSON</span></div><pre><code class="lang-json"><span class="tk-pun">{</span>
+  <span class="tk-key">&quot;StatusCode&quot;</span><span class="tk-pun">:</span> <span class="tk-num">202</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;ExecutedVersion&quot;</span><span class="tk-pun">:</span> <span class="tk-val">null</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;DurableExecutionArn&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;arn:aws:lambda:eu-central-1:913524906826:function:dfdemo-11-otel-all-coordinator:2/durable-execution/1ac685cd-f9cd-4ed4-a2bf-ba3de46512f0/7e6e9ccf-899e-32e0-b4c2-9543c535d012&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;Headers&quot;</span><span class="tk-pun">:</span> <span class="tk-pun">{</span>
+    <span class="tk-key">&quot;x-amzn-RequestId&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;3d8c12b0-b204-4b87-915a-29cc5ec50e42&quot;</span>
+  <span class="tk-pun">}</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;Body&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;&quot;</span>
+<span class="tk-pun">}</span></code></pre></div>
   </div>
-  <div class="code"><div class="label">Execution result (get-durable-execution, long text shortened)</div><pre><code>{
-  &quot;status&quot;: &quot;completed&quot;,
-  &quot;recommendation&quot;: &quot;## Summary\n\nYou are purchasing a used 2020 Honda Civic at an approximately $18,000 budget. This is a fundamentally sound vehicle choice with a strong reliability reputation, and your price point is reasonable for current market conditions. However, the purchase carries meaningful risk across four dimensions: vehicle condition and history, financing cost, contractual exposure, and ongoing ownership costs. The specialists collectively paint a picture where the deal can go well with disciplined pre [... truncated in report, 6370 chars total]&quot;,
-  &quot;routing&quot;: {
-    &quot;called&quot;: [
-      &quot;Price Research&quot;,
-      &quot;Financing&quot;,
-      &quot;Delivery &amp; Logistics&quot;,
-      &quot;Contract Review&quot;,
-      &quot;Risk Assessment&quot;
-    ],
-    &quot;skipped&quot;: []
-  }
-}</code></pre></div>
+  <div class="code"><div class="label">Execution result (get-durable-execution, long text shortened)<span class="lang">JSON</span></div><pre><code class="lang-json"><span class="tk-pun">{</span>
+  <span class="tk-key">&quot;status&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;completed&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;recommendation&quot;</span><span class="tk-pun">:</span> <span class="tk-str">&quot;## Summary\n\nYou are purchasing a used 2020 Honda Civic at an approximately $18,000 budget. This is a fundamentally sound vehicle choice with a strong reliability reputation, and your price point is reasonable for current market conditions. However, the purchase carries meaningful risk across four dimensions: vehicle condition and history, financing cost, contractual exposure, and ongoing ownership costs. The specialists collectively paint a picture where the deal can go well with disciplined pre [... truncated in report, 6370 chars total]&quot;</span><span class="tk-pun">,</span>
+  <span class="tk-key">&quot;routing&quot;</span><span class="tk-pun">:</span> <span class="tk-pun">{</span>
+    <span class="tk-key">&quot;called&quot;</span><span class="tk-pun">:</span> <span class="tk-pun">[</span>
+      <span class="tk-str">&quot;Price Research&quot;</span><span class="tk-pun">,</span>
+      <span class="tk-str">&quot;Financing&quot;</span><span class="tk-pun">,</span>
+      <span class="tk-str">&quot;Delivery &amp; Logistics&quot;</span><span class="tk-pun">,</span>
+      <span class="tk-str">&quot;Contract Review&quot;</span><span class="tk-pun">,</span>
+      <span class="tk-str">&quot;Risk Assessment&quot;</span>
+    <span class="tk-pun">]</span><span class="tk-pun">,</span>
+    <span class="tk-key">&quot;skipped&quot;</span><span class="tk-pun">:</span> <span class="tk-pun">[</span><span class="tk-pun">]</span>
+  <span class="tk-pun">}</span>
+<span class="tk-pun">}</span></code></pre></div>
   <p class="note">Trace header: <code>Root=1-6ae5cd1c-75705e4c04ad9fe673a2a55e;Parent=7f3cbeb3e20099ba;Sampled=1</code>.</p>
   <h3>Screenshots</h3>
-  <div class="shots"><figure><a href="img/11-lambda-function.png"><img loading="lazy" src="img/11-lambda-function.png" alt="Lambda function page"></a><figcaption>Lambda function page</figcaption></figure>
-<figure><a href="img/11-durable-executions.png"><img loading="lazy" src="img/11-durable-executions.png" alt="Durable executions tab"></a><figcaption>Durable executions tab</figcaption></figure>
+  <div class="shots"><figure><a href="img/11-durable-executions.png"><img loading="lazy" src="img/11-durable-executions.png" alt="Durable executions tab"></a><figcaption>Durable executions tab</figcaption></figure>
 <figure><a href="img/11-cloudwatch-logs.png"><img loading="lazy" src="img/11-cloudwatch-logs.png" alt="CloudWatch log events"></a><figcaption>CloudWatch log events</figcaption></figure>
 <figure><a href="img/11-trace-detail.png"><img loading="lazy" src="img/11-trace-detail.png" alt="One trace across coordinator and specialists: 94 spans"></a><figcaption>One trace across coordinator and specialists: 94 spans</figcaption></figure>
 <figure><a href="img/07-11-trace-map-all.png"><img loading="lazy" src="img/07-11-trace-map-all.png" alt="Trace map with all nodes"></a><figcaption>Trace map with all nodes</figcaption></figure></div>

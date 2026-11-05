@@ -9,6 +9,7 @@
 import { readFileSync, writeFileSync, existsSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import ts from 'typescript'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const rd = (p) => readFileSync(join(ROOT, p), 'utf8')
@@ -53,8 +54,99 @@ function md(src) {
   return out.join('\n')
 }
 
-const code = (text, label) =>
-  `<div class="code">${label ? `<div class="label">${esc(label)}</div>` : ''}<pre><code>${esc(text.replace(/\s+$/, ''))}</code></pre></div>`
+// ---------------------------------------------------------------- syntax highlighting (offline, no client-side library)
+const tk = (cls, text) => (cls ? `<span class="tk-${cls}">${esc(text)}</span>` : esc(text))
+
+/** TypeScript: tokenised with the TypeScript compiler's own scanner, so strings, templates, regexes and comments are exact. */
+function highlightTs(text) {
+  const sc = ts.createScanner(ts.ScriptTarget.Latest, /* skipTrivia */ false, ts.LanguageVariant.Standard, text)
+  const K = ts.SyntaxKind
+  const toks = []
+  const stack = []
+  let prev = K.Unknown
+  for (let t = sc.scan(); t !== K.EndOfFileToken; t = sc.scan()) {
+    if (t === K.OpenBraceToken) stack.push('brace')
+    else if (t === K.TemplateHead) stack.push('template')
+    else if (t === K.CloseBraceToken) {
+      if (stack[stack.length - 1] === 'template') {
+        stack.pop()
+        t = sc.reScanTemplateToken(false)
+        if (t === K.TemplateMiddle) stack.push('template')
+      } else stack.pop()
+    } else if ((t === K.SlashToken || t === K.SlashEqualsToken) && ![K.Identifier, K.NumericLiteral, K.StringLiteral, K.CloseParenToken, K.CloseBracketToken, K.CloseBraceToken, K.ThisKeyword].includes(prev)) {
+      t = sc.reScanSlashToken()
+    }
+    toks.push({ t, text: sc.getTokenText() })
+    if (t !== K.WhitespaceTrivia && t !== K.NewLineTrivia && t !== K.SingleLineCommentTrivia && t !== K.MultiLineCommentTrivia) prev = t
+  }
+  const nextSignificant = (i) => {
+    for (let j = i + 1; j < toks.length; j++) {
+      if (![K.WhitespaceTrivia, K.NewLineTrivia].includes(toks[j].t)) return toks[j].t
+    }
+    return K.Unknown
+  }
+  const valueWords = new Set(['true', 'false', 'null', 'undefined', 'this', 'super'])
+  let out = ''
+  let before = K.Unknown
+  toks.forEach(({ t, text: tx }, i) => {
+    let cls = ''
+    if (t === K.SingleLineCommentTrivia || t === K.MultiLineCommentTrivia) cls = 'cm'
+    else if (t === K.StringLiteral || t === K.NoSubstitutionTemplateLiteral || t === K.TemplateHead || t === K.TemplateMiddle || t === K.TemplateTail || t === K.RegularExpressionLiteral) cls = 'str'
+    else if (t === K.NumericLiteral || t === K.BigIntLiteral) cls = 'num'
+    else if (valueWords.has(tx)) cls = 'val'
+    else if (t >= K.FirstKeyword && t <= K.LastKeyword) cls = 'kw'
+    else if (t === K.Identifier || t === K.PrivateIdentifier) {
+      if (nextSignificant(i) === K.OpenParenToken || nextSignificant(i) === K.LessThanToken && before !== K.DotToken && /^[a-z]/.test(tx)) cls = 'fn'
+      else if (/^[A-Z]/.test(tx) && !/^[A-Z0-9_]+$/.test(tx)) cls = 'ty'
+      else if (before === K.DotToken) cls = 'prop'
+    } else if (t >= K.FirstPunctuation && t <= K.LastPunctuation) cls = 'pun'
+    out += tk(cls, tx)
+    if (t !== K.WhitespaceTrivia && t !== K.NewLineTrivia) before = t
+  })
+  return out
+}
+
+/** JSON (also tolerant of truncated or annotated JSON): keys, strings, numbers, literals, punctuation. */
+function highlightJson(text) {
+  const re = /("(?:\\.|[^"\\])*"?)(\s*:)?|(-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)|\b(true|false|null)\b|([{}\[\],:])|(\.\.\.|…|\/\/[^\n]*)/g
+  let out = ''
+  let last = 0
+  for (let m = re.exec(text); m; m = re.exec(text)) {
+    out += esc(text.slice(last, m.index))
+    if (m[1] !== undefined) out += m[2] ? tk('key', m[1]) + tk('pun', m[2]) : tk('str', m[1])
+    else if (m[3] !== undefined) out += tk('num', m[3])
+    else if (m[4] !== undefined) out += tk('val', m[4])
+    else if (m[5] !== undefined) out += tk('pun', m[5])
+    else out += tk('cm', m[6])
+    last = m.index + m[0].length
+  }
+  return out + esc(text.slice(last))
+}
+
+function detectLang(text, label, lang) {
+  if (lang) return lang
+  if (/\.(ts|mts|cts|tsx)\b/.test(label ?? '')) return 'ts'
+  if (/\.json\b/.test(label ?? '') || /^(Request|Response|Execution result)\b/.test(label ?? '')) return 'json'
+  if (/^\s*[{\[]/.test(text)) return 'json'
+  return ''
+}
+
+/** CloudWatch export lines ("<epoch ms> <json>") as indented JSON records, each preceded by its timestamp. Non-JSON lines are kept as comments. */
+function formatJsonLogs(text, keep = () => true) {
+  return text.split('\n').filter((l) => l.trim() && keep(l)).map((line) => {
+    const m = line.match(/^(\d{10,})\s+(.*)$/)
+    const body = m ? m[2] : line
+    const stamp = m ? `// ${new Date(Number(m[1])).toISOString()}\n` : ''
+    try { const o = JSON.parse(body); if (typeof o.message === 'string') { try { o.message = JSON.parse(o.message) } catch { /* plain text message */ } } return stamp + JSON.stringify(o, null, 2) } catch { return stamp + '// ' + body }
+  }).join('\n\n')
+}
+
+const code = (text, label, lang) => {
+  const body = text.replace(/\s+$/, '')
+  const l = detectLang(body, label, lang)
+  const html = l === 'ts' ? highlightTs(body) : l === 'json' ? highlightJson(body) : esc(body)
+  return `<div class="code">${label ? `<div class="label">${esc(label)}${l ? `<span class="lang">${l === 'ts' ? 'TypeScript' : 'JSON'}</span>` : ''}</div>` : ''}<pre><code${l ? ` class="lang-${l}"` : ''}>${html}</code></pre></div>`
+}
 
 /** Source text from the first line containing `from` up to and including the first later line containing `to`. */
 function excerpt(path, from, to) {
@@ -139,9 +231,9 @@ Event: { name?: string }.
 3. context.step("flaky", async (stepCtx) => ...) logs { event: "flaky_body_executed", attempt: stepCtx.attempt }, throws Error("Simulated transient failure on attempt 1") while stepCtx.attempt < 2, otherwise returns { greeting, succeededOnAttempt: stepCtx.attempt }. Give it retryStrategy: createRetryStrategy({ maxAttempts: 3, initialDelay: { seconds: 1 }, maxDelay: { seconds: 5 }, backoffRate: 2.0 }).
 4. Return { status: "completed", ...result }.
 Add a header comment that explains checkpoint and replay. Also add it as a SAM function dfdemo-01-retry (256 MB, 30 s timeout, DurableConfig ExecutionTimeout 300, AutoPublishAlias live) and a request.json { "name": "durable world" }.`,
-    shots: [['01-lambda-function.png', 'Lambda function page: type Durable'], ['01-durable-executions.png', 'Durable executions tab with the recorded run'], ['01-cloudwatch-logs.png', 'CloudWatch log events: handler_invoked twice, flaky body twice']],
+    shots: [['01-durable-executions.png', 'Durable executions tab with the recorded run'], ['01-cloudwatch-logs.png', 'CloudWatch log events: handler_invoked twice, flaky body twice']],
     extra: (f) => `<p class="note">History event sequence (history.json): <code>${esc(f.history.join(' → '))}</code>. <code>StepFailed(flaky)</code> then a second <code>StepStarted(flaky)</code>, but no second <code>StepStarted(prepare)</code>.</p>
-${code(rd(`${stepDir('01-retry')}/logs.txt`).split('\n').filter((l) => l.includes('event')).map((l) => l.replace(/^\d+ /, '')).join('\n'), 'logs.txt (application events only)')}`,
+${code(formatJsonLogs(rd(`${stepDir('01-retry')}/logs.txt`), (l) => l.includes('event')), 'logs.txt (application events only, JSON formatted)', 'json')}`,
   },
   {
     n: '02', dir: '02-wait', title: 'Add a wait operation: you do not pay for waiting', group: 'What are durable functions?',
@@ -160,7 +252,7 @@ After "flaky" add \`await context.wait("cooldown", { seconds: waitSeconds })\`, 
 Return { status: "completed", greeting, flaky, waitSeconds, finished }.
 Comment that the function is not running while it waits. SAM: dfdemo-02-wait, 256 MB, 30 s timeout, DurableConfig ExecutionTimeout 900, alias live; request.json { "name": "durable world", "waitSeconds": 60 }.
 Provide a script that captures the Lambda REPORT duration and billed duration for each invocation and compares their sum with the execution's wall-clock time.`,
-    shots: [['02-lambda-function.png', 'Lambda function page'], ['02-durable-executions.png', 'Durable executions tab: execution duration about 61 s'], ['02-cloudwatch-logs.png', 'CloudWatch log events across the wait']],
+    shots: [['02-durable-executions.png', 'Durable executions tab: execution duration about 61 s'], ['02-cloudwatch-logs.png', 'CloudWatch log events across the wait']],
     extra: () => `<h4>REPORT lines (billed duration) versus wall clock</h4>${code(txt('02-wait', 'report.txt'), 'report.txt')}${md(rd(`${stepDir('02-wait')}/wallclock-vs-billed.md`))}
 <div class="callout"><strong>Billed 179 ms of 61 357 ms wall clock (0.29 %).</strong> The 60 s wait added 0 ms of billed duration.</div>`,
   },
@@ -183,7 +275,7 @@ Define class SimulatedStepFailure extends Error with name "SimulatedStepFailure"
 Handler: log { event: "handler_invoked", requestId }. Step "model-a": converse(prompt), log { event: "step_a_bedrock_call", bedrockRequestId }, return text. Step "model-b" (receives stepCtx): converse("Shorten this to five words: " + a), log { event: "step_b_bedrock_call", attempt: stepCtx.attempt, bedrockRequestId }, then throw SimulatedStepFailure while stepCtx.attempt <= failStepBAttempts; otherwise return text. Use a custom retryStrategy: retry with a 2 s delay only for error.name === "SimulatedStepFailure" and attemptCount <= failStepBAttempts, else shouldRetry false.
 Return { status: "completed", modelId, stepA, stepB, failStepBAttempts }. Note in a header comment that stepCtx.attempt exposes the attempt number in SDK 3.x.
 SAM: 512 MB, 60 s, bedrock:InvokeModel permissions for the specialist (Haiku) model. request.json: { "prompt": "In one sentence, explain what a checkpoint is in a durable workflow.", "failStepBAttempts": 1 }.`,
-    shots: [['03-lambda-function.png', 'Lambda function page'], ['03-durable-executions.png', 'Durable executions tab'], ['03-cloudwatch-logs.png', 'CloudWatch log events: step A once, step B twice']],
+    shots: [['03-durable-executions.png', 'Durable executions tab'], ['03-cloudwatch-logs.png', 'CloudWatch log events: step A once, step B twice']],
     extra: () => `<h4>Evidence (a) to (d)</h4><div class="evidence">${md(rd(`${stepDir('03-model-replay')}/evidence.md`).replace(/^# .*\n/, ''))}</div>`,
   },
   {
@@ -202,7 +294,7 @@ Define a Strands tool "monthly_payment" ("Calculate the monthly payment of a loa
 Model: createModel(process.env.AGENT_MODEL_ID ?? SPECIALIST_MODEL) from ../../lib/models.js.
 Handler: event { request: string }. Run \`context.step("agent", ...)\` that builds new Agent({ model, systemPrompt: "You are a concise purchasing assistant. Use the monthly_payment tool for any loan calculation.", tools: [monthlyPayment], printer: false }), calls agent.invoke(event.request) and returns result.toString(). Retry strategy: createRetryStrategy({ maxAttempts: 3, initialDelay 2 s, maxDelay 30 s, backoffRate 2.0 }). Return { status: "completed", answer }.
 Explain in a header comment that the whole agent loop is one checkpointed unit. SAM: 1024 MB, 120 s, Bedrock invoke permissions, alias live. request.json: { "request": "I want to finance a $1,500 laptop over 24 months at 6% annual interest. What is my monthly payment?" }.`,
-    shots: [['04-lambda-function.png', 'Lambda function page'], ['04-durable-executions.png', 'Durable executions tab'], ['04-cloudwatch-logs.png', 'CloudWatch log events']],
+    shots: [['04-durable-executions.png', 'Durable executions tab'], ['04-cloudwatch-logs.png', 'CloudWatch log events']],
     extra: (f) => `<p class="note">History: <code>${esc(f.history.join(' → '))}</code>. One step, one invocation: the agent loop is invisible to the history except for its final result.</p>`,
   },
   {
@@ -226,7 +318,7 @@ Coordinator (src/steps/05-split/coordinator.ts, TypeScript ESM, withDurableExecu
 Use context.logger for plan_created, specialists_completed, recommendation_generated, request_completed. Return { status: "completed" | "approved", recommendation, routing: { called, skipped } }. Pass \`{ plugins: loadOtelPlugins() }\` as second argument of withDurableExecution (empty list when OTEL_PLUGIN is unset).
 Specialist (specialist.ts): one shared handler; env PROMPT_NAME selects the prompt and tools; input { prompt }, output { response }; use SPECIALIST_MODEL.
 SAM: generate template.yaml with scripts/gen-template.ts: dfdemo-05-coordinator plus dfdemo-05-{price,financing,delivery,risk,contract}, one IAM role each, coordinator allowed lambda:InvokeFunction only on the five specialists, Bedrock permissions scoped to each function's model, alias live, DurableConfig on the coordinator. request.json: { "request": "I want to buy a 15-inch laptop for software development, budget around $1,500", "requireApproval": false }.`,
-    shots: [['05-lambda-function.png', 'Coordinator Lambda function page'], ['05-durable-executions.png', 'Durable executions tab'], ['05-cloudwatch-logs.png', 'Coordinator CloudWatch log events']],
+    shots: [['05-durable-executions.png', 'Durable executions tab'], ['05-cloudwatch-logs.png', 'Coordinator CloudWatch log events']],
     extra: (f) => `<h4>Permission boundary in the template (coordinator invoke permissions)</h4>${code(excerpt('template.yaml', '  Fn05Coordinator:', '  Fn05Price:').split('\n').filter((l) => /FunctionName|lambda:InvokeFunction|GetAtt|bedrock:|DurableConfig/.test(l)).join('\n'), 'template.yaml (Fn05Coordinator, abridged)')}
 <p class="note">History: <code>${esc(f.history.slice(0, 12).join(' → '))}${f.history.length > 12 ? ' → …' : ''}</code> (${f.history.length} events in total).</p>`,
   },
@@ -243,7 +335,7 @@ SAM: generate template.yaml with scripts/gen-template.ts: dfdemo-05-coordinator 
     ],
     prompt: `Using the coordinator from step 05 (deployed as dfdemo-05-coordinator:live), create src/steps/06-full/request.json with { "request": "I want to buy a used 2020 Honda Civic for around $18,000", "requireApproval": false } and an invoke.sh that calls the shared scripts/lib/invoke-step.sh with FUNCTION_NAME=dfdemo-05-coordinator and TIMEOUT_SECONDS large enough for a five-specialist run. The script must invoke asynchronously (--invocation-type Event --payload fileb://request.json) against the alias, poll get-durable-execution until a terminal status, and save request.json, response.json, request-id.txt, durable-execution-arn.txt, durable-execution-id.txt, execution.json, history.json and logs.txt. Fail unless the status is SUCCEEDED.
 No new handler code is needed: the full agent is the step 05 coordinator with five specialists.`,
-    shots: [['06-lambda-function.png', 'Same Lambda function as step 05'], ['06-durable-executions.png', 'Durable executions tab: the 06 run is the 2f16e5b3… row']],
+    shots: [['06-durable-executions.png', 'Durable executions tab: the 06 run is the 2f16e5b3… row']],
     extra: () => '',
   },
   {
@@ -257,7 +349,7 @@ No new handler code is needed: the full agent is the step 05 coordinator with fi
       'What you get is basic: Lambda service and function segments and the invocation attempts. Step names, the plan and synthesize phases and retries are not named operations in this trace.',
     ],
     prompt: `In scripts/gen-template.ts add a tracing variant for step 07: a coordinator dfdemo-07-xray-coordinator (same handler src/steps/05-split/coordinator.handler, 1536 MB, 300 s timeout, DurableConfig ExecutionTimeout 86400, RetentionPeriodInDays 7, alias live) and five specialists dfdemo-07-xray-{price,financing,delivery,risk,contract} that reuse specialist.handler. Set Tracing: Active on all of them (no layer, no extra policy). The coordinator env vars must point at the 07 specialists, and its lambda:InvokeFunction permission only at those five. Do not set OTEL_PLUGIN. Regenerate template.yaml (SAM Globals cannot carry Metadata, so the template is generated, not hand-written). request.json: the Honda Civic request used in step 06. Record the X-Ray trace ID (Root=1-...) from the logs in artifacts/trace-ids.txt.`,
-    shots: [['07-lambda-function.png', 'Lambda function page with active tracing'], ['07-durable-executions.png', 'Durable executions tab'], ['07-cloudwatch-logs.png', 'CloudWatch log events'], ['07-trace-detail.png', 'X-Ray / CloudWatch trace: segments graph, Durable Execution Attempt spans']],
+    shots: [['07-durable-executions.png', 'Durable executions tab'], ['07-cloudwatch-logs.png', 'CloudWatch log events'], ['07-trace-detail.png', 'X-Ray / CloudWatch trace: segments graph, Durable Execution Attempt spans']],
     extra: (f) => `<p class="note">Trace header of the execution: <code>${esc(f.traceHeader)}</code>. ${esc(txt('07-xray', 'trace-ids.txt').split('\n')[0])}.</p>`,
   },
   {
@@ -277,7 +369,7 @@ No new handler code is needed: the full agent is the step 05 coordinator with fi
 2. In the coordinator pass \`{ plugins }\` (from loadOtelPlugins() at module scope) as the second argument of withDurableExecution.
 3. In scripts/gen-template.ts add step 08: dfdemo-08-otel-coordinator with Tracing: Active, the ADOT layer arn:aws:lambda:\${AWS::Region}:901920570463:layer:aws-otel-nodejs-arm64-ver-1-30-2:6, env AWS_LAMBDA_EXEC_WRAPPER=/opt/otel-handler and OTEL_PLUGIN=execution, and the AWSXRayDaemonWriteAccess policy. Specialists dfdemo-08-otel-{price,financing,delivery,risk,contract} are plain (no tracing) and will be reused by step 10. Regenerate template.yaml.
 request.json: the Honda Civic request. Record the trace ID in artifacts/trace-ids.txt.`,
-    shots: [['08-lambda-function.png', 'Lambda function page with the OTel layer'], ['08-durable-executions.png', 'Durable executions tab'], ['08-cloudwatch-logs.png', 'CloudWatch log events (OTel extension start-up lines)']],
+    shots: [['08-durable-executions.png', 'Durable executions tab'], ['08-cloudwatch-logs.png', 'CloudWatch log events (OTel extension start-up lines)']],
     extra: (f) => `<p class="note">Trace header: <code>${esc(f.traceHeader)}</code>.</p>`,
   },
   {
@@ -306,7 +398,7 @@ request.json: the Honda Civic request. Record the trace ID in artifacts/trace-id
       'Specialists are unchanged; they are the step 08 functions.',
     ],
     prompt: `Add step 10 to scripts/gen-template.ts: a coordinator dfdemo-10-otel-mode2-coordinator that is identical to dfdemo-08-otel-coordinator (same handler, ADOT layer, wrapper script, Tracing: Active, AWSXRayDaemonWriteAccess) except OTEL_PLUGIN=invocation. Its env vars and lambda:InvokeFunction permission must point at the existing dfdemo-08-otel-* specialists; do not create new specialists. Regenerate template.yaml. request.json: the Honda Civic request. Record the trace ID in artifacts/trace-ids.txt.`,
-    shots: [['10-lambda-function.png', 'Lambda function page'], ['10-durable-executions.png', 'Durable executions tab'], ['10-cloudwatch-logs.png', 'CloudWatch log events'], ['10-trace-detail.png', 'Trace of the mode 2 (invocation) coordinator']],
+    shots: [['10-durable-executions.png', 'Durable executions tab'], ['10-cloudwatch-logs.png', 'CloudWatch log events'], ['10-trace-detail.png', 'Trace of the mode 2 (invocation) coordinator']],
     extra: (f) => `<p class="note">Trace header: <code>${esc(f.traceHeader)}</code>.</p>`,
   },
   {
@@ -321,7 +413,7 @@ request.json: the Honda Civic request. Record the trace ID in artifacts/trace-id
       'Step 12 proves this with a query.',
     ],
     prompt: `Add step 11 to scripts/gen-template.ts: five specialists dfdemo-11-otel-{price,financing,delivery,risk,contract} (specialist.handler, same prompts and models as the other specialists) with Tracing: Active, the ADOT layer arn:aws:lambda:\${AWS::Region}:901920570463:layer:aws-otel-nodejs-arm64-ver-1-30-2:6, AWS_LAMBDA_EXEC_WRAPPER=/opt/otel-handler and the AWSXRayDaemonWriteAccess policy. Add a coordinator dfdemo-11-otel-all-coordinator (OTEL_PLUGIN=execution, same layer and wrapper) whose env vars and invoke permission point at these five. Regenerate template.yaml. request.json: the Honda Civic request. Record the trace ID in artifacts/trace-ids.txt, then show in the console that the specialist services appear inside the coordinator's trace.`,
-    shots: [['11-lambda-function.png', 'Lambda function page'], ['11-durable-executions.png', 'Durable executions tab'], ['11-cloudwatch-logs.png', 'CloudWatch log events'], ['11-trace-detail.png', 'One trace across coordinator and specialists: 94 spans'], ['07-11-trace-map-all.png', 'Trace map with all nodes']],
+    shots: [['11-durable-executions.png', 'Durable executions tab'], ['11-cloudwatch-logs.png', 'CloudWatch log events'], ['11-trace-detail.png', 'One trace across coordinator and specialists: 94 spans'], ['07-11-trace-map-all.png', 'Trace map with all nodes']],
     extra: (f) => `<p class="note">Trace header: <code>${esc(f.traceHeader)}</code>.</p>`,
   },
 ]
@@ -486,6 +578,7 @@ h1.group{font-size:28px;margin:48px 0 8px;border-bottom:3px solid var(--acc);pad
 .grp{color:var(--mut);font-size:13px;text-transform:uppercase;letter-spacing:.05em}h2{margin:0;font-size:22px}h3{margin:22px 0 6px;font-size:15px;text-transform:uppercase;letter-spacing:.04em;color:var(--mut)}h4,h5,h6{margin:18px 0 6px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media(max-width:1000px){nav{display:none}main{margin:0;padding:16px}.grid2{grid-template-columns:1fr}}
 .outline{font-style:italic;border-left:4px solid var(--acc);padding-left:12px}
+.tk-kw{color:#ff7b9c}.tk-str{color:#a5d6a7}.tk-num{color:#f2cc8f}.tk-val{color:#f2cc8f}.tk-cm{color:#7d8da6;font-style:italic}.tk-fn{color:#82aaff}.tk-ty{color:#ffd580}.tk-prop{color:#c3d2ea}.tk-pun{color:#8a9bb5}.tk-key{color:#82aaff}.code .label .lang{float:right;color:#6f86a8;text-transform:uppercase;letter-spacing:.06em;font-size:11px}
 .say li{margin:4px 0}.code{margin:10px 0;border-radius:8px;overflow:hidden;background:var(--code)}.code .label{background:#1d2a40;color:#9fb3cf;font:12px ui-monospace,monospace;padding:5px 12px}
 pre{margin:0;padding:12px;overflow:auto;color:var(--codefg);font:12.5px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre-wrap;word-break:break-word}
 code{font-family:ui-monospace,Menlo,monospace;font-size:.9em;word-break:break-all}p code,td code,li code{background:#eef1f6;border-radius:4px;padding:1px 4px}
