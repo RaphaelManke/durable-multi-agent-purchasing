@@ -224,13 +224,8 @@ const steps = [
       'The new invocation replays the handler from the top. "prepare" returns its stored result without running its body; only "flaky" runs again, now with attempt 2.',
       'Look at the logs: prepare_body_executed appears once, flaky_body_executed twice, handler_invoked twice.',
     ],
-    prompt: `Write an AWS Lambda durable function in TypeScript (ESM) using @aws/durable-execution-sdk-js v3: \`withDurableExecution(async (event, context) => ...)\`.
-Event: { name?: string }.
-1. Log JSON { event: "handler_invoked", requestId: context.lambdaContext.awsRequestId } with plain console.log (not context.logger) so every execution is visible in CloudWatch.
-2. context.step("prepare") logs { event: "prepare_body_executed" } and returns \`Hello, \${event.name ?? "durable world"}\`.
-3. context.step("flaky", async (stepCtx) => ...) logs { event: "flaky_body_executed", attempt: stepCtx.attempt }, throws Error("Simulated transient failure on attempt 1") while stepCtx.attempt < 2, otherwise returns { greeting, succeededOnAttempt: stepCtx.attempt }. Give it retryStrategy: createRetryStrategy({ maxAttempts: 3, initialDelay: { seconds: 1 }, maxDelay: { seconds: 5 }, backoffRate: 2.0 }).
-4. Return { status: "completed", ...result }.
-Add a header comment that explains checkpoint and replay. Also add it as a SAM function dfdemo-01-retry (256 MB, 30 s timeout, DurableConfig ExecutionTimeout 300, AutoPublishAlias live) and a request.json { "name": "durable world" }.`,
+    prompt: `I want a really small AWS Lambda durable function in TypeScript to explain checkpoint and replay. Two steps: the first just builds a greeting, the second fails on its first attempt and works on the retry (let it retry up to three times with a short backoff).
+Log with plain console.log at the top of the handler and inside each step, so later I can see in CloudWatch which code ran again after the replay. Add it to the SAM template with durable execution switched on, and give me a request.json to invoke it with.`,
     shots: [['01-durable-executions.png', 'Durable executions tab with the recorded run'], ['01-cloudwatch-logs.png', 'CloudWatch log events: handler_invoked twice, flaky body twice']],
     extra: (f) => `<p class="note">History event sequence (history.json): <code>${esc(f.history.join(' → '))}</code>. <code>StepFailed(flaky)</code> then a second <code>StepStarted(flaky)</code>, but no second <code>StepStarted(prepare)</code>.</p>
 ${code(formatJsonLogs(rd(`${stepDir('01-retry')}/logs.txt`), (l) => l.includes('event')), 'logs.txt (application events only, JSON formatted)', 'json')}`,
@@ -246,12 +241,7 @@ ${code(formatJsonLogs(rd(`${stepDir('01-retry')}/logs.txt`), (l) => l.includes('
       'Wall clock for the execution: 61.357 s. Billed: three invocations, 71 + 67 + 41 = 179 ms.',
       'Takeaway: you do not pay for the wait time. This is why durable functions suit waits of minutes, hours or days.',
     ],
-    prompt: `Extend the step 01 durable function into dfdemo-02-wait. Event: { name?: string, waitSeconds?: number } with waitSeconds defaulting to 60.
-Keep the "prepare" step and the "flaky" step (fails on attempt 1, retry strategy maxAttempts 3, initialDelay 1 s, maxDelay 5 s, backoffRate 2.0; returns { succeededOnAttempt: stepCtx.attempt }).
-After "flaky" add \`await context.wait("cooldown", { seconds: waitSeconds })\`, then a step "finish" that logs { event: "finish_body_executed" } and returns "done".
-Return { status: "completed", greeting, flaky, waitSeconds, finished }.
-Comment that the function is not running while it waits. SAM: dfdemo-02-wait, 256 MB, 30 s timeout, DurableConfig ExecutionTimeout 900, alias live; request.json { "name": "durable world", "waitSeconds": 60 }.
-Provide a script that captures the Lambda REPORT duration and billed duration for each invocation and compares their sum with the execution's wall-clock time.`,
+    prompt: `Take the retry function from the last step and add a one minute wait at the end, followed by a final step that returns done. I want to show that the REPORT line only bills the few milliseconds of real work and not the 60 seconds we waited, so make the wait length something I can set in the request.`,
     shots: [['02-durable-executions.png', 'Durable executions tab: execution duration about 61 s'], ['02-cloudwatch-logs.png', 'CloudWatch log events across the wait']],
     extra: () => `<h4>REPORT lines (billed duration) versus wall clock</h4>${code(txt('02-wait', 'report.txt'), 'report.txt')}${md(rd(`${stepDir('02-wait')}/wallclock-vs-billed.md`))}
 <div class="callout"><strong>Billed 179 ms of 61 357 ms wall clock (0.29 %).</strong> The 60 s wait added 0 ms of billed duration.</div>`,
@@ -268,13 +258,8 @@ Provide a script that captures the Lambda REPORT duration and billed duration fo
       'Evidence (a) to (d) below: three Bedrock request IDs, A logged once, B logged twice, same A output.',
       'Correction to the brief: the handler ran twice, not three times. One failed attempt means two invocations; three would need failStepBAttempts: 2.',
     ],
-    prompt: `Create a durable Lambda dfdemo-03-model-replay (TypeScript ESM, @aws/durable-execution-sdk-js, @aws-sdk/client-bedrock-runtime) that proves model calls are replayed from checkpoints, not re-invoked.
-Event: { prompt?: string, failStepBAttempts?: number } (defaults: "In one sentence, explain what a checkpoint is in a durable workflow.", 1).
-Model: process.env.MODEL_ID ?? SPECIALIST_MODEL from ../../lib/models.js. A helper converse(prompt) uses ConverseCommand with maxTokens 120, temperature 0 and returns { text, bedrockRequestId: response.$metadata.requestId }.
-Define class SimulatedStepFailure extends Error with name "SimulatedStepFailure".
-Handler: log { event: "handler_invoked", requestId }. Step "model-a": converse(prompt), log { event: "step_a_bedrock_call", bedrockRequestId }, return text. Step "model-b" (receives stepCtx): converse("Shorten this to five words: " + a), log { event: "step_b_bedrock_call", attempt: stepCtx.attempt, bedrockRequestId }, then throw SimulatedStepFailure while stepCtx.attempt <= failStepBAttempts; otherwise return text. Use a custom retryStrategy: retry with a 2 s delay only for error.name === "SimulatedStepFailure" and attemptCount <= failStepBAttempts, else shouldRetry false.
-Return { status: "completed", modelId, stepA, stepB, failStepBAttempts }. Note in a header comment that stepCtx.attempt exposes the attempt number in SDK 3.x.
-SAM: 512 MB, 60 s, bedrock:InvokeModel permissions for the specialist (Haiku) model. request.json: { "prompt": "In one sentence, explain what a checkpoint is in a durable workflow.", "failStepBAttempts": 1 }.`,
+    prompt: `Now I want to show that a durable function does not call the model again after a failure. Build a function with two steps that each ask Claude Haiku on Bedrock a short question. Feed the first answer into the second question. The second step should fail on its first attempt (let me switch that on in the request) and succeed on the retry.
+Log every real model call together with the Bedrock request ID, so I can show that the first call happens once and the second one twice.`,
     shots: [['03-durable-executions.png', 'Durable executions tab'], ['03-cloudwatch-logs.png', 'CloudWatch log events: step A once, step B twice']],
     extra: () => `<h4>Evidence (a) to (d)</h4><div class="evidence">${md(rd(`${stepDir('03-model-replay')}/evidence.md`).replace(/^# .*\n/, ''))}</div>`,
   },
@@ -289,11 +274,7 @@ SAM: 512 MB, 60 s, bedrock:InvokeModel permissions for the specialist (Haiku) mo
       'If the step fails, the retry strategy (3 attempts, exponential backoff) re-runs the whole loop. If it succeeds, a replay never calls the model again.',
       'The answer is $66.48 per month, computed by the tool, not guessed by the model.',
     ],
-    prompt: `Create a durable Lambda dfdemo-04-agent (TypeScript ESM) with @aws/durable-execution-sdk-js, @strands-agents/sdk and zod.
-Define a Strands tool "monthly_payment" ("Calculate the monthly payment of a loan with a fixed annual interest rate.") with a zod input schema { principal: number, annualRatePercent: number, months: number } and the standard annuity formula (r = annualRatePercent/100/12; payment = principal*r/(1-(1+r)^-months), or principal/months if r is 0). It returns \`Monthly payment: \${payment.toFixed(2)}\`.
-Model: createModel(process.env.AGENT_MODEL_ID ?? SPECIALIST_MODEL) from ../../lib/models.js.
-Handler: event { request: string }. Run \`context.step("agent", ...)\` that builds new Agent({ model, systemPrompt: "You are a concise purchasing assistant. Use the monthly_payment tool for any loan calculation.", tools: [monthlyPayment], printer: false }), calls agent.invoke(event.request) and returns result.toString(). Retry strategy: createRetryStrategy({ maxAttempts: 3, initialDelay 2 s, maxDelay 30 s, backoffRate 2.0 }). Return { status: "completed", answer }.
-Explain in a header comment that the whole agent loop is one checkpointed unit. SAM: 1024 MB, 120 s, Bedrock invoke permissions, alias live. request.json: { "request": "I want to finance a $1,500 laptop over 24 months at 6% annual interest. What is my monthly payment?" }.`,
+    prompt: `Give me a first agent: a small durable Lambda that uses the Strands SDK with Claude Haiku on Bedrock and one tool that calculates the monthly payment of a loan. I want to ask it something like what the monthly payment is for a 20,000 loan over 36 months at 5 percent, and get the agent's answer back.`,
     shots: [['04-durable-executions.png', 'Durable executions tab'], ['04-cloudwatch-logs.png', 'CloudWatch log events']],
     extra: (f) => `<p class="note">History: <code>${esc(f.history.join(' → '))}</code>. One step, one invocation: the agent loop is invisible to the history except for its final result.</p>`,
   },
@@ -309,15 +290,8 @@ Explain in a header comment that the whole agent loop is one checkpointed unit. 
       'Each branch catches errors and returns an "unavailable" text, so one failed specialist does not fail the whole parallel block.',
       'This run: the planner chose Price Research and Delivery & Logistics for a laptop purchase. The router decided; we did not.',
     ],
-    prompt: `Split the purchasing agent into a durable coordinator and five specialist Lambdas (price-research, financing, delivery, risk-assessment, contract-review).
-Coordinator (src/steps/05-split/coordinator.ts, TypeScript ESM, withDurableExecution, Strands Agent, zod): event { request: string, requireApproval?: boolean }.
-1. context.step("plan"): a Strands Agent with the coordinator-plan prompt and a tool create_analysis_plan (zod: specialists: array of { name: enum of the five specialist keys, prompt: string }). Capture the tool input in a closure, throw if the tool was not called. Retry: createRetryStrategy maxAttempts 3, initialDelay 2 s, maxDelay 30 s, backoffRate 2, JitterStrategy.FULL.
-2. context.parallel("specialists", ...) with one branch per planned specialist; each branch calls ctx.invoke(name, functionName, { prompt }) where function names come from env vars PRICE_RESEARCH_FUNCTION, FINANCING_FUNCTION, DELIVERY_FUNCTION, RISK_ASSESSMENT_FUNCTION, CONTRACT_REVIEW_FUNCTION. Wrap each branch in try/catch and return { name, response: "[<display> unavailable: <message>]" } on error. Rebuild results from results.succeeded().
-3. context.step("synthesize") with the coordinator-synthesis prompt over "Purchase request: ...\\n\\nSpecialist findings:\\n\\n## <Display>\\n<text>" and the same retry strategy; throw on an empty answer.
-4. If requireApproval, await context.waitForCallback("approval", ..., { timeout: { hours: 24 }, serdes: defaultSerdes }) and return status "rejected" when not approved.
-Use context.logger for plan_created, specialists_completed, recommendation_generated, request_completed. Return { status: "completed" | "approved", recommendation, routing: { called, skipped } }. Pass \`{ plugins: loadOtelPlugins() }\` as second argument of withDurableExecution (empty list when OTEL_PLUGIN is unset).
-Specialist (specialist.ts): one shared handler; env PROMPT_NAME selects the prompt and tools; input { prompt }, output { response }; use SPECIALIST_MODEL.
-SAM: generate template.yaml with scripts/gen-template.ts: dfdemo-05-coordinator plus dfdemo-05-{price,financing,delivery,risk,contract}, one IAM role each, coordinator allowed lambda:InvokeFunction only on the five specialists, Bedrock permissions scoped to each function's model, alias live, DurableConfig on the coordinator. request.json: { "request": "I want to buy a 15-inch laptop for software development, budget around $1,500", "requireApproval": false }.`,
+    prompt: `My purchasing agent is one big prompt today. Please split it up. A coordinator durable function should first plan which specialists it needs (price research, financing, delivery, risk assessment, contract review), call only those in parallel, and then write one recommendation from their answers.
+Each specialist should be its own Lambda with its own IAM role that can only call its own Bedrock model. The coordinator gets only its own model plus permission to invoke those five functions, nothing else. If one specialist fails, carry on with the others. Reuse the prompts we already have in the prompts folder.`,
     shots: [['05-durable-executions.png', 'Durable executions tab'], ['05-cloudwatch-logs.png', 'Coordinator CloudWatch log events']],
     extra: (f) => `<h4>Permission boundary in the template (coordinator invoke permissions)</h4>${code(excerpt('template.yaml', '  Fn05Coordinator:', '  Fn05Price:').split('\n').filter((l) => /FunctionName|lambda:InvokeFunction|GetAtt|bedrock:|DurableConfig/.test(l)).join('\n'), 'template.yaml (Fn05Coordinator, abridged)')}
 <p class="note">History: <code>${esc(f.history.slice(0, 12).join(' → '))}${f.history.length > 12 ? ' → …' : ''}</code> (${f.history.length} events in total).</p>`,
@@ -333,8 +307,7 @@ SAM: generate template.yaml with scripts/gen-template.ts: dfdemo-05-coordinator 
       'The synthesis step turns five findings into one recommendation with next steps.',
       'Execution took about 69 s wall clock. The result is the recommendation text plus the routing (called/skipped).',
     ],
-    prompt: `Using the coordinator from step 05 (deployed as dfdemo-05-coordinator:live), create src/steps/06-full/request.json with { "request": "I want to buy a used 2020 Honda Civic for around $18,000", "requireApproval": false } and an invoke.sh that calls the shared scripts/lib/invoke-step.sh with FUNCTION_NAME=dfdemo-05-coordinator and TIMEOUT_SECONDS large enough for a five-specialist run. The script must invoke asynchronously (--invocation-type Event --payload fileb://request.json) against the alias, poll get-durable-execution until a terminal status, and save request.json, response.json, request-id.txt, durable-execution-arn.txt, durable-execution-id.txt, execution.json, history.json and logs.txt. Fail unless the status is SUCCEEDED.
-No new handler code is needed: the full agent is the step 05 coordinator with five specialists.`,
+    prompt: `Run the coordinator end to end with a realistic request: someone wants to buy a used 2020 Honda Civic for around 18,000 dollars and no approval step is needed. I want to see all five specialists being consulted. Add a request file and a small script to invoke it.`,
     shots: [['06-durable-executions.png', 'Durable executions tab: the 06 run is the 2f16e5b3… row']],
     extra: () => '',
   },
@@ -348,7 +321,7 @@ No new handler code is needed: the full agent is the step 05 coordinator with fi
       'In the trace map you see the coordinator and each specialist as Lambda nodes, with durations and the invoke links.',
       'What you get is basic: Lambda service and function segments and the invocation attempts. Step names, the plan and synthesize phases and retries are not named operations in this trace.',
     ],
-    prompt: `In scripts/gen-template.ts add a tracing variant for step 07: a coordinator dfdemo-07-xray-coordinator (same handler src/steps/05-split/coordinator.handler, 1536 MB, 300 s timeout, DurableConfig ExecutionTimeout 86400, RetentionPeriodInDays 7, alias live) and five specialists dfdemo-07-xray-{price,financing,delivery,risk,contract} that reuse specialist.handler. Set Tracing: Active on all of them (no layer, no extra policy). The coordinator env vars must point at the 07 specialists, and its lambda:InvokeFunction permission only at those five. Do not set OTEL_PLUGIN. Regenerate template.yaml (SAM Globals cannot carry Metadata, so the template is generated, not hand-written). request.json: the Honda Civic request used in step 06. Record the X-Ray trace ID (Root=1-...) from the logs in artifacts/trace-ids.txt.`,
+    prompt: `Switch on X-Ray for the coordinator and the specialists. Keep the existing functions untouched and add a second copy of each with active tracing, so I can compare the traces next to the untraced runs.`,
     shots: [['07-durable-executions.png', 'Durable executions tab'], ['07-cloudwatch-logs.png', 'CloudWatch log events'], ['07-trace-detail.png', 'X-Ray / CloudWatch trace: segments graph, Durable Execution Attempt spans']],
     extra: (f) => `<p class="note">Trace header of the execution: <code>${esc(f.traceHeader)}</code>. ${esc(txt('07-xray', 'trace-ids.txt').split('\n')[0])}.</p>`,
   },
@@ -364,11 +337,7 @@ No new handler code is needed: the full agent is the step 05 coordinator with fi
       'The coordinator code is the same file as step 05; the plugin is selected by the OTEL_PLUGIN environment variable.',
       'ExecutionOtelPlugin gives a workflow-centered view: one trace for the whole execution across invocations.',
     ],
-    prompt: `Add OpenTelemetry tracing to the durable coordinator.
-1. src/lib/otel.ts: export loadOtelPlugins(): DurableInstrumentationPluginFactory[]. It reads process.env.OTEL_PLUGIN: unset returns []; "execution" returns [createExecutionOtelPluginFactory()]; "invocation" returns [createInvocationOtelPluginFactory()]; anything else throws Error('Unknown OTEL_PLUGIN value: "<value>"'). Import the factories from @aws/durable-execution-sdk-js-otel. Document that the OTel provider comes from the Lambda layer.
-2. In the coordinator pass \`{ plugins }\` (from loadOtelPlugins() at module scope) as the second argument of withDurableExecution.
-3. In scripts/gen-template.ts add step 08: dfdemo-08-otel-coordinator with Tracing: Active, the ADOT layer arn:aws:lambda:\${AWS::Region}:901920570463:layer:aws-otel-nodejs-arm64-ver-1-30-2:6, env AWS_LAMBDA_EXEC_WRAPPER=/opt/otel-handler and OTEL_PLUGIN=execution, and the AWSXRayDaemonWriteAccess policy. Specialists dfdemo-08-otel-{price,financing,delivery,risk,contract} are plain (no tracing) and will be reused by step 10. Regenerate template.yaml.
-request.json: the Honda Civic request. Record the trace ID in artifacts/trace-ids.txt.`,
+    prompt: `Add OpenTelemetry tracing to the durable coordinator. Use the plugin from the durable execution SDK and let me choose the mode with an environment variable; for this copy use the execution-centered view. Add the AWS OpenTelemetry Node layer to the function. Make it another copy of the coordinator and specialists, with X-Ray tracing off, so I can compare it with the X-Ray version.`,
     shots: [['08-durable-executions.png', 'Durable executions tab'], ['08-cloudwatch-logs.png', 'CloudWatch log events (OTel extension start-up lines)']],
     extra: (f) => `<p class="note">Trace header: <code>${esc(f.traceHeader)}</code>.</p>`,
   },
@@ -382,7 +351,7 @@ request.json: the Honda Civic request. Record the trace ID in artifacts/trace-id
       'The trace has 52 spans in the console view. Durable operations (steps, invokes, retries) appear as named spans, and the Bedrock ConverseStream call is a child span with its own duration.',
       'Transaction Search is enabled in the account, which stores spans in the aws/spans log group so they can be queried (step 12).',
     ],
-    prompt: `Write src/steps/09-traces/README.md for the "see traces in CloudWatch" step. It has no function. State that the traces come from the step 08 run (../08-otel/artifacts/) and tell the presenter how to open them: CloudWatch console, Application Signals, Transaction Search, paste the trace ID from ../08-otel/artifacts/trace-ids.txt, then show the trace map, the segments timeline, the durable operation spans and the Bedrock span. Save console screenshots under report/img.`,
+    prompt: `Write a short note for the presenter on how to look at the traces of the last step in CloudWatch: Application Signals, then Transaction Search, search for the trace ID, and what to point at in the trace (the trace map, the timeline, the durable operation spans and the Bedrock call).`,
     shots: [['08-trace-detail.png', 'Trace of the step 08 run in CloudWatch: 52 spans, Bedrock node'], ['07-11-trace-map-all.png', 'CloudWatch Trace Map (last 3 h) with the X-Ray and OTel nodes']],
     extra: () => '',
   },
@@ -397,7 +366,7 @@ request.json: the Honda Civic request. Record the trace ID in artifacts/trace-id
       'Compare the two trace screenshots: same work, different shape. Pick the one that matches the question you ask most often.',
       'Specialists are unchanged; they are the step 08 functions.',
     ],
-    prompt: `Add step 10 to scripts/gen-template.ts: a coordinator dfdemo-10-otel-mode2-coordinator that is identical to dfdemo-08-otel-coordinator (same handler, ADOT layer, wrapper script, Tracing: Active, AWSXRayDaemonWriteAccess) except OTEL_PLUGIN=invocation. Its env vars and lambda:InvokeFunction permission must point at the existing dfdemo-08-otel-* specialists; do not create new specialists. Regenerate template.yaml. request.json: the Honda Civic request. Record the trace ID in artifacts/trace-ids.txt.`,
+    prompt: `Make one more copy of the OpenTelemetry coordinator, but switch the plugin to the invocation-centered mode instead of the execution one. It should call the same specialists as before, so I can compare how the two modes shape the same work.`,
     shots: [['10-durable-executions.png', 'Durable executions tab'], ['10-cloudwatch-logs.png', 'CloudWatch log events'], ['10-trace-detail.png', 'Trace of the mode 2 (invocation) coordinator']],
     extra: (f) => `<p class="note">Trace header: <code>${esc(f.traceHeader)}</code>.</p>`,
   },
@@ -412,7 +381,7 @@ request.json: the Honda Civic request. Record the trace ID in artifacts/trace-id
       'The trace has 94 spans in the console view, with the six services in one trace. The slowest branch is the Risk specialist (Sonnet, 43 s Bedrock stream).',
       'Step 12 proves this with a query.',
     ],
-    prompt: `Add step 11 to scripts/gen-template.ts: five specialists dfdemo-11-otel-{price,financing,delivery,risk,contract} (specialist.handler, same prompts and models as the other specialists) with Tracing: Active, the ADOT layer arn:aws:lambda:\${AWS::Region}:901920570463:layer:aws-otel-nodejs-arm64-ver-1-30-2:6, AWS_LAMBDA_EXEC_WRAPPER=/opt/otel-handler and the AWSXRayDaemonWriteAccess policy. Add a coordinator dfdemo-11-otel-all-coordinator (OTEL_PLUGIN=execution, same layer and wrapper) whose env vars and invoke permission point at these five. Regenerate template.yaml. request.json: the Honda Civic request. Record the trace ID in artifacts/trace-ids.txt, then show in the console that the specialist services appear inside the coordinator's trace.`,
+    prompt: `Do the same instrumentation for the specialists as well: give them the OpenTelemetry layer too, and add a coordinator that calls them. I want one trace that goes through the coordinator and all five specialists, so I can show the context being propagated across the Lambda invocations.`,
     shots: [['11-durable-executions.png', 'Durable executions tab'], ['11-cloudwatch-logs.png', 'CloudWatch log events'], ['11-trace-detail.png', 'One trace across coordinator and specialists: 94 spans'], ['07-11-trace-map-all.png', 'Trace map with all nodes']],
     extra: (f) => `<p class="note">Trace header: <code>${esc(f.traceHeader)}</code>.</p>`,
   },
@@ -509,6 +478,7 @@ function renderStep(s) {
   <div class="shots">${shots}</div>
   ${execDetail(s)}
   <h3>Prompt that would generate this</h3>
+  <p class="note">Written the way you would say it to a coding agent. The agent fills in the details, so the code in this repository is one possible result of it.</p>
   <div class="prompt"><button class="copy" type="button">Copy</button><pre>${esc(s.prompt)}</pre></div>
 </section>`
 }
@@ -537,14 +507,9 @@ const step12Html = `
   </ul>
   ${step12()}
   <h3>Prompt that would generate this</h3>
-  <div class="prompt"><button class="copy" type="button">Copy</button><pre>${esc(`Using the otel-playground AWS profile in eu-central-1, write and run CloudWatch Logs Insights queries over the runs of steps 05 to 11 of this repo and save query text and JSON results under src/steps/12-analysis/artifacts/{queries,results}.
-Log groups for Q1 to Q3: /aws/lambda/dfdemo-05-coordinator, dfdemo-07-xray-coordinator, dfdemo-08-otel-coordinator, dfdemo-10-otel-mode2-coordinator, dfdemo-11-otel-all-coordinator. Log group for Q4 to Q6: aws/spans.
-Q1: filter type = "platform.report" | stats count(), sum(record.metrics.billedDurationMs), avg(record.metrics.durationMs), max(record.metrics.maxMemoryUsedMB) by @log.
-Q2: filter message like /plan_created|specialists_completed|recommendation_generated|request_completed/ | fields @timestamp, @log, requestId, executionArn, message | sort @timestamp asc.
-Q3: filter ispresent(executionArn) | stats count(), count_distinct(requestId), min(@timestamp), max(@timestamp) by executionArn.
-Q4: spans per trace for the trace IDs in src/steps/{07-xray,08-otel,10-mode,11-all}/artifacts/trace-ids.txt (dashes removed from the X-Ray ID): count(), count_distinct(spanId), min(startTimeUnixNano), max(endTimeUnixNano) by traceId.
-Q5: count by traceId, attributes.aws.local.service for the same traces. Q6: ten slowest spans of the step 11 trace by (endTimeUnixNano - startTimeUnixNano)/1000000.
-Write run.sh that starts a query, polls get-query-results until Complete and saves the JSON. Spans can take minutes to appear: retry until rows are returned.`)}</pre></div>
+  <p class="note">Written the way you would say it to a coding agent. The agent fills in the details, so the code in this repository is one possible result of it.</p>
+  <div class="prompt"><button class="copy" type="button">Copy</button><pre>${esc(`I would like to compare the runs from steps 05 to 11 using the otel-playground profile in eu-central-1. From the Lambda logs: how much billed duration and memory did each variant use, what are the milestones of each workflow run, and how many invocations did each execution take. From the traces in Transaction Search: how many spans does each trace have, where does the time go, and does one trace really cross the coordinator and all specialists in step 11, compared with only the coordinator in step 10.
+Write the CloudWatch Logs Insights queries, run them, and save the queries and their results next to the step.`)}</pre></div>
 </section>`
 
 const footnotes = `
