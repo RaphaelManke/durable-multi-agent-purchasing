@@ -22,6 +22,26 @@ LOG_GROUP="/aws/lambda/$FUNCTION_NAME"
 
 log() { printf '[%s] %s\n' "$FUNCTION_NAME" "$*" >&2; }
 
+# Prints a console sign-in URL (federation, valid 15 min) that opens the durable
+# execution page. Needs temporary CLI credentials (SSO or assumed role). The URL
+# is a bearer login, so it only goes to stderr, never into artifacts/.
+console_link() {
+  local arn=$1 fn ver name id dest session token
+  fn=$(cut -d: -f7 <<<"$arn"); ver=$(cut -d: -f8 <<<"$arn" | cut -d/ -f1)
+  name=$(cut -d/ -f3 <<<"$arn"); id=$(cut -d/ -f4 <<<"$arn")
+  dest="https://$AWS_REGION.console.aws.amazon.com/lambda/home?region=$AWS_REGION#/functions/$fn/versions/$ver/executions/$name/$id"
+  session=$(aws configure export-credentials --format process \
+    | jq -er 'select(.SessionToken) | {sessionId: .AccessKeyId, sessionKey: .SecretAccessKey, sessionToken: .SessionToken} | tojson | @uri') || return 1
+  token=$(curl -fsS "https://signin.aws.amazon.com/federation?Action=getSigninToken&Session=$session" | jq -er .SigninToken) || return 1
+  local url="https://signin.aws.amazon.com/federation?Action=login&Destination=$(jq -rn --arg d "$dest" '$d|@uri')&SigninToken=$token"
+  # OSC 8 hyperlink on a terminal; the plain URL when stderr is piped or saved.
+  if [ -t 2 ]; then
+    log "$(printf '\e]8;;%s\e\\%s\e]8;;\e\\' "$url" "open execution $id in AWS console")"
+  else
+    log "console: $url"
+  fi
+}
+
 run_once() {
   rm -rf "$ART" && mkdir -p "$ART"
   cp "$STEP_DIR/request.json" "$ART/request.json"
@@ -64,6 +84,7 @@ run_once() {
   printf '%s\n' "$arn" > "$ART/durable-execution-arn.txt"
   printf '%s\n' "${arn##*/}" > "$ART/durable-execution-id.txt"
   log "execution ${arn##*/} started (request $request_id)"
+  console_link "$arn" || log "console link unavailable (needs temporary CLI credentials)"
 
   local deadline status=""
   deadline=$(( $(date +%s) + TIMEOUT_SECONDS ))
